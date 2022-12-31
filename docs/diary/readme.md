@@ -10,7 +10,7 @@ Click each entry below for link to expanded diary entry.
 | 01 | Added VScode entension and created this repo in GitHub.  |  |
 
 
-## Why?
+## Why write a diary?
 
 I want the diary to help my self-learning and track my progress as I learn javascript and how to optimize algorithms, and track my progress as I understand more advanced gameplay mechanics and unlock new features in the game. I feel I can learn and can recall what I have learnt better when I have to clarify, describe and refine my thoughts in writing.
 

@@ -1,11 +1,12 @@
 # bitburner-scripts
 
 > ⚠️ This is my working repository of scripts and documentation created while playing the _bitburner_ game.
+>
 > 🚧 Work in progress. 🏗️
 
 ## About
 
-> _Bitburner_ is a free programming-based incremental game that revolves around hacking and cyberpunk themes. The game encourages learning JavaScript to automate gameplay, learn skills, play minigames, and solve puzzles. The game can be played at https://danielyxie.github.io/bitburner or installed locally through [Steam](https://store.steampowered.com/app/1812820/Bitburner/).
+> _Bitburner_ is a free programming-based incremental game that revolves around hacking and cyberpunk themes. The game encourages learning JavaScript to automate gameplay and solve puzzles. The game can be played at https://danielyxie.github.io/bitburner or installed locally through [Steam](https://store.steampowered.com/app/1812820/Bitburner/).
 
 ## Source files
 
