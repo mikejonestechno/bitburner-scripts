@@ -6,7 +6,6 @@ Javascript and text files that are imported into the _bitburner_ game.
 
 Not much to see here yet but will be populated over time as I progress and play through the game.
 
-
 ## VScode
 
 I use the bitburner vscode extension to automatically 'push' or import the files into the game in real time. As of January 2023 there is not a two-way sync API so files added or edited using the in-game editor are not synced back to vscode, but files added or edited in vscode will auto import into the game.
