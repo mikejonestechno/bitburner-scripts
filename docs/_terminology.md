@@ -6,12 +6,12 @@ NUKE.exe: a virus that will grant root access if there are enough open ports
 
 backdoor: allows you to connect directly to a server even if it is not adjacent to your current server.
 
-In bitburner you purchase _servers_ from Alpha Enterprises, and the netscript functions refer to servers. 
+In bitburner you purchase _servers_ from Alpha Enterprises, and the netscript functions refer to servers.
 
 hacknet: a global decentralized network of annonymous machines for distributed cyber attacks. In bitburner each machine is called a _node_.
 Note: the 'hack' refers to this being dedicated to running hacks but I think it could be better referred to 'darkbotnet' to emphasize its annonymous like the 'dark net' or 'tor net'.
 
-## General Terminology (from GPTChat)
+## General Terminology (from ChatGPT)
 
 malware: any malicious software e.g. virus, worms, trojan horse, ransomware, adware, spyware are all types of malware.
 
