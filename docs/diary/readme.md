@@ -7,7 +7,7 @@ Click each entry below for link to expanded diary entry.
 | Entry | Scripts | Gameplay |
 |:-----:|---------|----------|
 | [00](00.md) | Created minimal 2 GB HGW script with basic loops to hack n00dles for $510/s.  | Completed tutorial and explored manual UI gameplay: university, work, and faction. Learnt basic fundamental HGW gameplay mechanics. |
-| 01 | Added VScode entension and created this repo in GitHub.  |  |
+| [01](01.md) | Added VScode entension and created this repo in GitHub.  | Manually hacked _foodnstuff_ to rapidly get $75k and hacking level 5. |
 
 
 ## Why write a diary?
