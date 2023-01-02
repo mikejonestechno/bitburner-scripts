@@ -1,4 +1,5 @@
 // import { functionName, functionName2 } from "./utils.js"
+// RAM 7.75 GB
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -39,6 +40,9 @@ export async function main(ns) {
         false: "❌"
     };
 
+    // Appears default tail() dialog is 50 or 51 chars wide before
+    // auto word wrap.
+
     // getServer costs 2 GB and returns a server object
     // https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.server.md
     // may be more memory efficient to just call the bits we want e.g. getServerMaxMoney costs 100 MB
@@ -72,11 +76,37 @@ export async function main(ns) {
     
     // Funds
     ns.printf(`${color.cyan}Funds`);
-    ns.printf(`${color.white}Available:\t\$ %f m`, server.moneyAvailable / 1000000);
-    ns.printf(`${color.green}Max:\t\t\$ %f m`, server.moneyMax / 1000000);
+    ns.printf(`${color.white}Available:\t\$ %f m\t${color.green}Max: $ %f m`, server.moneyAvailable / 1000000, server.moneyMax / 1000000);
     ns.printf(`${color.white}Grow factor: \t%f`, server.serverGrowth);
+
+    hostname = server.ip;
+
+    // Grow
+    // the time depends on hack skill and security level
+    // is this a static base value or is this dynamic?
+    // hack and grow appear to take 5 seconds 
+    // but these properties suggest it would take 150 seconds.
+    ns.printf(`${color.white}Grow time:\t%f seconds`, ns.getGrowTime(hostname)/1000);
+    //ns.printf(`${color.white}Grow time:\t%f seconds`, ns.getGrowTime(server.ip)/1000);
+    // grow security is always 0.04
+    //ns.printf(`${color.white}Grow security:\t%f per thread per core`, ns.growthAnalyzeSecurity(1,hostname,1));
+    ns.printf(`${color.white}Grow threads:\t%f for 2x per core`, ns.growthAnalyze(hostname,2,1));
+    
+    // Hack
+    ns.printf(`${color.white}hackTime:\t%f seconds`, ns.getHackTime(hostname) / 1000);
+    ns.printf(`${color.white}hackChance:\t%f %%`, ns.hackAnalyzeChance(hostname) * 100);
+    var hackMoney = ns.hackAnalyze(hostname);
+    ns.printf(`${color.white}hackMoney:\t%f %% (\$%d)`, hackMoney * 100, hackMoney * server.moneyAvailable);
+    //ns.printf(`hackSecurity:\t%f per thread`, ns.hackAnalyzeSecurity(1,hostname));   
+    ns.printf(`${color.white}hackThreads:\t%f for \$10,000`, ns.hackAnalyzeThreads(hostname,10000)); 
+
+    // Weaken
+    ns.printf(`${color.white}weakenTime:\t%f seconds`, ns.getWeakenTime(hostname) / 1000);
+    // Weaken security is always 0.05
+    //ns.printf(`${color.white}weakenSecurity:\t%f per thread`, ns.weakenAnalyze(1,1)); 
 
     // server object also has 'contracts' 'programs' 'scripts' 'runningScripts' 'serversOnNetwork' 'textfiles' and 'messages' properties
 
     ns.tail(); // display the log (stays visible after script terminates)
+
 }

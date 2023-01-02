@@ -233,10 +233,14 @@ After 5 successful hacks I hit hacking skill level 3 and `analyzeServer.js` show
 
 After 10 successful hacks I was at hacking skill level 5 and my hack chance was 80%. Last successful hack returned $7.25 k and I had a total $75 k in my account.
 
+After a soft reset I tried to manual grow and hack _n00dles_ and it only took 1 grow to get to $1 million and the second grow maxed at $1.75 million. I had expected this would require 30 grow threads based on the output of `AnalyzeServer.js`.
+
 ## What have I learnt?
 
-At the start it may be more effective to repeatedly hack _foodnstuff_ to quickly level up (and hack success rapidly increases with each successful hack), rather than spend effort growing _n00dles_ and then hacking _n00dles_ for lower return.
+At the start it is more effective to repeatedly hack _foodnstuff_ to quickly level up (and hack success rapidly increases with each successful hack), rather than spend effort growing _n00dles_ and then hacking _n00dles_ for lower return.
+
+I have learnt that I need to revisit my server analysis and get a better understanding of how the values are applied.
 
 ## What will I try next?
 
-I think that I want to validate these findings using scripts and repeat them a few times to determine which is more effective strategy to reach hacking level 5?
+I think that I want to validate these findings using scripts and inspect and adapt over a few iterations to improve my understanding and form a basic formula to determine which is the most effective strategy to reach hacking level 5?
