@@ -10,5 +10,11 @@ export async function main(ns) {
         hostname = "home";
     }
 
-    await ns.root(hostname);
+    var start = performance.now()
+    ns.nuke(hostname);
+    var end = performance.now();
+    var timeTaken = end - start;
+    // Time: 0.1 milliseconds
+    ns.tprintf(`Time: \t%f milliseconds`, timeTaken);
+
 }

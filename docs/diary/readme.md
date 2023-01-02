@@ -8,7 +8,8 @@ Click each entry below for link to expanded diary entry.
 |:-----:|---------|----------|
 | [00](00.md) | Created minimal 2 GB HGW script with basic loops to hack n00dles for $510/s.  | Completed tutorial and explored manual UI gameplay: university, work, and faction. Learnt basic fundamental HGW gameplay mechanics. |
 | [01](01.md) | Added VScode entension and created this repo in GitHub.  | Manually hacked _foodnstuff_ to rapidly get $75k and hacking level 5. |
-| [02](02.md) | Added GHW values to getServerInfo.js.  | Improved my (lack of) understanding of the Netscript GrowthAnalyze() method. |
+| [02](02.md) | Added GHW values to `getServerInfo.js`.  | Improved my (lack of) understanding of the Netscript `GrowthAnalyze()` method. |
+| [03](03.md) | Added `start.js` to bootstrap initial level up to hacking skill level 5.  | Validated multiple single-threaded scripts are more effective than multi-threaded scripts. |
 
 ## Why write a diary?
 
