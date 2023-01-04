@@ -6,7 +6,7 @@
 
 ## About
 
-> _Bitburner_ is a free programming-based incremental game that revolves around hacking and cyberpunk themes. The game encourages learning JavaScript to automate gameplay and solve puzzles. The game can be played at https://danielyxie.github.io/bitburner or installed locally through [Steam](https://store.steampowered.com/app/1812820/Bitburner/).
+> _Bitburner_ is a free programming-based incremental game that revolves around hacking and cyberpunk themes. The game encourages learning JavaScript to automate gameplay and solve puzzles. The game can be played at https://bitburner-official.github.io/bitburner-src/ or installed locally through [Steam](https://store.steampowered.com/app/1812820/Bitburner/).
 
 ## Source files
 

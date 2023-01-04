@@ -131,7 +131,7 @@ The grow factor is 3000 (hyper fast - Netscript documentation says it's typicall
 
 `analyzeServer.js` tells me 30.7 threads are needed to grow 25x 
 
-Reviewing the available RAM on the servers available at the start, and given a bare bones `grow.js` script requires 1.75 GB:
+Reviewing the available RAM on the servers available at the start, and given a bare bones `grow.js` script requires 1.7 GB:
 
 | server     | RAM   | threads |
 |------------|------:|--------:|

@@ -19,6 +19,10 @@ virus: malicious software designed to replicate and spread. A virus typically re
 
 worm: malicious software designed to replicate itself and spread AUTOMATICALLY. A worm does NOT need human intervention and can spread through vulnerabilities in operating systems, networked computers, or other applications.
 
+spider: ??
+
+probe: ??
+
 distributed network: a network in which multiple computers work together to perform tasks or share resources.
 
 decentralized network: a network with no central server or authority such as _peer-to-peer_ networks.
