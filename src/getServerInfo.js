@@ -1,7 +1,8 @@
+/** @param {NS} ns **/
 // import { functionName, functionName2 } from "./utils.js"
 // RAM 7.75 GB
 
-/** @param {NS} ns **/
+
 export async function main(ns) {
     
     // initalize arguments
