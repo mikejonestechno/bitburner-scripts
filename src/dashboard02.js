@@ -1,13 +1,18 @@
-// import { functionName, functionName2 } from "./utils.js"
+/** @param {NS} ns **/
+import * as log from "log.js";
 // RAM 5.00 GB (try to keep below 5.3 GB so can run in parallel with start.js)
 
-
-/** @param {NS} ns **/
 export async function main(ns) {
 
     ns.disableLog('ALL');
 
-    const refreshInterval = 1000;
+    var refreshInterval;
+    if (ns.args[1] == undefined) {
+        refreshInterval = 1000;
+    } else {
+        refreshInterval = ns.args[1];
+    }
+    
     // hostnames is comma separated list of hosts, just scan 1 deep for now
     var hostnames;
     if (ns.args[0] == undefined) {
@@ -29,9 +34,10 @@ export async function main(ns) {
         iron-gym          0% 0.00%  20.00m  4% 500.00m    0.00    0.00   20  0.020%   4.00k    1.59  30  10 100     784    2510    3137
         */
 
+    ns.tail();
+
     while(true) {
 
-        ns.tail();
         // pixel width, height = 55.55 + 7 servers * 27.77 = 250
         ns.resizeTail(1240, 250);
 
@@ -50,9 +56,9 @@ export async function main(ns) {
         // (0.1 GB) Consider showing how exp much we expect to gain from active scripts
         //ns.printf(`activeScriptExpGain:`, ns.getScriptExpGain());
 
-        ns.printf(`Hacking Skill\t%d (%.3f exp) %s`, player.hacking.skill, player.hacking.exp, ns.nFormat(ns.getTimeSinceLastAug()/1000,"0:0"));
+        ns.printf(`${log.color.yellow}Hacking Skill\t%d (%.3f exp) %s`, player.hacking.skill, player.hacking.exp, ns.nFormat(ns.getTimeSinceLastAug()/1000,"0:0"));
     
-        ns.printf(`%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s`, 
+        ns.printf(`${log.color.cyan}%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s`, 
         "hostname".padEnd(14), // allow chance heading to overlap
         "chance".padStart(0), 
         "hack".padStart(6), 
@@ -96,7 +102,7 @@ export async function main(ns) {
                 hackMoneyPercent: ns.hackAnalyze(hostname),
             };
             
-            ns.printf(`%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s`, 
+            ns.printf(`${log.color.white}%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s`, 
             hostname.padEnd(16), 
             ns.nFormat(server.hackChance,"0%").padStart(4), 
             ns.nFormat(server.hackMoneyPercent,"0.00%").padStart(6),
@@ -123,6 +129,7 @@ export async function main(ns) {
             ns.nFormat(server.weakenTime/1000,"0").padStart(8),
             );
         }
-        await ns.sleep(refreshInterval);
+        //await ns.sleep(refreshInterval);
+        ns.spawn("dashboard02.js");
     }
 }

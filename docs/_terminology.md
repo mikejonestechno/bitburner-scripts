@@ -23,6 +23,12 @@ spider: ??
 
 probe: ??
 
+Traceroute: A tool that uses ICMP messages to trace the route that packets take to reach a specific host. It can be used to discover information about the network topology and the location of servers.
+
+Nmap: A tool that can be used to discover information about the operating system, open ports, and services running on network servers. It can also be used to perform vulnerability scanning and other security-related tasks.
+
+SNMP (Simple Network Management Protocol): A protocol that allows network devices to be managed and monitored remotely. It can be used to discover information about the configuration, status, and performance of network servers.
+
 distributed network: a network in which multiple computers work together to perform tasks or share resources.
 
 decentralized network: a network with no central server or authority such as _peer-to-peer_ networks.

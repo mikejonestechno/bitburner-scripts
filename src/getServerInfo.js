@@ -111,3 +111,7 @@ export async function main(ns) {
     ns.tail(); // display the log (stays visible after script terminates)
 
 }
+
+export function autocomplete(data, args) {
+    return data.servers;
+}
