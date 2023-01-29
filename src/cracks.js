@@ -8,11 +8,11 @@ import { log } from "log.js";
 // map crack filenames with the netscript functions to run
 export function crackFiles(ns) {
     return {
-    "BruteSSH.exe": ns.brutessh,
-    "FTPCrack.exe": ns.ftpcrack,
-    "relaySMTP.exe": ns.relaysmtp,
-    "HTTPWorm.exe": ns.httpworm,
-    "SQLInject.exe": ns.sqlinject
+    "BruteSSH.exe": ns.brutessh,    // $500k
+    "FTPCrack.exe": ns.ftpcrack,    // $1.5m
+    "relaySMTP.exe": ns.relaysmtp,  // $5.0m
+    "HTTPWorm.exe": ns.httpworm,    //  $30m
+    "SQLInject.exe": ns.sqlinject   // $250m
     };
 }
 

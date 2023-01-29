@@ -1,7 +1,7 @@
 /** @param {NS} ns **/
 import { log, color, icon } from "log.js";
-import { readMapData } from "network.js";
-/* RAM 1.60 GB (this script just renders dashboard and relies on other scripts to refresh server stats eg in /data/target.txt file)
+import { readMapData, saveMapData, scanNetworkMap, getNetworkMap, filterTargetMap, sortMapByProperty, analyzeHackNetworkMap } from "network.js";
+/* RAM 4.40 GB (this script just renders dashboard and relies on other scripts to refresh server stats eg in /data/target.txt file)
 
 Sample output shows $ per sec based on hack chance, % stolen per hack, $ stolen per hack and the hack time in seconds.
 
@@ -16,29 +16,41 @@ n00dles                $11.71  97.95%   0.41%  $288.75   24.2  $70.00k   $1.75m 
 
 */
 
-export async function main(ns, dataFilePath) {
-    dataFilePath = ns.args[0];
-    showDashboard(ns, dataFilePath);
+export async function main(ns, networkMapFilePath) {
+
+    // networkMap must have scan and basic server info
+    // this script will perform an analyze to refresh the stats
+    const dataFilePath = ns.args[0];
+    const networkMap = readMapData(ns, dataFilePath);
+
+    // refresh data
+    const currentHackingLevel = ns.getHackingLevel();
+    const hackTargetMap = filterTargetMap(ns, networkMap, currentHackingLevel);
+    const sortedhackTargetMap = sortMapByProperty(ns, analyzeHackNetworkMap(ns, hackTargetMap), "hackMoneyPerSecond");
+    saveMapData(ns, sortedhackTargetMap, "target");
+
+    showDashboard(ns, "/data/target.txt");
 }
 
 export async function showDashboard(ns, dataFilePath) {
 
     ns.disableLog('ALL');
-    ns.resizeTail(1240, 250);
-    ns.clearLog();
+    //ns.resizeTail(1700, 250);
+    //ns.clearLog();
     ns.tail();
 
 
     log(ns, `show dashboard for ${dataFilePath}`); // if errors check path has leading "/" if in a subdir
     const networkMap = readMapData(ns, dataFilePath);
 
-    ns.resizeTail(1240, 250);
+    ns.resizeTail(1700, 250);
 
     const format = {
         money: ["$0.00a", 8],
         percent: ["0.00%", 7],
+        int: ["0a", 4],
         decimal: ["0.00", 7],
-        seconds: ["0.0", 6],
+        seconds: ["0.0", 6],        
     }
 
     const data = [];
@@ -52,7 +64,19 @@ export async function showDashboard(ns, dataFilePath) {
             ["h sec", server.hackTime/1000, format["seconds"]],
             ["$ avail", server.moneyAvailable, format["money"]],
             ["$ max", server.moneyMax, format["money"]],
-            ["%", server.moneyAvailable/server.moneyMax, format["percent"]],
+            ["avail %", server.moneyAvailable/server.moneyMax, format["percent"]],
+            ["$max/h", server.hackMaxMoney, format["money"]],
+            ["$max/sec", server.hackMaxMoneyPerSecond, format["money"]],
+            ["grow", server.serverGrowth, format["int"]],
+            ["$/grow", server.growMoney2x, format["money"]],
+            ["$/sec", server.growMoney2xPerSecond, format["money"]],
+            ["g sec", server.growTime/1000, format["seconds"]],
+            ["grow/h", server.hackMoneyPerSecond / server.growMoney2xPerSecond, format["decimal"]],
+            ["👮", server.hackDifficulty, format["decimal"]],
+            ["min 👮", server.minDifficulty, format["decimal"]],
+            ["🔓", server.requiredHackingSkill, format["int"]],
+            ["w sec", server.weakenTime/1000, format["seconds"]],
+            ["ram", server.maxRam, format["int"]],
         ];
     });
 
@@ -71,8 +95,8 @@ export async function showDashboard(ns, dataFilePath) {
         fields[0] = row[0][1].padEnd(20);
         // apply format to remaining fields
         for(let i = 1; i < row.length; i++) { 
-            if (row[i][1] === NaN) {
-                fields[i] = (row[i][1]).padStart(row[i][2][1]);
+            if (row[i][1] === null || row[i][1] === undefined || row[i][1] === NaN) {
+                fields[i] = ("--").padStart(row[i][2][1]);
             } else {
                 fields[i] = ns.nFormat(row[i][1], row[i][2][0]).padStart(row[i][2][1]);
             }

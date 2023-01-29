@@ -20,7 +20,7 @@ export async function main(ns) {
         await ns.sleep(10);
     }
 
-    /* Go to university and do the "Algoriths" course 8 exp/second.
+    /* Go to university and do the "Algorithms" course 8 exp/second.
     Will cost money, but game allows you to go millions into debt!
     Reach hacking level 50 in 4 minutes just at university.
 
