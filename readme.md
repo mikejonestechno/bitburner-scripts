@@ -10,9 +10,14 @@
 
 ## Source files
 
-Javascript and text files that are imported into the _bitburner_ game. I use the bitburner vscode extension to automatically 'push' or import the files into the game in real time.
+I use the bitburner file sync API in the bitburner [typescript-template](https://github.com/bitburner-official/typescript-template) project to automatically 'push' or import my `src` script files into the game in real time.
 
 - [/src](/src)
+
+To get setup I created a docker container to run the file sync nodejs service. I also created a PowerShell script that will launch everything with one click; it will start the docker engine, start the file sync container, open my VS Code bitburner workspace and launch the bitburner game. 
+
+- [Setup.md](Setup.md)
+- [Start-Bitburner.ps1](Start-Bitburner.ps1)
 
 ## Documentation
 
