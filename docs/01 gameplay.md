@@ -4,6 +4,12 @@
 
 This series will document my thoughts and learnings as I explore the early opening gameplay. I have performed a "hard reset" after my first few hours play and started the game from scratch, skipping the tutorial.
 
+### Hard Reset
+
+Go to Options > Delete Save to delete the current save game and 'factory reset' to level 1 and begining of the tutorial.
+
+Go to Options > Remote API and set the port to 12525 to connect and sync files from host / VS Code. See `/setup.md` for info on getting started.
+
 ## Getting Started
 
 Ideally we would figure out where to start hacking but at the very start we only have couple of choices till we level up our hacking skill.
@@ -55,7 +61,7 @@ Max:       $ 1.75 m
 Grow factor:        3000
 ```
 
-**I learnt that** _n00dles_ has maximum $1.75 million but only $70 k available. However it has a huge growth factor of 3,000. So **I expect that** it grows super fast and can quickly reach the maximum,given the offical doco says growth factor is usually between 0 and 100.
+**I learnt that** _n00dles_ has maximum $1.75 million but only $70 k available. However it has a huge growth factor of 3,000. So **I expect that** it grows super fast and can quickly reach the maximum, given the offical doco says growth factor is usually between 0 and 100.
 
 ```
 > run getServerInfo.js foodnstuff
@@ -98,7 +104,7 @@ Even if I just focus on _n00dles_ and want to grow _n00dles_ to maximum $1.75 mi
 
 Analyzing the information I have I still dont know if attacking _n00dles_ be better or worse than trying to hack _foodnstuff_ that already has 2 million at the start.
 
-**I learnt** the CLI `scan-analyze` command and Netscript `getServer()` method do not provide complete information, and I need more infomration by manual experimentation "trial and error" or by exploring more Netscript methods.
+**I learnt** the CLI `scan-analyze` command and Netscript `getServer()` method do not provide complete information, and I need more information by manual experimentation "trial and error" or by exploring more Netscript methods.
 
 ## Actually Analyze n00dles and foodnstuff
 
@@ -123,7 +129,7 @@ hackThreads:	34.72222222222222 required to steal $10,000
 ```
 
 Reviewing all the information I now have:
- _n00dles_ has $70k and maximum $1.75 million; a factor of 25x (70,000 * 25 = 1,750,000).
+
 
 `getServerInfo` tells me that _n00dles_ has $70k and maximum $1.75 million; a factor of 25x (70,000 * 25 = 1,750,000).
 
