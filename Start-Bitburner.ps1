@@ -1,5 +1,5 @@
-# Once only need to build the docker container
-# docker build -t bitburnerscripts:latest .
+# Once only need to build the docker image
+# docker build -t bitburner-typescript:latest .
 
 # If docker not running then start docker
 if ((Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue) -eq $null) {
@@ -10,8 +10,8 @@ if ((Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue) -eq $null
     Write-Output "Docker process already running."
 }
 
-Write-Output "Starting bitburnerscripts container..."
-docker run --rm -d -v "C:\Users\mikej\github\bitburner-scripts\src:/app/src" -p 12525:12525 --name bitburnerscripts bitburnerscripts npm run watch
+Write-Output "Starting bitburner-filesync container..."
+docker run --rm -d -v "$($pwd)/src:/app/src" -p 12525:12525 --name bitburner-filesync bitburner-typescript
 
 # If VS Code not running start VS Code
 if ((Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyContinue) -eq $null) {
@@ -26,18 +26,18 @@ if ((Get-Process -Name "bitburner" -ErrorAction SilentlyContinue) -eq $null) {
     Write-Output "Starting bitburner process..."
     Start-Process -Wait -FilePath "C:\Program Files (x86)\Steam\steamapps\common\Bitburner\bitburner.exe"
 } else {
-    Write-Output "Bitburner process already running."
+    Write-Output "Bitburner process already running. Sleeping till bitburner terminates..."
     while ((Get-Process -Name "bitburner" -ErrorAction SilentlyContinue) -ne $null) {
         Start-Sleep -Seconds 30
     } 
 }
 
+# When bitburner is no longer running, automatically stop the filesync container.
+Write-Output "Stopping bitburner-filesync container..."
+docker stop bitburner-filesync
 
-# When bitburner is no longer running, stop the container and quit docker
-Write-Output "Stopping bitburnerscripts container..."
-docker stop bitburnerscripts
-
+# Dont force terminate VS Code, there may be unsaved changes or additional changes users wants to make before closing VS Code.
 Write-Output "This script will terminate when VS Code is terminated."
 
-# Dont stop the Docker engine process itself, its not a graceful termination and doesnt work successfully as docker spawns multiple processes.
 # There is no cli method for a graceful termination of docker desktop.
+# Dont force terminate the Docker engine process itself, it will not be a graceful termination and may not work successfully as docker desktop spawns multiple processes.

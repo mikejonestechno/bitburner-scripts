@@ -13,8 +13,8 @@ RUN npm install
 # Copy all files to the container (but ignore paths specified in .dockerignore)
 COPY . /app/
 
-# Define a volume for the "src" folder
-VOLUME /app/src
-
 # Expose the port the filesync will listen on
 EXPOSE 12525
+
+# Run filesync watch when the container starts 
+CMD npm run watch
