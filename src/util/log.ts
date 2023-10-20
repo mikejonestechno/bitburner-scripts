@@ -1,7 +1,8 @@
-/** @param {NS} ns **/
+import { NS } from "@ns";
 
 // https://talyian.github.io/ansicolors/
-export const color = {
+export const color: {[index: string]: string} = {
+
     // pale
     paleBlack: "\x1b[30m",
     paleRed: "\x1b[38;5;9m", 
@@ -34,11 +35,13 @@ export const color = {
     brightWhite: "\x1b[38;5;7m",
     reset: "\u001b[0m"
 };
-export function printColors(ns) {
+
+export async function main(ns: NS): Promise<void> {
+    /* `run util/log.js` to output list of colors (for debugging).
     /*
     for (let i = 0; i<255; i++) {
         ns.print(`\x1b[38;5;${i}m This is color ${i}`);
-    }
+    } 
     */
 	for(const key of Object.keys(color)) {
 		ns.print(`${color[key]}${key}`);
@@ -46,7 +49,7 @@ export function printColors(ns) {
     /**/
 }
 
-export const icon = {
+export const icon: {[index: string]: string} = {
     true: "✔️",
     false: "❌",
     dollar: "💲",
@@ -64,10 +67,9 @@ export const icon = {
     pirateFlag: "🏴‍☠️",
     biohazard: "☣️",
     syringe: "💉",
-    worm: "🪱",
 };
 
-export const logLevel = {
+export const logLevel: {[index: string]: number} = {
     DEBUG: 4,
     INFO: 3,
     WARN: 2,
@@ -76,15 +78,19 @@ export const logLevel = {
     NONE: 0,
 };
 
-export const maxLogLevel = 4;
+/* maxLogLevel
+Set this value to 4 in order to show all output messages.
+Set this value to 1 in order supress all output except errors.
+ */
+export const maxLogLevel = 4; 
 
-export function log(ns, message, level = "DEBUG") {
+export function log(ns: NS, message: string, level = "DEBUG") {
     const logLevelNumber = logLevel[level];
 
     if (logLevelNumber <= maxLogLevel) {        
         switch(logLevelNumber) {
             case 3:
-                ns.print(`INFO  ${message}`); // ${color.blue}
+                ns.print(`${color.blue}INFO  ${message}`); 
                 break;
             case 1.1:
                 ns.print(`${color.green}${message}`);
