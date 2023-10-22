@@ -16,7 +16,9 @@ $definitionFileName = "NetscriptDefinitions.d.ts"
 If (!(Test-Path "$($pwd)/$($definitionFileName)")) {
     New-Item -Path $pwd -Name $definitionFileName -ItemType File -Force -Value "This definition file will be updated and overwritten on successful file sync." | Out-Null
 }
-docker run --rm -d -v "$($pwd)/src:/app/src" -v "$($pwd)/NetscriptDefinitions.d.ts:/app/NetscriptDefinitions.d.ts" -p 12525:12525 --name bitburner-filesync bitburner-typescript
+#docker run -d -v "$($pwd)/src:/app/src" -v "$($pwd)/NetscriptDefinitions.d.ts:/app/NetscriptDefinitions.d.ts" -p 12525:12525 --name bitburner-filesync bitburner-typescript
+docker start bitburner-filesync
+
 
 # If VS Code not running start VS Code
 if ((Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyContinue) -eq $null) {

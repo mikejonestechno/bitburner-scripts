@@ -30,7 +30,7 @@ Before I start creating scripts to analyze the servers, I want a `log()` functio
 
 ## Logging
 
-The `ns.print()` method allows me to print a custom message to log but the messages are easily lost with all the other built-in log messages. There are [four color options available](https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.print.md) if the message has certain prefix e.g. the message below will be printed in red font. 
+The `ns.print()` method allows me to print a custom message to log but the messages are easily lost with all the other built-in log messages. There are [four color options available](https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.print.md) if the message has certain prefix e.g. the message below will be automatically printed in red font. 
 
 ``` typescript
 ns.print(`ERROR Oops something went wrong!`);
@@ -55,21 +55,23 @@ export const color: {[index: string]: string} = {
 This allows me to print messages in with human-readable color values. 
 
 ``` typescript
-ns.print(`${color.orange}ERROR Oops something went wrong!`);
+ns.print(`${color.cyan}Calling ns.scan()...`);
 ```
 
-This is great but I have to add a `$(color}` prefix to every message, and if I later wanted to change error messages from orange to yellow I would have to edit every file and update every value.
+This is great to help my debug messages stand out but I have to add a `$(color}` prefix to every message, and if I later wanted to change debug messages from cyan to yellow I would have to edit every file and update every value.
 
-I created a `log()` function to help me be more consistent. I can pass in the log level and the function will print the message in the appropriate color. If I want to change error messages color I now only have to edit one line in the function.
+I created a simple `log()` function to help me be more consistent. I can pass in the log level and the function will print the message in the appropriate color. If I want to change the error message color I now only have to edit one line in the log function.
 
 ``` typescript
-log.log(ns, "Oops something went wrong!", ERROR);
-log.log(ns, "Calling ns.scan()...");
+log(ns, "Oops something went wrong!", "ERROR");
+log(ns, "Calling ns.scan()...");
 ```
 
 If no log level is passed in the message will be logged as a debug message in debug message color.
 
-I defined mulitple log levels and added a conditional check so that I can easily enable and disable debug logging.
+I defined mulitple log levels and added a conditional check so that I can easily enable and disable debug logging. The log function is really just a print formatter to emulate a proper logging routine, for example `logLevel` is just a string index rather than a type or interface.
+
+The primary purpose for the `log()` function is the ability to consistently print or supress debug messages by changing `maxLogLevel` and this meets my needs for now. 
 
 ``` typescript
 export const logLevel: {[index: string]: number} = {
