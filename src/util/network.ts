@@ -10,7 +10,7 @@ export function main(ns: NS, depth: any) {
 
 // A NetworkNode only contains hostname and basic scan search traversal properties
 type NetworkNodes = Map<string, NetworkNode>;
-interface NetworkNode {
+type NetworkNode = {
   depth: number,
   hostname: string,
   parent: string,
@@ -21,6 +21,9 @@ type Network = Map<string, NetworkServer>;
 interface NetworkServer extends Server {
   depth: number,
   parent: string,
+  // Add an 'index signature' to enable access and filter properties based on key string
+  // required for the filterServerProperties() function
+  [key: string]: any; 
 };
 
 // DEPRECATED: The scan function is superceeded by the scanAnalyze function
@@ -37,7 +40,7 @@ export function scan(ns: NS, depth: number = 1) {
 export function scanAnalyze(ns: NS, depth: number = 1) {
   /*  Print network map to terminal similar to scan-analyze
 
-      hostnameColor mapping
+      hostname color mapping:
       red: numOpenPortsRequired > 1
       orange: numOpenPortsRequired = 1
       yellow: numOpenPortsRequired = 0 but still !rootAccess 
@@ -81,16 +84,6 @@ export function scanAnalyze(ns: NS, depth: number = 1) {
     );
   });
 }
-
-  /*
-  bitburner appears to render the heavy (thick) box drawing elements in a wider font glyph
-  so if monospace pad alignment is important stick to the light (thin) box drawing elements. 
-
-  ns.tprintf("│".repeat(20)+"Here");
-  ns.tprintf("├".repeat(20)+"Here");
-  ns.tprintf("┣".repeat(20)+"Here"); // heavy box drawing glyphs get rendered wider than other chars in bitburner
-  ns.tprintf(" ".repeat(20)+"Here"); // regular space char
-  */
 
 export function getNetworkServers(ns: NS, networkNodes: NetworkNodes): Network {
   /*
@@ -178,4 +171,43 @@ export function scanNetwork(ns: NS, maxDepth = 50): NetworkNodes {
   log(ns, `scanNetwork() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
 
   return networkNodes;
+}
+
+export function isKeyOfObject<T extends Object>(
+  key: string | number | symbol,
+  obj: T,
+  ): key is keyof T {
+  return key in obj;
+}
+
+type FilterCriteria = Partial<NetworkServer>;
+export function filterServerProperties(ns: NS, network: Network, filters: Partial<NetworkServer>): Network {
+  // home server has all properties. 
+  const home = network.get("home") as NetworkServer;
+  const validKeys = Object.keys(filters).every((key) => isKeyOfObject(key, home));
+  if (!validKeys) {
+    throw new Error('Invalid property names in filter: ' + Object.keys(filters) );
+  }
+
+  // create new Map to store servers that match filter criteria
+  const filteredNetwork : Network = new Map();
+  const startPerformance = performance.now();
+  for (const [hostname, server] of network) {
+    let allFiltersMatch = true;
+
+    for (const property of Object.keys(filters)) {
+      if (server[property] !== filters[property]) {
+        log(ns, `${hostname} did not match filter: ${property} !== ${filters[property]}`);
+        allFiltersMatch = false;
+        break; // dont bother checking other filter properties for this server
+      }
+    }
+    if (allFiltersMatch) {
+      log(ns,`${server.hostname} matched filters: ${Object.keys(filters)}`);
+      filteredNetwork.set(hostname, server);
+    }
+  }
+  log(ns,`${filteredNetwork.size} servers matched filters: ${Object.keys(filters)}`, "INFO");
+  log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+  return filteredNetwork;
 }

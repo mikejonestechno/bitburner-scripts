@@ -2,7 +2,7 @@
 
 Before I start hacking servers at random I want to discover which servers can be NUKED and hacked at the start of the game.
 
-## Create a Network Map
+## Get Network Servers
 
 The `scanNetwork()` function will do a complete scan of all servers in the network.
 
@@ -10,15 +10,15 @@ The next step is to get the properties of each server because the scan function 
 
 The `ns.getServer(host)` method will return a `ns.Server` object containing properties of the specified host server, including root access, hacking skill level required and money available.
 
-I created a `getNetworkServers()` function to loop through every node in the network and add the server properties.
+I created a `getNetworkServers()` function to loop through every node in the network and get the server properties.
 
 The next step is to visualize or further analyze the information to discover which servers can be NUKED and hacked at the start of the game.
 
 ## Scan Analyze Network
 
-The previous `scan()` function output the network Map with a simple branch representation. 
+I previously created a `scan()` function that output the network Map with a simple branch representation. 
 
-This was renamed to `scanAnalyze()` and server properties added to output similar information to the terminal `scan-analyze` command. 
+This was renamed to `scanAnalyze()` and server properties added. It will now output similar information to the terminal `scan-analyze` command. 
 
 Here is example output of `scanAnalyze(depth = 3)` at the start of the game:
 
@@ -46,11 +46,11 @@ Root access is indicated with green tick or red cross, server max RAM is display
 
 The hostnames are also colored in the bitburner terminal and are rendered green for servers with root access, yellow if the server is open and can be NUKED, orange if one port needs to be opened, or red if more than port needs to be opened.
 
-The `scanAnalyze()` function can display all levels of the entire server network (I only show depth = 3 above).
-
-The icons and yellow color coding make it easy to spot which servers can be NUKED at the start of the game and the orange color coding show which servers only need one port to be opened.
+The icons and yellow color coding make it easy to spot which servers can be NUKED and the orange color coding show which servers only need one port to be opened.
 
 `scanAnalyze()` is a great function for a quick analysis or visual summary of the entire network similar to the  terminal `scan-analyze` command.
+
+The `scanAnalyze()` function can display all levels of the entire server network (I only show depth = 3 above).
 
 This is sufficient analysis to determine which servers can be NUKED and hacked at the start of the game.
 

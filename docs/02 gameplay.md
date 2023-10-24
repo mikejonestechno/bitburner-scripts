@@ -56,7 +56,7 @@ function scan(depth = 3) terminal output
  ┣ iron-gym
  ┃ ┣ zer0
 ```
-Trimming the last dangling branches would need additional conditional logic. I feel its a 'good-enough' visual representation of the network topology for now. 
+Trimming the "┃" after the last dangling branches would need additional conditional logic. I feel its a 'good-enough' visual representation of the network topology for now. 
 
 Remember the terminal `scan-analyze` command only scans a maximum three levels deep. There are additional `DeepScan` programs that can be unlocked later in the game but they only scan up to ten levels deep. The scan function can display all levels of the entire server network (I only show depth = 3 above). 
 
@@ -174,7 +174,7 @@ export function scan(ns: NS, depth: number = 1) {
   // Print network map to terminal similar to scan-analyze
   const networkNodes: NetworkNodes = scanNetwork(ns, depth);
   networkNodes.forEach((networkNode, hostname) => {
-    const prefix: string = networkNode.depth == 0 ? "" : " |  ".repeat(networkNode.depth-1) + " |--";
+    const prefix: string = networkNode.depth == 0 ? "" : " ┃".repeat(networkNode.depth-1) + " ┣";
     ns.tprintf('%s %s', prefix, hostname);
   });
 }
