@@ -2,6 +2,22 @@
 
 Documented guides and help pages that I created while playing the _bitburner_ game.
 
+## Gameplay
+
+Click each entry below for link to expanded entry.
+
+| Entry                        | Subject                    |
+|:----------------------------:|----------------------------|
+| [01 Gameplay](01gameplay.md) | Opening Gameplay & Logging |
+| [02 Gameplay](02gameplay.md) | Scan Network               |
+| [03 Gameplay](03gameplay.md) | Scan Analyze Network       |
+| [04 Gameplay](04gameplay.md) | Filter Network             |
+
+
+## Developer Diary
+
+See my [Developer Diary](diary/readme.md) of incremental progress through each iteration or 'soft reset'. Includes my lessons learnt in programming and some gameplay strategy learnt while playing the game.
+
 As _bitburner_ has an unstructured open gameplay **I expect** that I will make mistakes or incorrect assumptions that **will result in** less effective or slower progress through the game. **I expect that** if **I try** rapid small code experiments, _even if they are incorrect_ or **actually result in** outcomes that I did not expect, that **I will learn** and adapt quickly, more frequently.
 
 You will see several repeated keywords emphasized in my documentation. These keywords help me structure my thoughts in a experimental or scientific method:
