@@ -8,7 +8,7 @@ The `getNetworkServers()` function will loop through every node in the network a
 
 I created reusable `filterServerProperties()` function that takes a partial array of server property values, and filters out any servers that do not match the desired values. 
 
-To filter a list of vulnerable servers (with no furher open ports required) I need to filter on the `numOpenPortsRequired` property. 
+To filter a list of vulnerable servers (with no further open ports required) I need to filter on the `numOpenPortsRequired` property. 
 
 Here is the output of `filterServerProperties()` at the start of the game:
 
@@ -27,7 +27,7 @@ export function main(ns: NS) {
     const network = getNetworkServers(ns, networkNodes);
     
     const vulnerableServers = filterServerProperties(ns, network, {numOpenPortsRequired: 0});
-    ns.tprint("VulnerableServers: " + Array.from(vulnerableServers.keys()).join(", "));
+    ns.tprint("VulnerableServers: " + vulnerableServers.map((server) => server.hostname).join(", "));
 
 }
 ```
@@ -35,30 +35,38 @@ For each server in the network, the `filterServerProperties()` function iterates
 
 Servers that do not match one of the desired filter values are discarded, servers that matched all filter values are added to a new `filteredNetwork` Map.
 
-
 ``` typescript
-type FilterCriteria = Partial<NetworkServer>;
-export function filterServerProperties(ns: NS, network: Network, filters: Partial<NetworkServer>): Network {
+export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
+  // home server has all properties. 
+  const home = network.find((server) => server.hostname === "home");
+  if (!home) {
+    throw new Error('Home server not found in the network');
+  }
 
-  // create new Map to store servers that match filter criteria
-  const filteredNetwork : Network = new Map();
+  const validKeys = Object.keys(filters).every((key) => isKeyOfObject(key, home));
+  if (!validKeys) {
+    throw new Error('Invalid property names in filter: ' + Object.keys(filters) );
+  }
+
+  // create new array to store servers that match filter criteria
+  const filteredNetwork : NetworkServer[] = [];
   const startPerformance = performance.now();
-  for (const [hostname, server] of network) {
+  for (const server of network) {
     let allFiltersMatch = true;
 
     for (const property of Object.keys(filters)) {
       if (server[property] !== filters[property]) {
-        log(ns, `${hostname} did not match filter: ${property} !== ${filters[property]}`);
+        log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
         allFiltersMatch = false;
         break; // dont bother checking other filter properties for this server
       }
     }
     if (allFiltersMatch) {
       log(ns,`${server.hostname} matched filters: ${Object.keys(filters)}`);
-      filteredNetwork.set(hostname, server);
+      filteredNetwork.push(server);
     }
   }
-  log(ns,`${filteredNetwork.size} servers matched filters: ${Object.keys(filters)}`, "INFO");
+  log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, "INFO");
   log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
   return filteredNetwork;
 }

@@ -1,16 +1,16 @@
 import { NS } from "@ns";
 import { log } from "util/log";
-import { Network } from "util/network";
+import { NetworkServer } from "util/network";
 
 
-export function nukeServers(ns: NS, vulnerableServers: Network) {
+export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): NetworkServer[] {
     const startPerformance = performance.now();
 
-    ns.tprint("nukeServers: " + Array.from(vulnerableServers.keys()).join(", "));
+    ns.tprint("nukeServers: " + vulnerableServers.map((server) => server.hostname).join(", "));
 
-    vulnerableServers.forEach((server, hostname) => {
-        log(ns, `nuke ${hostname}`, 'INFO'); 
-        ns.nuke(hostname);
+    vulnerableServers.forEach((server) => {
+        log(ns, `nuke ${server.hostname}`, 'INFO'); 
+        ns.nuke(server.hostname);
         // ns.nuke() does not return any response indicating success or fail
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
         // Assume the command was successful and update server Map

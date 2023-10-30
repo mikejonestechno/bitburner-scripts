@@ -32,10 +32,10 @@ Google or ChatGPT to learn more about 'breadth-first search traversal'.
 
 I choose depth-first search traversal because it allows me to easily print a list of servers in the network tree hierarchy without complex conditional loops to re-arrange the order.  
 
-I created a `scanNetwork()` function that scans each server starting from _home_ and builds up a flattened `Map()` of all servers in the network.
+I created a `scanNetwork()` function that scans each server starting from _home_ and builds an array of all servers in the network.
 
 
-I then created a `scan()` function that outputs the network Map with a simple branch representation similar to the `scan-analyze` command :
+I then created a `scan()` function that outputs the array with a simple branch representation similar to the `scan-analyze` command (without the analysis):
 
 ```
 function scan(depth = 3) terminal output
@@ -56,6 +56,8 @@ function scan(depth = 3) terminal output
  ┣ iron-gym
  ┃ ┣ zer0
 ```
+Note that that network parent-child relationships are randomized on each bitburner reset so the servers will be attached to different parents and will not exactly match the output above.
+
 Trimming the "┃" after the last dangling branches would need additional conditional logic. I feel its a 'good-enough' visual representation of the network topology for now. 
 
 Remember the terminal `scan-analyze` command only scans a maximum three levels deep. There are additional `DeepScan` programs that can be unlocked later in the game but they only scan up to ten levels deep. The scan function can display all levels of the entire server network (I only show depth = 3 above). 
@@ -64,7 +66,7 @@ The next step is to analyze each server and determine which servers I can NUKE b
 
 ## About The Code
 
-The function `scanNetwork()` completes a full depth scan in around 3 milliseconds or less. The function only uses the `ns.scan()` method so it consumes 0.2 GB RAM when run. 
+The function `scanNetwork()` completes a full depth scan in around 3 milliseconds or less. The function only uses the `ns.scan()` method that consumes 0.2 GB RAM when run. 
 
 The log output shows the depth-first search traversal, pushing newly discovered servers on to the stack as it finds them, and then popping each one off the stack in turn until it hits max depth. 
 
@@ -72,20 +74,20 @@ This extract shows a scan of _foodnstuff_ discovered _max-hardware_ and then a s
 
 ```
 function scanNetwork(depth = 3)
-DEBUG add to network n00dles
+DEBUG push to network n00dles
 INFO  scanning n00dles
-DEBUG pop off stack  foodnstuff
-DEBUG add to network foodnstuff
+DEBUG pop off stack   foodnstuff
+DEBUG push to network foodnstuff
 INFO  scanning foodnstuff
-DEBUG push on stack  max-hardware
-DEBUG pop off stack  max-hardware
-DEBUG add to network max-hardware
+DEBUG push on stack   max-hardware
+DEBUG pop off stack   max-hardware
+DEBUG push to network max-hardware
 INFO  scanning max-hardware
-DEBUG push on stack  omega-net
-DEBUG pop off stack  omega-net
-DEBUG add to network omega-net
-DEBUG pop off stack  sigma-cosmetics
-DEBUG add to network sigma-cosmetics
+DEBUG push on stack   omega-net
+DEBUG pop off stack   omega-net
+DEBUG push to network omega-net
+DEBUG pop off stack   sigma-cosmetics
+DEBUG push to network sigma-cosmetics
 INFO  scanning sigma-cosmetics
 ```
 The INFO messages in the log show each server was only scanned once and the function only scans to the max depth specified.
@@ -96,7 +98,6 @@ The `ns.Server` object contains a lot of properties about each server but the `n
 
 ``` typescript
 // A NetworkNode only contains hostname and basic scan search traversal properties
-type NetworkNodes = Map<string, NetworkNode>;
 interface NetworkNode {
   depth: number,
   hostname: string,
@@ -106,10 +107,14 @@ interface NetworkNode {
 I needed to do a few Googles and ChatGPT created almost all the code I needed. I gave chatGPT a couple of examples of the output I wanted to help it and then adapted the code with additional logging and structure. 
 
 ```typescript
-export function scanNetwork(ns: NS, maxDepth = 50): NetworkNodes {
-
-  // Create Map for storing the network tree
-  const networkNodes: NetworkNodes = new Map();
+export function scanNetwork(ns: NS, maxDepth = 50): NetworkNode[] {
+  /*
+   *  Scans all servers on the network using depth-first search traversal. 
+   *  RAM cost: 0.20 GB
+   */
+  
+  // Create array for storing the network tree
+  const networkNodes: NetworkNode[] = [];
 
   // Create a stack for storing the nodes to be scanned, starting with the home server at depth zero
   const stack: NetworkNode[] = [
@@ -125,33 +130,35 @@ export function scanNetwork(ns: NS, maxDepth = 50): NetworkNodes {
 
   while (stack.length > 0) {
     // Get the last node added to the stack (depth-first behaviour)
-    const networkNode = stack.pop() as NetworkNode;
-    log(ns, `pop off stack  ${networkNode.hostname}`);
+    const stackNode = stack.pop() as NetworkNode;
+    log(ns, `pop off stack   ${stackNode.hostname}`);
 
-    if (!networkNodes.has(networkNode.hostname)) {
-      log(ns, `add to network ${networkNode.hostname}`);
-      networkNodes.set(networkNode.hostname, networkNode);
+    // push the node to the networkNodes array if there are no networkNodes with the hostname
+    if (!networkNodes.some((networkNode) => networkNode.hostname === stackNode.hostname)) {      
+      log(ns, `push on network ${stackNode.hostname}`);
+      networkNodes.push(stackNode);
     }
 
     /* If current node is NOT at max depth, scan the node to find deeper connections */
-    if (networkNode.depth < maxDepth) {
-      log(ns, `scanning ${networkNode.hostname}`, "INFO");
+    if (stackNode.depth < maxDepth) {
+      log(ns, `scanning ${stackNode.hostname}`, "INFO");
 
       // neighbors will be an array of hostnames connected to the node including home, parent node, and purchased servers.
-      const neighbors = ns.scan(networkNode.hostname);
+      const neighbors = ns.scan(stackNode.hostname);
 
       // Iterate in reverse order to maintain depth-first behavior
       for (let i = neighbors.length - 1; i >= 0; i--) {
         const neighbor = neighbors[i];
 
-        if (!networkNodes.has(neighbor)) {
+        //if (!networkNodes.has(neighbor)) {
+        if (!networkNodes.some((networkNode) => networkNode.hostname === neighbor)) {  
           // if neighbor is not in the network, push it on to the stack!
           const childNode: NetworkNode = {
-            depth: networkNode.depth + 1,
+            depth: stackNode.depth + 1,
             hostname: neighbor,
-            parent: networkNode.hostname,
+            parent: stackNode.hostname,
           };
-          log(ns, `push on stack  ${neighbor}`);
+          log(ns, `push on stack   ${neighbor}`);
           stack.push(childNode);
         }
       }
@@ -171,11 +178,11 @@ Each hostname is padded out with a prefix of repeating pipe and space characters
 
 ``` typescript
 export function scan(ns: NS, depth: number = 1) {
-  // Print network map to terminal similar to scan-analyze
-  const networkNodes: NetworkNodes = scanNetwork(ns, depth);
-  networkNodes.forEach((networkNode, hostname) => {
+  // Print network to terminal similar to scan-analyze (without the analysis)
+  const networkNodes: NetworkNode[] = scanNetwork(ns, depth);
+  networkNodes.forEach((networkNode) => {
     const prefix: string = networkNode.depth == 0 ? "" : " ┃".repeat(networkNode.depth-1) + " ┣";
-    ns.tprintf('%s %s', prefix, hostname);
+    ns.tprintf('%s %s', prefix, networkNode.hostname);
   });
 }
 ```

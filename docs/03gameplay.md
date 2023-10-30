@@ -66,48 +66,47 @@ I created a `NetworkServer` interface that extends the `ns.Server` object to inc
 import { Server } from "@ns";
 
 // A NetworkServer extends ns.Server by adding search traversal properties
-type Network = Map<string, NetworkServer>;
 interface NetworkServer extends Server {
   depth: number,
   parent: string,
 };
 ```
 
-The Network map is a collection of all NetworkServers and uses the hostname as a key to make it easier for future scripting, for example:
+The `getNetworkServers()` function will build an array of NetworkServers and I can use the `find()` method to get the properties of a particular server in the network, for example:
 
 ``` typescript
-const network: Network = getNetworkServers(ns, networkNodes);
-const targetServer: NetworkServer = network.get('n00dles');
+const network: NetworkServer[] = getNetworkServers(ns, networkNodes);
+const targetServer: NetworkServer = network.find((server) => server.hostname === 'n00dles');
 const targetServerMoney: number = targetServer?.moneyAvailable;
 ```
 
-Typescript requires the last statement to use the optional chaining '?' in case the `targetServer` is undefined. I cannot access any property of an undefined object. In this example I have hardcoded the targetServer `n00dles` which should always exist in my network map, but what if the map entries had been cleared, or I had made a typo and had written `network.get('n00dels');`. 
+Typescript requires the last statement to use the optional chaining '?' in case the `targetServer` is undefined. I cannot access any property of an undefined object. In this example I have hardcoded the targetServer `n00dles` which should always exist in my network map, but what if the map entries had been cleared, or I had made a typo and had written `'n00dels'`. 
 
 > I can start to appreciate how Typescript is trying to help me catch mistakes in my code that could lead to unhandled errors if not detected early enough.
 
 The `getNetworkServers()` function uses the Typescript 'spread' operator `...` to shallow copy properties from the `networkNode` and `Server` objects to a new `networkServer` object.
 
 ``` typescript
-export function getNetworkServers(ns: NS, networkNodes: NetworkNodes): Network {
+export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkServer[] {
   /*
    *  Add server properties to Network map using ns.getServer()
-   *  Simulates an nmap request for information about a network server.
    *  RAM cost: 2 GB
    */
 
   const startPerformance = performance.now();
-  const networkServers: Network = new Map();
-  networkNodes.forEach((networkNode, hostname) => {
-    log(ns, `getServer ${hostname}`, "INFO"); 
+  const networkServers: NetworkServer[] = [];
+  networkNodes.forEach((networkNode) => {
+    log(ns, `getServer ${networkNode.hostname}`, "INFO"); 
     // create a new networkServer object and 'spread' (shallow copy) node and server properties
-    const networkServer: NetworkServer = { ...networkNode, ...ns.getServer(hostname)};
+    const networkServer: NetworkServer = { ...networkNode, ...ns.getServer(networkNode.hostname)};
     // log message verifies a server and node property were copied
     log(ns, `ip=${networkServer.ip}, depth=${networkServer.depth}`)
-    networkServers.set(hostname, networkServer);
+    networkServers.push(networkServer);
   });
   log(ns, `getNetworkMapServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
   return networkServers;
 }
+
 ```
 
 The `scanAnalyze()` function performs a number of formatting conditions to set the hostname color. 
@@ -116,10 +115,17 @@ The strings are padded with spaces so that values align. Padding for the hostnam
  
 ``` typescript
 export function scanAnalyze(ns: NS, depth: number = 1) {
-  /*  Print network map to terminal similar to scan-analyze */  
-  const networkNodes: NetworkNodes = scanNetwork(ns, depth);
-  const network: Network = getNetworkServers(ns, networkNodes);
-  network.forEach((server, hostname) => {
+  /*  Print network to terminal similar to scan-analyze
+
+      hostname color mapping:
+      red: numOpenPortsRequired > 1
+      orange: numOpenPortsRequired = 1
+      yellow: numOpenPortsRequired = 0 but still !rootAccess 
+      green: rootAcess == true
+  */  
+  const networkNodes: NetworkNode[] = scanNetwork(ns, depth);
+  const network: NetworkServer[] = getNetworkServers(ns, networkNodes);
+  network.forEach((server) => {
 
     let hostnameColor = color["yellow"]; 
     let numOpenPortsRequired: string = icon['key'];
@@ -146,7 +152,7 @@ export function scanAnalyze(ns: NS, depth: number = 1) {
     const prefixPad: number = 18 + (depth * 2) + hostnameColor.length;   
 
     ns.tprintf('%s%s%s%s%s %s',
-        (prefix + " " + hostnameColor + hostname).padEnd(prefixPad),
+        (prefix + " " + hostnameColor + server.hostname).padEnd(prefixPad),
         rootAccess,
         color['reset'],
         maxRam,
