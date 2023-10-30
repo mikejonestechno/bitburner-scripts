@@ -1,15 +1,29 @@
 import { NS } from "@ns";
 import { log, icon, color } from "util/log";
-import { scanNetwork, getNetworkServers, filterServerProperties } from "util/network";
-
+import { scanNetwork, getNetworkServers, FilterCriteria, filterServerProperties } from "util/network";
+import { nukeServers } from "util/crack";
 
 export function main(ns: NS) {
-    
+
+    /*
+     *  Scan network map (get basic stats for each server).
+     */
+
     const networkNodes = scanNetwork(ns);
     const network = getNetworkServers(ns, networkNodes);
   
-    //const vulnerableServers = filterServerProperties(ns, network, {numberOpenPortsRequired: 0});
-    const vulnerableServers = filterServerProperties(ns, network, {numOpenPortsRequired: 0});
-    ns.tprint("VulnerableServers: " + Array.from(vulnerableServers.keys()).join(", "));
+    /*
+     *  Exploit vulnerable servers (run NUKE.exe).
+     */
+
+    // for debug of error handling the next line contains typo on property name
+    //const filterCriteria: FilterCriteria = {numberOpenPortsRequired: 0};
+    const filterCriteria: FilterCriteria = {
+        numOpenPortsRequired: 0,
+        hasAdminRights: false
+    };
+    let vulnerableServers = filterServerProperties(ns, network, filterCriteria);
+
+    vulnerableServers = nukeServers( ns, vulnerableServers);
 
 }

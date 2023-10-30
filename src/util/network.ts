@@ -17,7 +17,7 @@ type NetworkNode = {
 };
 
 // A NetworkServer extends ns.Server by adding search traversal properties
-type Network = Map<string, NetworkServer>;
+export type Network = Map<string, NetworkServer>;
 interface NetworkServer extends Server {
   depth: number,
   parent: string,
@@ -180,7 +180,7 @@ export function isKeyOfObject<T extends Object>(
   return key in obj;
 }
 
-type FilterCriteria = Partial<NetworkServer>;
+export type FilterCriteria = Partial<NetworkServer>;
 export function filterServerProperties(ns: NS, network: Network, filters: Partial<NetworkServer>): Network {
   // home server has all properties. 
   const home = network.get("home") as NetworkServer;

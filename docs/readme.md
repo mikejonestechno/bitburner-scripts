@@ -12,7 +12,7 @@ Click each entry below for link to expanded entry.
 | [02 Gameplay](02gameplay.md) | Scan Network               |
 | [03 Gameplay](03gameplay.md) | Scan Analyze Network       |
 | [04 Gameplay](04gameplay.md) | Filter Network             |
-
+| [05 Gameplay](05gameplay.md) | Nuke Servers               |
 
 ## Developer Diary
 

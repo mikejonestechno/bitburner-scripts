@@ -1,4 +1,4 @@
-# 03: Filter Network
+# 04: Filter Network
 
 I want to filter the network server list and create a script to NUKE those open servers.
 
@@ -121,4 +121,4 @@ Error: Invalid property names in filter: numberOpenPortsRequired
     at filterServerProperties (home/util/network.js:131:15)
 ```
 
-I'm sure this could be improved much further but its altready much better than no error handling at all.
+I'm sure this could be improved much further but its already much better than no error handling at all.
