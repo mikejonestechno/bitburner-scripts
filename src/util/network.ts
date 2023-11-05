@@ -85,7 +85,7 @@ export function scanAnalyze(ns: NS, depth: number = 1) {
 
 export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkServer[] {
   /*
-   *  Add server properties to Network map using ns.getServer()
+   *  Add server properties to Network using ns.getServer()
    *  Simulates an nmap request for information about a network server.
    *  RAM cost: 2 GB
    */
@@ -100,7 +100,7 @@ export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkS
     log(ns, `ip=${networkServer.ip}, depth=${networkServer.depth}`)
     networkServers.push(networkServer);
   });
-  log(ns, `getNetworkMapServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+  log(ns, `getNetworkServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
   return networkServers;
 }
 

@@ -13,7 +13,7 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
         ns.nuke(server.hostname);
         // ns.nuke() does not return any response indicating success or fail
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
-        // Assume the command was successful and update server Map
+        // Assume the command was successful and update server property
         server["hasAdminRights"] = true;
     });
     log(ns, `nukeServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");

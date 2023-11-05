@@ -6,7 +6,7 @@ import { nukeServers } from "util/crack";
 export function main(ns: NS) {
 
     /*
-     *  Scan network map (get basic stats for each server).
+     *  Scan network servers (get basic stats for each server).
      */
 
     const networkNodes = scanNetwork(ns);
