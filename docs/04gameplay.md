@@ -18,7 +18,7 @@ The next step is to NUKE these servers.
 
 ## About the Code
 
-I created a `start.ts` script to create the Network map and then apply the filter for vulnerable servers. 
+I created a `start.ts` script to create the network server array and then apply the filter for vulnerable servers. 
 
 ``` Typescript
 export function main(ns: NS) {
@@ -33,7 +33,7 @@ export function main(ns: NS) {
 ```
 For each server in the network, the `filterServerProperties()` function iterates through each filter condition property, and checks if the server does not match the desired value specified in the filter.
 
-Servers that do not match one of the desired filter values are discarded, servers that matched all filter values are added to a new `filteredNetwork` Map.
+Servers that do not match one of the desired filter values are discarded, servers that matched all filter values are added to a new `filteredNetwork` array.
 
 ``` typescript
 export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
@@ -76,13 +76,13 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
 
 After several hours of google and chatGPT I created additional error handling for checking that the desired filter properties are valid filter properties for the NetworkServer interface. 
 
-Otherwise unexpected behaviours may result from unnoticed typos in property names, for example the following function returns a Network Map of vulnerable servers as expected:
+Otherwise unexpected behaviours may result from unnoticed typos in property names, for example the following function returns a network array of vulnerable servers as expected:
 
 ``` typescript
 filterServerProperties(ns, network, {numOpenPortsRequired: 0}); 
 ```
 
-while the following function returns an empty Network Map which may or may not be expected depending on the server values:
+while the following function returns an empty network array which may or may not be expected depending on the server values:
 
 ``` typescript
 filterServerProperties(ns, network, {numberOpenPortsRequired: 0}); 
@@ -121,7 +121,7 @@ An error handling check at the start of the `filterServerProperties()` function 
   }
 ```
 
-Calling `filterServerProperties(ns, network, {numberOpenPortsRequired: 0});` now results in a runtime error at compile time instead of returning a valid but unexpected Network Map. 
+Calling `filterServerProperties(ns, network, {numberOpenPortsRequired: 0});` now results in a runtime error at compile time instead of returning a valid but unexpected network array. 
 
 ```
 RUNTIME ERROR

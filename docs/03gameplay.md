@@ -16,7 +16,7 @@ The next step is to visualize or further analyze the information to discover whi
 
 ## Scan Analyze Network
 
-I previously created a `scan()` function that output the network Map with a simple branch representation. 
+I previously created a `scan()` function that output the network servers with a simple branch representation. 
 
 This was renamed to `scanAnalyze()` and server properties added. It will now output similar information to the terminal `scan-analyze` command. 
 
@@ -80,7 +80,7 @@ const targetServer: NetworkServer = network.find((server) => server.hostname ===
 const targetServerMoney: number = targetServer?.moneyAvailable;
 ```
 
-Typescript requires the last statement to use the optional chaining '?' in case the `targetServer` is undefined. I cannot access any property of an undefined object. In this example I have hardcoded the targetServer `n00dles` which should always exist in my network map, but what if the map entries had been cleared, or I had made a typo and had written `'n00dels'`. 
+Typescript requires the last statement to use the optional chaining '?' in case the `targetServer` is undefined. I cannot access any property of an undefined object. In this example I have hardcoded the targetServer `n00dles` which should always exist in my network server array, but what if the array entries had been cleared, or I had made a typo and had written `'n00dels'`. 
 
 > I can start to appreciate how Typescript is trying to help me catch mistakes in my code that could lead to unhandled errors if not detected early enough.
 
@@ -89,7 +89,7 @@ The `getNetworkServers()` function uses the Typescript 'spread' operator `...` t
 ``` typescript
 export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkServer[] {
   /*
-   *  Add server properties to Network map using ns.getServer()
+   *  Add server properties to Network using ns.getServer()
    *  RAM cost: 2 GB
    */
 
@@ -103,7 +103,7 @@ export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkS
     log(ns, `ip=${networkServer.ip}, depth=${networkServer.depth}`)
     networkServers.push(networkServer);
   });
-  log(ns, `getNetworkMapServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+  log(ns, `getNetworkServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
   return networkServers;
 }
 
