@@ -44,7 +44,7 @@ function scanAnalyze(depth = 3) terminal output
 
 Root access is indicated with green tick or red cross, server max RAM is displayed in GB with the required hacking skill, and the padlock icons show the number of open ports required, or a key icon if the ports are open and the server can be NUKED.
 
-The hostnames are also colored in the bitburner terminal and are rendered green for servers with root access, yellow if the server is open and can be NUKED, orange if one port needs to be opened, or red if more than port needs to be opened.
+The hostnames are also colored in the bitburner terminal; hostnames are rendered green for servers with root access, yellow if the server is open and can be NUKED, orange if one port needs to be opened, or red if more than port needs to be opened.
 
 The icons and yellow color coding make it easy to spot which servers can be NUKED and the orange color coding show which servers only need one port to be opened.
 

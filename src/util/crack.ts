@@ -3,6 +3,12 @@ import { log } from "util/log";
 import { NetworkServer } from "util/network";
 
 
+/**
+ * Nukes the specified vulnerable servers.
+ * @param ns - The NetScriptAPI object.
+ * @param vulnerableServers - An array of vulnerable servers to nuke.
+ * @returns An array of the same vulnerable servers that were nuked.
+ */
 export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): NetworkServer[] {
     const startPerformance = performance.now();
 
@@ -14,7 +20,7 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
         // ns.nuke() does not return any response indicating success or fail
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
         // Assume the command was successful and update server property
-        server["hasAdminRights"] = true;
+        server.hasAdminRights = true;
     });
     log(ns, `nukeServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
     return vulnerableServers;
