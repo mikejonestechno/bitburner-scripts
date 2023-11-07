@@ -8,7 +8,7 @@ The `getNetworkServers()` function will loop through every node in the network a
 
 I created reusable `filterServerProperties()` function that takes a partial array of server property values, and filters out any servers that do not match the desired values. 
 
-To filter a list of vulnerable servers (with no furher open ports required) I need to filter on the `numOpenPortsRequired` property. 
+To filter a list of vulnerable servers (with no further open ports required) I need to filter on the `numOpenPortsRequired` property. 
 
 Here is the output of `filterServerProperties()` at the start of the game:
 
@@ -18,7 +18,7 @@ The next step is to NUKE these servers.
 
 ## About the Code
 
-I created a `start.ts` script to create the Network map and then apply the filter for vulnerable servers. 
+I created a `start.ts` script to create the network server array and then apply the filter for vulnerable servers. 
 
 ``` Typescript
 export function main(ns: NS) {
@@ -27,38 +27,46 @@ export function main(ns: NS) {
     const network = getNetworkServers(ns, networkNodes);
     
     const vulnerableServers = filterServerProperties(ns, network, {numOpenPortsRequired: 0});
-    ns.tprint("VulnerableServers: " + Array.from(vulnerableServers.keys()).join(", "));
+    ns.tprint("VulnerableServers: " + vulnerableServers.map((server) => server.hostname).join(", "));
 
 }
 ```
 For each server in the network, the `filterServerProperties()` function iterates through each filter condition property, and checks if the server does not match the desired value specified in the filter.
 
-Servers that do not match one of the desired filter values are discarded, servers that matched all filter values are added to a new `filteredNetwork` Map.
-
+Servers that do not match one of the desired filter values are discarded, servers that matched all filter values are added to a new `filteredNetwork` array.
 
 ``` typescript
-type FilterCriteria = Partial<NetworkServer>;
-export function filterServerProperties(ns: NS, network: Network, filters: Partial<NetworkServer>): Network {
+export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
+  // home server has all properties. 
+  const home = network.find((server) => server.hostname === "home");
+  if (!home) {
+    throw new Error('Home server not found in the network');
+  }
 
-  // create new Map to store servers that match filter criteria
-  const filteredNetwork : Network = new Map();
+  const validKeys = Object.keys(filters).every((key) => isKeyOfObject(key, home));
+  if (!validKeys) {
+    throw new Error('Invalid property names in filter: ' + Object.keys(filters) );
+  }
+
+  // create new array to store servers that match filter criteria
+  const filteredNetwork : NetworkServer[] = [];
   const startPerformance = performance.now();
-  for (const [hostname, server] of network) {
+  for (const server of network) {
     let allFiltersMatch = true;
 
     for (const property of Object.keys(filters)) {
       if (server[property] !== filters[property]) {
-        log(ns, `${hostname} did not match filter: ${property} !== ${filters[property]}`);
+        log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
         allFiltersMatch = false;
         break; // dont bother checking other filter properties for this server
       }
     }
     if (allFiltersMatch) {
       log(ns,`${server.hostname} matched filters: ${Object.keys(filters)}`);
-      filteredNetwork.set(hostname, server);
+      filteredNetwork.push(server);
     }
   }
-  log(ns,`${filteredNetwork.size} servers matched filters: ${Object.keys(filters)}`, "INFO");
+  log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, "INFO");
   log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
   return filteredNetwork;
 }
@@ -68,13 +76,13 @@ export function filterServerProperties(ns: NS, network: Network, filters: Partia
 
 After several hours of google and chatGPT I created additional error handling for checking that the desired filter properties are valid filter properties for the NetworkServer interface. 
 
-Otherwise unexpected behaviours may result from unnoticed typos in property names, for example the following function returns a Network Map of vulnerable servers as expected:
+Otherwise unexpected behaviours may result from unnoticed typos in property names, for example the following function returns a network array of vulnerable servers as expected:
 
 ``` typescript
 filterServerProperties(ns, network, {numOpenPortsRequired: 0}); 
 ```
 
-while the following function returns an empty Network Map which may or may not be expected depending on the server values:
+while the following function returns an empty network array which may or may not be expected depending on the server values:
 
 ``` typescript
 filterServerProperties(ns, network, {numberOpenPortsRequired: 0}); 
@@ -113,7 +121,7 @@ An error handling check at the start of the `filterServerProperties()` function 
   }
 ```
 
-Calling `filterServerProperties(ns, network, {numberOpenPortsRequired: 0});` now results in a runtime error at compile time instead of returning a valid but unexpected Network Map. 
+Calling `filterServerProperties(ns, network, {numberOpenPortsRequired: 0});` now results in a runtime error at compile time instead of returning a valid but unexpected network array. 
 
 ```
 RUNTIME ERROR

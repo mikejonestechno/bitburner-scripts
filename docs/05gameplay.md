@@ -76,15 +76,15 @@ I created a `crack.ts` file for all the nuke and port cracking functions.
 The `nukeServers()` function performs a simple `forEach()` loop to nuke each server.
 
 ``` typescript
-export function nukeServers(ns: NS, vulnerableServers: Network) {
+export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): NetworkServer[] {
     const startPerformance = performance.now();
 
-    vulnerableServers.forEach((server, hostname) => {
-        log(ns, `nuke ${hostname}`, 'INFO'); 
-        ns.nuke(hostname);
+    vulnerableServers.forEach((server) => {
+        log(ns, `nuke ${server.hostname}`, 'INFO'); 
+        ns.nuke(server.hostname);
         // ns.nuke() does not return any response indicating success or fail
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
-        // Assume the command was successful and update server Map
+        // Assume the command was successful and update server entry
         server["hasAdminRights"] = true;
     });
     log(ns, `nukeServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
