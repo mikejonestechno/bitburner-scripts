@@ -2,7 +2,7 @@
 # docker build -t bitburner-typescript:latest .
 
 # If docker not running then start docker
-if ((Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue) -eq $null) {
+if ($null -eq (Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue)) {
     Write-Output "Starting Docker..."
     Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
     Start-Sleep -Seconds 5
@@ -16,12 +16,16 @@ $definitionFileName = "NetscriptDefinitions.d.ts"
 If (!(Test-Path "$($pwd)/$($definitionFileName)")) {
     New-Item -Path $pwd -Name $definitionFileName -ItemType File -Force -Value "This definition file will be updated and overwritten on successful file sync." | Out-Null
 }
-#docker run -d -v "$($pwd)/src:/app/src" -v "$($pwd)/NetscriptDefinitions.d.ts:/app/NetscriptDefinitions.d.ts" -p 12525:12525 --name bitburner-filesync bitburner-typescript
-docker start bitburner-filesync
-
+$containerName = "bitburner-filesync"
+$containers = docker ps -a --format "{{.Names}}"
+if ($containers | Select-String -Pattern "^$containerName$" -Quiet) {
+    docker start $containerName
+} else {
+    docker run -d -v "$($pwd)/src:/app/src" -v "$($pwd)/NetscriptDefinitions.d.ts:/app/NetscriptDefinitions.d.ts" -p 12525:12525 --name $containerName bitburner-typescript
+}
 
 # If VS Code not running start VS Code
-if ((Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyContinue) -eq $null) {
+if ($null -eq (Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyContinue)) {
     Write-Output "Starting VSCode..."
     Start-Process -FilePath "C:\Program Files\Microsoft VS Code\code.exe" -ArgumentList "./bitburner-scripts.code-workspace"
 } else {
@@ -29,12 +33,12 @@ if ((Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyContinue) -eq $
 }
 
 # If bitburner not running start bitburner
-if ((Get-Process -Name "bitburner" -ErrorAction SilentlyContinue) -eq $null) {
+if ($null -eq (Get-Process -Name "bitburner" -ErrorAction SilentlyContinue)) {
     Write-Output "Starting bitburner process..."
     Start-Process -Wait -FilePath "C:\Program Files (x86)\Steam\steamapps\common\Bitburner\bitburner.exe"
 } else {
     Write-Output "Bitburner process already running. Sleeping till bitburner terminates..."
-    while ((Get-Process -Name "bitburner" -ErrorAction SilentlyContinue) -ne $null) {
+    while ($null -ne (Get-Process -Name "bitburner" -ErrorAction SilentlyContinue)) {
         Start-Sleep -Seconds 30
     } 
 }

@@ -1,17 +1,25 @@
-import { NS } from "@ns";
-import { log, icon, color } from "util/log";
+import { NS, SpawnOptions } from "@ns";
 import { scanNetwork, getNetworkServers, FilterCriteria, filterServerProperties } from "util/network";
 import { nukeServers } from "util/crack";
-import { showDashboard } from "./util/dashboard";
+import { writePlayerData } from "./util/data";
 
 export function main(ns: NS) {
+
+    /*
+     *  Initialize player data file (money, hacking level, location, etc.) 
+     *  This is used to generate other data files for the current city.
+     */
+
+    const PLAYER = writePlayerData(ns);
+    const NETWORK_FILE = `data/${PLAYER.city}/network.txt`;
 
     /*
      *  Scan network servers (get basic stats for each server).
      */
 
-    let networkNodes = scanNetwork(ns);
+    let networkNodes = scanNetwork(ns, 50);
     let network = getNetworkServers(ns, networkNodes);
+    ns.write(NETWORK_FILE, JSON.stringify(network), "w");
   
     /*
      *  Exploit vulnerable servers (run NUKE.exe).
@@ -28,19 +36,11 @@ export function main(ns: NS) {
     nukeServers( ns, vulnerableServers);
 
     /*
-     *  Show dashboard of vulnerable servers.
+     *  Show default dashboard
      */
-    filterCriteria = {
-        purchasedByPlayer: false,
-        hasAdminRights: true
+    const spawnOptions: SpawnOptions = {
+        threads: 1,
+        spawnDelay: 100,
     };
-    vulnerableServers = filterServerProperties(ns, network, filterCriteria);
-
-    networkNodes = scanNetwork(ns, 6);
-    network = getNetworkServers(ns, networkNodes);
-    showDashboard(ns, network);
-
-    // const homeMaxRam = ns.getPurchasedServerMaxRam("home");
-    // ns.print(homeMaxRam); // = 1048576 GB = 1.048 TB
-
+    ns.spawn("util/dashboard.js", spawnOptions);
 }

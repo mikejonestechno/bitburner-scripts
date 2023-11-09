@@ -1,7 +1,7 @@
 import { NS } from "@ns";
 import { log } from "util/log";
-//import { showScanAnalyze } from "util/dashboard";
 import { Server } from "@ns";
+import { readDataFile, readPlayerData } from "util/data";
 
 /**
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
@@ -13,13 +13,6 @@ export function main(ns: NS) {
   if(undefined === depth || Number.isNaN(depth)) depth = 1;
   ns.tprintf("scan(depth=%d)", depth);
   scan(ns, depth);
-
-  // ERROR: Attempting to include showScanAnalyze() in this script causes a circular dependency
-  // and results in a runtime error 'Maximum call stack size exceeded'.
-  // const networkNodes = scanNetwork(ns, 1);
-  // const network = getNetworkServers(ns, networkNodes);
-  // showScanAnalyze(ns, network);
-
 }
 
 // A NetworkNode only contains hostname and basic scan search traversal properties
@@ -77,9 +70,9 @@ export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[]): Network
     networkServers.push(networkServer);
   });
   log(ns, `getNetworkServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+
   return networkServers;
 }
-
 
 /**
  * Scans all servers on the network using depth-first search traversal. 
@@ -87,17 +80,27 @@ export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[]): Network
  * Although ns.scan() doco says it returns 'servers' it does not return ns.Server objects, just the hostnames.
  * This function uses the term NetworkNode to avoid type conflicts with ns.Server and native DOM Node objects.
  * @param ns - The NetScriptAPI object.
- * @param maxDepth - The maximum depth to scan. Defaults to 1 if not provided or NaN.
+ * @param maxDepth - The maximum depth to scan. Defaults to 50 if not provided or NaN.
  * @returns An array of NetworkNode objects representing the network topology.
  * @remarks RAM cost: 0.20 GB
  */
-export function scanNetwork(ns: NS, maxDepth?: number): NetworkNode[] {
+const defaultMaxDepth = 50;
+export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): NetworkNode[] {
 
-  if(undefined === maxDepth || Number.isNaN(maxDepth)) maxDepth = 1; 
+  const CITY = readPlayerData(ns).city;
+  const NETWORK_NODES_FILE = `data/${CITY}/networkNodes.txt`;
+
+  if(maxDepth > defaultMaxDepth) maxDepth = defaultMaxDepth; 
   log(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
 
-  if(maxDepth > 50) maxDepth = 50; 
+  // If the networkNodes file exists, read it and return the contents
+  log(ns, `reading networkNodes from ${NETWORK_NODES_FILE}`);
 
+  const DATA = readDataFile(ns, NETWORK_NODES_FILE) as NetworkNode[];
+  if (DATA) {
+    return DATA.filter((networkNode) => networkNode.depth <= maxDepth);
+  }
+  
   // Create array for storing the network tree
   const networkNodes: NetworkNode[] = [];
 
@@ -135,7 +138,6 @@ export function scanNetwork(ns: NS, maxDepth?: number): NetworkNode[] {
       for (let i = neighbors.length - 1; i >= 0; i--) {
         const neighbor = neighbors[i];
 
-        //if (!networkNodes.has(neighbor)) {
         if (!networkNodes.some((networkNode) => networkNode.hostname === neighbor)) {  
           // if neighbor is not in the network, push it on to the stack!
           const childNode: NetworkNode = {
@@ -152,7 +154,14 @@ export function scanNetwork(ns: NS, maxDepth?: number): NetworkNode[] {
 
   log(ns, "scan stack is empty", "INFO");
   log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
-
+  
+  // The networkNode hierarchy should not change until the game is reset.
+  // If we performed a full maxDepth scan of the network, write data to cache file.
+  // The cache will need to be cleared and refreshed if new servers are purchased. 
+  if (maxDepth === defaultMaxDepth) {
+    log(ns, `writing networkNodes to ${NETWORK_NODES_FILE}`);
+    ns.write(NETWORK_NODES_FILE, JSON.stringify(networkNodes), "w");
+  }
   return networkNodes;
 }
 

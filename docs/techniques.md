@@ -41,4 +41,17 @@ It is also important that these 4 scripts finish in the order specified above, a
 
 Depending on your computer’s performance as well as a few other factors, the necessary delay between script execution times may range between 20ms and 200ms, you want to fine-tune this value to be as low as possible while also avoiding your scripts finishing out of order. Anything lower than 20ms will not work due to javascript limitations.
 
-I
+## Dark Web Price List
+
+The Tor Server costs $200k and allows connection to a server named _darkweb_. The following programs can be bought on the _darkweb_ server.
+
+- BruteSSH.exe - $500.000k - Opens up SSH Ports.
+- FTPCrack.exe - $1.500m - Opens up FTP Ports.
+- relaySMTP.exe - $5.000m - Opens up SMTP Ports.
+- HTTPWorm.exe - $30.000m - Opens up HTTP Ports.
+- SQLInject.exe - $250.000m - Opens up SQL Ports.
+- ServerProfiler.exe - $500.000k - Displays detailed server information.
+- DeepscanV1.exe - $500.000k - Enables 'scan-analyze' with a depth up to 5.
+- DeepscanV2.exe - $25.000m - Enables 'scan-analyze' with a depth up to 10.
+- AutoLink.exe - $1.000m - Enables direct connect via 'scan-analyze'.
+- Formulas.exe - $5.000b - Unlock access to the formulas API.

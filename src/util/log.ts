@@ -87,7 +87,9 @@ export const icon: {[index: string]: string} = {
     toolbox: "🧰",
     tools: "🛠️",
     globe: "🌐",
-};
+    clock: "⏰",
+    stopwatch: "⏱️",
+}; 
 
 export const logLevel: {[index: string]: number} = {
     DEBUG: 4,

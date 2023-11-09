@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import { getNetworkServers, scanNetwork} from "util/network";
-import { showScanAnalyze } from "util/dashboard";
+import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
 
 /**
  * Scans the network to a given depth and prints server properties similar to the terminal scan-analyze command.
@@ -14,5 +14,5 @@ export function main(ns: NS) {
 
     const networkNodes = scanNetwork(ns, depth);
     const network = getNetworkServers(ns, networkNodes);
-    showScanAnalyze(ns, network);
+    showDashboard(ns, network, scanAnalyzeColumns, true);
 }

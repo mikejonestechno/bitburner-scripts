@@ -1,20 +1,31 @@
 import { NS } from "@ns";
 import { log, icon, color } from "util/log";
-import { NetworkServer, getNetworkServers, filterServerProperties, scanNetwork} from "util/network";
+import { NetworkServer, filterServerProperties } from "util/network";
+import { growAnalyze, hackAnalyze } from "util/analyze";
+import { readDataFile, readPlayerData } from "util/data";
 
 export function main(ns: NS) {
-    let depth = Number(ns.args[0]);
-    if(undefined === depth || Number.isNaN(depth)) depth = 1;
-    ns.tprintf("showDashboard(depth=%d)", depth);
+    const flags = ns.flags([
+        ['hack', false], // Display hack analysis dashboard 
+        ['grow', false], // Display grow analysis dashboard
+    ]);
+    let columns: Column[] = dashboardColumns;
+    if (flags.hack) { columns = hackColumns; }
+    else if (flags.grow) { columns = growColumns; }
 
-    const networkNodes = scanNetwork(ns, depth);
-    const network = getNetworkServers(ns, networkNodes);
+    const PLAYER = readPlayerData(ns);
+    const NETWORK_FILE = `data/${PLAYER.city}/network.txt`;
+    const network = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
     const filterCriteria = {
         purchasedByPlayer: false,
-        hasAdminRights: true
+        depth: 1,
     };
-    const vulnerableServers = filterServerProperties(ns, network, filterCriteria);
-    showDashboard(ns, vulnerableServers, dashboardColumns, false);
+    let vulnerableServers = filterServerProperties(ns, network, filterCriteria);
+    vulnerableServers = hackAnalyze(ns, vulnerableServers);
+    vulnerableServers = growAnalyze(ns, vulnerableServers);
+    // const debugServer = vulnerableServers.find(server => server.hostname == "n00dles");
+    // ns.print(debugServer);
+    showDashboard(ns, vulnerableServers, columns, false);
 }
 
 // Define common string formats for printing numbers in fixed width columns
@@ -29,15 +40,17 @@ const format: {[key: string]: PrintFormat} = {
     int: {padding: 4, fractionalDigits: 0, isInteger: true},
     decimal: {padding: 7, fractionalDigits: 2},
     money: {padding: 8, fractionalDigits: 2, isInteger: false, prefix: "$"},
-    percent: {padding: 7, fractionalDigits: 2, isInteger: false, suffix: "%"},
+    percent: {padding: 7, fractionalDigits: 2, isInteger: false}, // ns.formatPercent() already has the "%" suffix
+    seconds: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: "s"},
     boolean: {padding: 1, isInteger: false},
     ram: {padding: 5, fractionalDigits: 0, isInteger: true},
+    hostname: {padding: -18},
 };
 
 type Column = {heading: string, property: keyof NetworkServer, format: PrintFormat };
 
-const scanAnalyzeColumns: Column[] = [
-    {heading: "network", property: "hostname", format: {padding: -16, isInteger: false}},
+export const scanAnalyzeColumns: Column[] = [
+    {heading: "network", property: "hostname", format: format.hostname},
     {heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
     {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
@@ -45,33 +58,68 @@ const scanAnalyzeColumns: Column[] = [
 ];
 
 const dashboardColumns: Column[] = [
-    {heading: "hostname", property: "hostname", format: {padding: -20, isInteger: false}},
+    {heading: "hostname", property: "hostname", format: format.hostname},
     // all vulnerable servers will have admin rights, so hide this column
     //{heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
     {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack s", property: "hackTime", format: format.seconds}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
+    {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
+    {heading: "$/hack", property: "hackMoney", format: format.money}, 
+    {heading: "chance", property: "hackChance", format: format.percent},
+    {heading: "h $/s", property: "hackMoneyPerSecond", format: format.money}, 
     {heading: "$ max", property: "moneyMax", format: format.money},
-    //{heading: "chance", property: "hackChance", format: format.percent},
-    {heading: icon.police, property: "hackDifficulty", format: format.decimal}, // securityLevel
-    {heading: "min " + icon.police, property: "minDifficulty", format: format.decimal}, // securityLevel
+    {heading: "max $/s", property: "hackMaxMoneyPerSecond", format: format.money}, 
+    {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
+    {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
     {heading: "grow", property: "serverGrowth", format: format.int},
+    {heading: "$ grow", property: "growThreadsMoney", format: format.money}, 
+    {heading: "threads", property: "growThreads", format: format.decimal}, 
+    {heading: "$/grow", property: "growMoney", format: format.money}, 
+    {heading: "grow s", property: "growTime", format: format.seconds}, 
+    {heading: "g $/s", property: "growMoneyPerSecond", format: format.money}, 
+];
+
+const hackColumns: Column[] = [
+    {heading: "hostname", property: "hostname", format: format.hostname},
+    {heading: "RAM", property: "maxRam", format: format.ram},
+    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "chance", property: "hackChance", format: format.percent},
+    {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
+    {heading: "$ avail", property: "moneyAvailable", format: format.money},
+    {heading: "$/hack", property: "hackMoney", format: format.money}, 
+    {heading: "hack s", property: "hackTime", format: format.seconds}, 
+    {heading: "hack $/s", property: "hackMoneyPerSecond", format: format.money}, 
+    {heading: "$ max", property: "moneyMax", format: format.money},
+    {heading: "$/hack", property: "hackMaxMoney", format: format.money}, 
+    {heading: "max $/s", property: "hackMaxMoneyPerSecond", format: format.money}, 
+    {heading: "$1m thd", property: "hackMillionDollarThreads", format: format.decimal},
+    {heading: "sec/hack", property: "hackThreadSecurity", format: {padding: 8, fractionalDigits: 4}},
+];
+
+const growColumns: Column[] = [
+    {heading: "hostname", property: "hostname", format: {padding: -20, isInteger: false}},
+    {heading: "RAM", property: "maxRam", format: format.ram},
+    {heading: "grow", property: "serverGrowth", format: format.int},
+    {heading: "$ avail", property: "moneyAvailable", format: format.money},
+    /* 
+     *  grow threads money should be 10% of available money
+     *  grow threads is number of threads to grow money by 10% (1.1x multiplier)
+     */
+    {heading: "$ grow", property: "growThreadsMoney", format: format.money}, 
+    {heading: "threads", property: "growThreads", format: format.decimal}, 
+    {heading: "$/grow", property: "growMoney", format: format.money}, 
+    {heading: "grow s", property: "growTime", format: format.seconds}, 
+    {heading: "g $/s", property: "growMoneyPerSecond", format: format.money},
+    {heading: "sec/grow", property: "growThreadSecurity", format: {padding: 8, fractionalDigits: 4}},
+    {heading: "weak s", property: "weakenTime", format: format.seconds},
+    {heading: "sec/weak", property: "weakenSecurity", format: {padding: 8, fractionalDigits: 4}},
 ];
 
 /**
- * Prints the scan-analyze dashboard for the specified network servers.
- * @param ns - The NetScriptAPI object.
- * @param network - An array of network servers to display in the terminal.
- */
-export function showScanAnalyze(ns: NS, network: NetworkServer[]) {
-    const dashboardPerformance = performance.now();
-    showDashboard(ns, network, scanAnalyzeColumns, true);
-    log(ns, `showScanAnalyze() completed in ${(performance.now() - dashboardPerformance).toFixed(2)}ms`, "SUCCESS");
-}    
-
-/**
  * Displays a dashboard of network servers with customizable columns.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param network - An array of network servers to display.
  * @param columns - An optional array of columns to display. Defaults to dashboardColumns.
  * @param terminal - An optional boolean indicating whether to display the dashboard in the terminal. Defaults to false.
@@ -79,12 +127,15 @@ export function showScanAnalyze(ns: NS, network: NetworkServer[]) {
 export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[] = dashboardColumns, terminal: boolean = false) {
 
     let columnSeparator = " "; // can be useful setting to "|" for debugging alignment issues
-    const fontHeight = 24; // font height in pixels (tail window title bar is 28px high)
+    const fontHeight = 24; // font height in pixels (note tail window title bar is 32px high)
+    const fontWidth = 9; // font width in pixels
+    let tailHeight = 32 + (fontHeight * 2) + (fontHeight * network.length); // 32px for tail window title bar
+    let tailWidth = 1700;
     if (!terminal) { 
         //ns.clearLog();
         ns.disableLog('ALL');
         ns.tail();
-        ns.resizeTail(1600, 32 + (fontHeight * 2) + (fontHeight * network.length));
+        ns.resizeTail(tailWidth, tailHeight);
     }
 
     let maxDepth = 0; // used to calculate padding for network tree heading
@@ -103,15 +154,21 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
                 padding -= (maxDepth*2); break;
         }
         // Some (not all) emoji characters comprise of multiple unicode-16 glyphs.
-        // Some emoji characters are rendered in bitburner at non-fixed pixel width font. :-(
-        // Hardcoded increase padding for now
-        if (column.heading.includes(icon.techno)) { padding += 3; } // hack for techno icon (3 chars)
+        // Some emoji glyphs are rendered in bitburner at non-fixed pixel width font. :-(
+        if (column.format !== format.boolean) {
+            padding += (emojiPadding(ns, column.heading) * 3); 
+        }
 
         // use padStart to right align column, use padEnd to left align column with Math.abs to convert to positive number
         return (padding >= 0) ? column.heading.padStart(padding) : column.heading.padEnd(Math.abs(padding));
     });
-    ns.printf(`${color.yellow}%s%s`, columnNames.join(columnSeparator), columnSeparator);
-    if (terminal) { ns.tprintf(`${color.yellow}%s`, columnNames.join(columnSeparator)); }
+    const heading = color.yellow + columnNames.join(columnSeparator) + columnSeparator;
+    if (!terminal) {
+        tailWidth = heading.length * fontWidth;
+        ns.resizeTail(tailWidth, tailHeight);
+    }
+    ns.print(heading);
+    if (terminal) { ns.tprintf(heading); }
 
     // Step 2: Output the formatted data with padding alignment
     for (let server of network) {
@@ -142,18 +199,25 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
                     padding -= hostnameColor.length;
                     break;
                 case "ports":
-                    formattedValue = formattedValue = icon.lock.repeat(value); break;
+                    formattedValue = icon.lock.repeat(value); break;
                 default: // regular formatting
+                    if (value === "--") { break; }
                     switch (column.format) {
                         case format.boolean: 
                             formattedValue = icon[value.toString()]; break;
                         case format.int:
                         case format.decimal:
                         case format.money:
+                        case format.seconds:                            
                             formattedValue = ns.formatNumber(value, column.format.fractionalDigits); break;
+                        case format.percent:
+                            formattedValue = ns.formatPercent(value, column.format.fractionalDigits); break;
                         case format.ram:
                             formattedValue = ns.formatRam(value, column.format.fractionalDigits); break;
                         default: 
+                            if (undefined !== column.format.fractionalDigits) {
+                                formattedValue = ns.formatNumber(value, column.format.fractionalDigits); break;
+                            }
                             formattedValue = value.toString(); break;
                     }    
             }
@@ -163,7 +227,9 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
 
             // Pad the formatted value to the column width
             // use padStart to right align column, use padEnd to left align column with Math.abs to convert to positive number
-            if (formattedValue.includes(icon.techno)) { padding += 3; } // hack for techno icon (3 chars)
+            if (column.format !== format.boolean) {
+                padding += (emojiPadding(ns, formattedValue) * 3); 
+            }
             formattedValue = (padding >= 0) ? formattedValue.padStart(padding) : formattedValue.padEnd(Math.abs(padding));
 
             // Add the formatted value to the rowData array
@@ -172,11 +238,28 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
 
         // Print the rowData to log and/or terminal
         columnSeparator = color.white + columnSeparator
-        //ns.printf(`${color.cyan}%s${columnSeparator}%s%s`, rowData[0], rowData.slice(1).join(columnSeparator), columnSeparator);
         ns.printf(`%s%s`, rowData.join(columnSeparator), columnSeparator);
         if(terminal) { 
-            //ns.tprintf(`${color.cyan}%s${columnSeparator}%s%s`, rowData[0], rowData.slice(1).join(columnSeparator), columnSeparator); 
             ns.tprintf(`%s%s`, rowData.join(columnSeparator), columnSeparator);
         }
     }
 }
+
+
+/**
+ * Calculates the amount of padding needed to offset the width of any emojis in the input string.
+ * @remark bitburner terminal does not render emoji glyphs in a fixed pixel width font.
+ * This makes this aligning emoji glyphs unreliable unless every row (including heading) contain the emoji.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param inputString - The string to check for emojis.
+ * @returns The amount of padding needed to offset the width of any emojis in the input string.
+ */
+function emojiPadding(ns: NS, inputString: string): number {
+    // note emojiRegex = /\p{Emoji}/u; is not 100% reliable as numeric digits and $ # chars are matched too
+    const emojiRegex = /(?!\d)\p{Emoji}/ug; // negative lookahead to exclude numeric digits
+    //const emojiChars = emojiRegex.exec(inputString)?.length ?? 0;
+    const emojiChars = inputString.match(emojiRegex)?.length ?? 0;
+    //if (emojiChars !== 0) { log(ns, `${inputString} has ${emojiChars} char`) }
+    return emojiChars;
+}
+
