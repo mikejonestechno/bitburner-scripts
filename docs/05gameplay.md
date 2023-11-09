@@ -94,7 +94,7 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
 
 I have updated the filter criteria for vulnerable servers to exclude servers that I already have admin rights.
 
-This is not strictly necessary since the `ns.nuke()` method has no return value, it does not error if a server is already nuked, and executes within 0.1 milliseconds. This is purely my obsesive compulsive optimizing behaviour!
+This is not strictly necessary since the `ns.nuke()` method has no return value, it does not error if a server is already nuked, and executes within 0.1 milliseconds. This is purely my obsessive compulsive optimizing behaviour!
 
 
 ``` typescript

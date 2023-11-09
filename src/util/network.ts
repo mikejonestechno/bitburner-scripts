@@ -1,11 +1,18 @@
 import { NS } from "@ns";
-import { log, icon, color } from "util/log";
-
+import { log } from "util/log";
 import { Server } from "@ns";
+import { readDataFile, readPlayerData } from "util/data";
 
-export function main(ns: NS, depth: any) {
-  depth = ns.args[0];
-  scanAnalyze(ns, depth);
+/**
+ * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
+ * @param ns - The NetScriptAPI object.
+ * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
+ */
+export function main(ns: NS) {
+  let depth = Number(ns.args[0]);
+  if(undefined === depth || Number.isNaN(depth)) depth = 1;
+  ns.tprintf("scan(depth=%d)", depth);
+  scan(ns, depth);
 }
 
 // A NetworkNode only contains hostname and basic scan search traversal properties
@@ -24,10 +31,15 @@ export interface NetworkServer extends Server {
   [key: string]: any; 
 };
 
-// DEPRECATED: The scan function is superceeded by the scanAnalyze function
-// but is retained here in case I want to revisit or maintain for historical reference.
-export function scan(ns: NS, depth: number = 1) {
-  // Print network to terminal similar to scan-analyze (without the analysis)
+/**
+ * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
+ * DEPRECATED: The scan function is superceeded by the scanAnalyze.ts function
+ * but is retained here in case I want to revisit or maintain for historical reference.
+ * @param ns - The NetScriptAPI object.
+ * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
+ */
+export function scan(ns: NS, depth: number) {
+  if(undefined === depth || Number.isNaN(depth)) depth = 1;
   const networkNodes: NetworkNode[] = scanNetwork(ns, depth);
   networkNodes.forEach((networkNode) => {
     const prefix: string = networkNode.depth == 0 ? "" : " ┃".repeat(networkNode.depth-1) + " ┣";
@@ -35,63 +47,20 @@ export function scan(ns: NS, depth: number = 1) {
   });
 }
 
-export function scanAnalyze(ns: NS, depth: number = 1) {
-  /*  Print network to terminal similar to scan-analyze
-
-      hostname color mapping:
-      red: numOpenPortsRequired > 1
-      orange: numOpenPortsRequired = 1
-      yellow: numOpenPortsRequired = 0 but still !rootAccess 
-      green: rootAcess == true
-  */  
-  const networkNodes: NetworkNode[] = scanNetwork(ns, depth);
-  const network: NetworkServer[] = getNetworkServers(ns, networkNodes);
-  network.forEach((server) => {
-
-    let hostnameColor = color["yellow"]; 
-    let numOpenPortsRequired: string = icon['key'];
-
-    if (server.numOpenPortsRequired !== undefined && server.numOpenPortsRequired > 0) {
-      numOpenPortsRequired = icon['lock'].repeat(server.numOpenPortsRequired);
-      hostnameColor = server.numOpenPortsRequired == 1 ? color["orange"] : color["red"];
-    } 
-
-    const rootAccess: string = icon[server.hasAdminRights.toString()] ;
-    if (server.hasAdminRights) {
-      // ensure color is always green even if ports are still locked (eg home)
-      hostnameColor = color["green"];
-    } 
-
-    const maxRam: string = server.maxRam.toString().padStart(4) + " GB";
-
-    let requiredHackingSkill: string = ("").padStart(7);
-    if (server.requiredHackingSkill !== undefined && server.requiredHackingSkill > 1) {
-      requiredHackingSkill = (server.requiredHackingSkill.toString() + icon['techno']).padStart(10);
-    } 
-
-    const prefix: string = server.depth == 0 ? "" : " │".repeat(server.depth-1) + " ├";
-    const prefixPad: number = 18 + (depth * 2) + hostnameColor.length;   
-
-    ns.tprintf('%s%s%s%s%s %s',
-        (prefix + " " + hostnameColor + server.hostname).padEnd(prefixPad),
-        rootAccess,
-        color['reset'],
-        maxRam,
-        requiredHackingSkill,
-        numOpenPortsRequired,
-    );
-  });
-}
-
-export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkServer[] {
-  /*
-   *  Add server properties to Network using ns.getServer()
-   *  Simulates an nmap request for information about a network server.
-   *  RAM cost: 2 GB
-   */
+/**
+ * Retrieves information about network servers by adding server properties to Network using ns.getServer().
+ * Simulates an nmap request for information about a network server.
+ * @param ns - The NetScriptAPI object.
+ * @param networkNodes - Optional array of network nodes to scan.
+ * @returns An array of NetworkServer objects containing information about each server.
+ */
+export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[]): NetworkServer[] {
 
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
+  if (!networkNodes) {
+    networkNodes = scanNetwork(ns);
+  }
   networkNodes.forEach((networkNode) => {
     log(ns, `getServer ${networkNode.hostname}`, "INFO"); 
     // create a new networkServer object and 'spread' (shallow copy) node and server properties
@@ -101,19 +70,36 @@ export function getNetworkServers(ns: NS, networkNodes: NetworkNode[]): NetworkS
     networkServers.push(networkServer);
   });
   log(ns, `getNetworkServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+
   return networkServers;
 }
 
+/**
+ * Scans all servers on the network using depth-first search traversal. 
+ * Simulates a trace route tool using ICMP messages to discover information about the network topology and the location of servers.
+ * Although ns.scan() doco says it returns 'servers' it does not return ns.Server objects, just the hostnames.
+ * This function uses the term NetworkNode to avoid type conflicts with ns.Server and native DOM Node objects.
+ * @param ns - The NetScriptAPI object.
+ * @param maxDepth - The maximum depth to scan. Defaults to 50 if not provided or NaN.
+ * @returns An array of NetworkNode objects representing the network topology.
+ * @remarks RAM cost: 0.20 GB
+ */
+const defaultMaxDepth = 50;
+export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): NetworkNode[] {
 
-export function scanNetwork(ns: NS, maxDepth = 50): NetworkNode[] {
-  /*
-   *  Scans all servers on the network using depth-first search traversal. 
-   *  Simulates a trace route tool using ICMP messages to discover information about the network topology and the location of servers.
-   *  Although ns.scan() doco says it returns 'servers' it does not return ns.Server objects, just the hostnames.
-   *  This function uses the term NetworkNode to avoid type conflicts with ns.Server and native DOM Node objects.
-   *  scanNetwork() takes 1 to 4 milliseconds.
-   *  RAM cost: 0.20 GB
-   */
+  const CITY = readPlayerData(ns).city;
+  const NETWORK_NODES_FILE = `data/${CITY}/networkNodes.txt`;
+
+  if(maxDepth > defaultMaxDepth) maxDepth = defaultMaxDepth; 
+  log(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
+
+  // If the networkNodes file exists, read it and return the contents
+  log(ns, `reading networkNodes from ${NETWORK_NODES_FILE}`);
+
+  const DATA = readDataFile(ns, NETWORK_NODES_FILE) as NetworkNode[];
+  if (DATA) {
+    return DATA.filter((networkNode) => networkNode.depth <= maxDepth);
+  }
   
   // Create array for storing the network tree
   const networkNodes: NetworkNode[] = [];
@@ -152,7 +138,6 @@ export function scanNetwork(ns: NS, maxDepth = 50): NetworkNode[] {
       for (let i = neighbors.length - 1; i >= 0; i--) {
         const neighbor = neighbors[i];
 
-        //if (!networkNodes.has(neighbor)) {
         if (!networkNodes.some((networkNode) => networkNode.hostname === neighbor)) {  
           // if neighbor is not in the network, push it on to the stack!
           const childNode: NetworkNode = {
@@ -168,11 +153,24 @@ export function scanNetwork(ns: NS, maxDepth = 50): NetworkNode[] {
   } 
 
   log(ns, "scan stack is empty", "INFO");
-  log(ns, `scanNetwork() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
-
+  log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+  
+  // The networkNode hierarchy should not change until the game is reset.
+  // If we performed a full maxDepth scan of the network, write data to cache file.
+  // The cache will need to be cleared and refreshed if new servers are purchased. 
+  if (maxDepth === defaultMaxDepth) {
+    log(ns, `writing networkNodes to ${NETWORK_NODES_FILE}`);
+    ns.write(NETWORK_NODES_FILE, JSON.stringify(networkNodes), "w");
+  }
   return networkNodes;
 }
 
+/**
+ * Checks if a given key is a property of a given object.
+ * @param key - The key to check.
+ * @param obj - The object to check against.
+ * @returns A boolean indicating whether the key is a property of the object.
+ */
 export function isKeyOfObject<T extends Object>(
   key: string | number | symbol,
   obj: T,
@@ -181,6 +179,14 @@ export function isKeyOfObject<T extends Object>(
 }
 
 export type FilterCriteria = Partial<NetworkServer>;
+/**
+ * Filters an array of NetworkServer objects based on the provided filters.
+ * @param ns - The NetScriptAPI object.
+ * @param network - An array of NetworkServer objects to filter.
+ * @param filters - An object containing key-value pairs to filter the network array by.
+ * @returns An array of NetworkServer objects that match the provided filters.
+ * @throws An error if the home server is not found in the network or if invalid property names are provided in the filters object.
+ */
 export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
   // home server has all properties. 
   const home = network.find((server) => server.hostname === "home");

@@ -5,7 +5,12 @@
 		},
 		{
 			"path": "../typescript-template"
+		},
+		{
+			"path": "../sonarqube"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "bitburner-scripts"
+	}
 }
