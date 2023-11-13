@@ -1,7 +1,7 @@
 import { NS } from "@ns";
-import { NetworkServer, getNetworkServers } from "util/network";
 import { log } from "util/log";
 import { readPlayerData } from "util/data";
+import { NetworkServer } from "util/network";
 
 
 export function main(ns: NS) {
@@ -9,7 +9,7 @@ export function main(ns: NS) {
     const NETWORK_FILE = `data/${player.city}/network.txt`;
     let network = JSON.parse(ns.read(NETWORK_FILE)) as NetworkServer[];
 
-    //network = getNetworkServers(ns, network); // increases RAM cost by 2.00GB
+    // Skip getNetworkServers(ns, network) because it increases RAM cost by 2.00GB
     network = hackAnalyze(ns, network);
     network = growAnalyze(ns, network);
     
@@ -83,41 +83,38 @@ export function growAnalyze(ns: NS, network: NetworkServer[]) {
         hostname: "",
     };
     network.forEach((server) => {
-        network.forEach((server) => {
-            if (server.moneyMax === 0) { return; } // skip servers I cant grow //server.purchasedByPlayer || 
-            if (server.hasAdminRights === false) { return; } // skip servers I dont have root access to
-            log(ns, `growAnalyze ${server.hostname}`);
-            const growTime = ns.getGrowTime(server.hostname) / 1000; // milliseconds
-            // growth factor to get to maxMoney
-            const growThreadsMoney = (server.moneyMax?? 0) - (server.moneyAvailable?? 0) ;
-            const growthAnalyzeFactor = (server.moneyMax ?? 0) / (server.moneyAvailable ?? 1);      
-            const growThreads = (growthAnalyzeFactor === 1) ? 0 : ns.growthAnalyze(server.hostname, growthAnalyzeFactor);
-            // How much money will each thread grow? 
-            const growMoney = (growThreads === 0) ? 0 : growThreadsMoney / growThreads;
-            const growMoneyPerSecond = (growMoney === 0) ? 0 : growMoney / growTime; 
-            if (growMoneyPerSecond > targetGrowMoneyPerSecond.money && server.hostname !== "n00dles") {
-                targetGrowMoneyPerSecond.money = growMoneyPerSecond;
-                targetGrowMoneyPerSecond.hostname = server.hostname;
-            }
-            // growThreadSecurity is always 0.0040; // ns.growthAnalyzeSecurity(1, server.hostname);
-            const weakenTime = ns.getWeakenTime(server.hostname) / 1000; // milliseconds
-            const weakenSecurity = (server.hackDifficulty ?? 0) - (server.minDifficulty ?? 0);
-            const weakenThreads = weakenSecurity / 0.0500;
-            // weakenSecurity is always 0.0500; // ns.weakenAnalyze(1);
+        // skip servers I cant grow 
+        if (server.moneyMax === 0 || server.hasAdminRights === false) { return; }
+        log(ns, `growAnalyze ${server.hostname}`);
+        const growTime = ns.getGrowTime(server.hostname) / 1000; // milliseconds
+        // growth factor to get to maxMoney
+        const growThreadsMoney = (server.moneyMax?? 0) - (server.moneyAvailable?? 0) ;
+        const growthAnalyzeFactor = (server.moneyMax ?? 0) / (server.moneyAvailable ?? 1);      
+        const growThreads = (growthAnalyzeFactor === 1) ? 0 : ns.growthAnalyze(server.hostname, growthAnalyzeFactor);
+        // How much money will each thread grow? 
+        const growMoney = (growThreads === 0) ? 0 : growThreadsMoney / growThreads;
+        const growMoneyPerSecond = (growMoney === 0) ? 0 : growMoney / growTime; 
+        if (growMoneyPerSecond > targetGrowMoneyPerSecond.money && server.hostname !== "n00dles") {
+            targetGrowMoneyPerSecond.money = growMoneyPerSecond;
+            targetGrowMoneyPerSecond.hostname = server.hostname;
+        }
+        // growThreadSecurity is always 0.0040; // ns.growthAnalyzeSecurity(1, server.hostname);
+        const weakenTime = ns.getWeakenTime(server.hostname) / 1000; // milliseconds
+        const weakenSecurity = (server.hackDifficulty ?? 0) - (server.minDifficulty ?? 0);
+        const weakenThreads = weakenSecurity / 0.0500;
+        // weakenSecurity is always 0.0500; // ns.weakenAnalyze(1);
 
-            const properties = {
-                growTime: growTime,
-                growthAnalyzeFactor: growthAnalyzeFactor,
-                growThreads: growThreads,
-                growThreadsMoney: growThreadsMoney,
-                growMoney: growMoney,
-                growMoneyPerSecond: growMoneyPerSecond,
-                weakenTime: weakenTime,
-                weakenThreads: weakenThreads,
-            };
-            Object.assign(server, properties);
-        });
-
+        const properties = {
+            growTime: growTime,
+            growthAnalyzeFactor: growthAnalyzeFactor,
+            growThreads: growThreads,
+            growThreadsMoney: growThreadsMoney,
+            growMoney: growMoney,
+            growMoneyPerSecond: growMoneyPerSecond,
+            weakenTime: weakenTime,
+            weakenThreads: weakenThreads,
+        };
+        Object.assign(server, properties);
     });
     network.forEach((server) => {
         server.targetGrowMoneyPerSecond = (server.hostname === targetGrowMoneyPerSecond.hostname) ? true : false;
