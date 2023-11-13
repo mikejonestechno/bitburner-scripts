@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import { log, icon, color } from "util/log";
-import { NetworkServer, filterHackServers, filterHackableServers, filterServerProperties } from "util/network";
+import { NetworkServer, filterHackServers, filterHackableServers } from "util/network";
 import { readDataFile, readPlayerData } from "util/data";
 
 export function main(ns: NS) {
@@ -133,7 +133,6 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
     let tailHeight = 32 + (fontHeight * 2) + (fontHeight * network.length); // 32px for tail window title bar
     let tailWidth = 1700;
     if (!terminal) { 
-        //ns.clearLog();
         ns.disableLog('ALL');
         ns.tail();
         ns.resizeTail(tailWidth, tailHeight);
@@ -146,13 +145,13 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
 
         let padding = column.format.padding; 
         
-        switch (column.heading) {
-            case "network": // increase padding for network tree heading
-                maxDepth = network.reduce((max, server) => {
-                    return (server.depth > max) ? server.depth : max;
-                }, 0);
-                log(ns, `Maximum depth: ${maxDepth}`);
-                padding -= (maxDepth*2); break;
+        if (column.heading ===  "network") {
+            // increase padding for network tree heading
+            maxDepth = network.reduce((max, server) => {
+                return (server.depth > max) ? server.depth : max;
+            }, 0);
+            log(ns, `Maximum depth: ${maxDepth}`);
+            padding -= (maxDepth*2);
         }
         // Some (not all) emoji characters comprise of multiple unicode-16 glyphs.
         // Some emoji glyphs are rendered in bitburner at non-fixed pixel width font. :-(
@@ -187,7 +186,7 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
             switch (column.heading) { // special formatting
                 case "network": // additional formating to indent network tree branches
                     formattedValue = server.depth == 0 ? formattedValue : " │".repeat(server.depth-1) + " ├ " + formattedValue;
-                    padding -= (maxDepth*2);
+                    padding -= (maxDepth*2);                    
                 case "hostname":
                     let hostnameColor = color.yellow; 
                     if (server.numOpenPortsRequired !== undefined && server.numOpenPortsRequired > 0) {
