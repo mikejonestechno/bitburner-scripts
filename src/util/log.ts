@@ -87,8 +87,17 @@ export const icon: {[index: string]: string} = {
     toolbox: "🧰",
     tools: "🛠️",
     globe: "🌐",
-    clock: "⏰",
+    alarmClock: "⏰",
     stopwatch: "⏱️",
+    timer: "⏲️",
+    thread: "🧵",
+    seed: "🌱",
+    dice: "🎲",
+    strength: "💪",
+    trophy: "🏆",
+    first: "🥇",
+    crystalBall: "🔮",
+    racehorse: "🐎",
 }; 
 
 export const logLevel: {[index: string]: number} = {
@@ -104,7 +113,7 @@ export const logLevel: {[index: string]: number} = {
 Set this value to 4 in order to show all output messages.
 Set this value to 1 in order supress all output except errors.
  */
-export const maxLogLevel = 4; 
+export const maxLogLevel = 3; 
 
 export function log(ns: NS, message: string, level = "DEBUG") {
     const logLevelNumber = logLevel[level];

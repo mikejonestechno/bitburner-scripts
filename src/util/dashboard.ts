@@ -1,31 +1,34 @@
 import { NS } from "@ns";
 import { log, icon, color } from "util/log";
-import { NetworkServer, filterServerProperties } from "util/network";
-import { growAnalyze, hackAnalyze } from "util/analyze";
+import { NetworkServer, filterHackServers, filterHackableServers, filterServerProperties } from "util/network";
 import { readDataFile, readPlayerData } from "util/data";
 
 export function main(ns: NS) {
     const flags = ns.flags([
-        ['hack', false], // Display hack analysis dashboard 
-        ['grow', false], // Display grow analysis dashboard
+        ['show', "dashboard"], // Columns to show. Valid values are "hack", "grow", "scanAnalyze", "dashboard"
     ]);
-    let columns: Column[] = dashboardColumns;
-    if (flags.hack) { columns = hackColumns; }
-    else if (flags.grow) { columns = growColumns; }
+
+    let columns: Column[];
+    switch (flags.show) {
+        case "hack": columns = hackColumns; break;
+        case "grow": columns = growColumns; break;
+        case "scanAnalyze": columns = scanAnalyzeColumns; break;
+        default: columns = dashboardColumns; break;
+    }
 
     const PLAYER = readPlayerData(ns);
     const NETWORK_FILE = `data/${PLAYER.city}/network.txt`;
-    const network = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
-    const filterCriteria = {
-        purchasedByPlayer: false,
-        depth: 1,
-    };
-    let vulnerableServers = filterServerProperties(ns, network, filterCriteria);
-    vulnerableServers = hackAnalyze(ns, vulnerableServers);
-    vulnerableServers = growAnalyze(ns, vulnerableServers);
-    // const debugServer = vulnerableServers.find(server => server.hostname == "n00dles");
-    // ns.print(debugServer);
-    showDashboard(ns, vulnerableServers, columns, false);
+    let dashboardServers = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
+
+    if (flags.show === "hack") {
+        dashboardServers = filterHackServers(ns, dashboardServers);        
+    } else {
+        dashboardServers = filterHackableServers(ns, dashboardServers);
+    }
+    if (dashboardServers.length === 0) {
+        throw new Error(`No hackable servers found. Do you need to scan and crack some servers?`);
+    }
+    showDashboard(ns, dashboardServers, columns, false);
 }
 
 // Define common string formats for printing numbers in fixed width columns
@@ -63,22 +66,20 @@ const dashboardColumns: Column[] = [
     //{heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
     {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
-    {heading: "hack s", property: "hackTime", format: format.seconds}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
-    {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
-    {heading: "$/hack", property: "hackMoney", format: format.money}, 
+    {heading: "$ max", property: "moneyMax", format: format.money},
+    {heading: "% avail", property: "moneyAvailablePercent", format: format.percent},
+    {heading: "hack s", property: "hackTime", format: format.seconds}, 
     {heading: "chance", property: "hackChance", format: format.percent},
     {heading: "h $/s", property: "hackMoneyPerSecond", format: format.money}, 
-    {heading: "$ max", property: "moneyMax", format: format.money},
     {heading: "max $/s", property: "hackMaxMoneyPerSecond", format: format.money}, 
     {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
     {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
-    {heading: "grow", property: "serverGrowth", format: format.int},
-    {heading: "$ grow", property: "growThreadsMoney", format: format.money}, 
-    {heading: "threads", property: "growThreads", format: format.decimal}, 
-    {heading: "$/grow", property: "growMoney", format: format.money}, 
     {heading: "grow s", property: "growTime", format: format.seconds}, 
     {heading: "g $/s", property: "growMoneyPerSecond", format: format.money}, 
+    {heading: icon.target, property: "targetHackMoneyPerSecond", format: format.boolean},
+    {heading: icon.moneybag, property: "targetHackMaxMoneyPerSecond", format: format.boolean},
+    {heading: icon.chart, property: "targetGrowMoneyPerSecond", format: format.boolean},
 ];
 
 const hackColumns: Column[] = [
@@ -89,13 +90,13 @@ const hackColumns: Column[] = [
     {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
     {heading: "$/hack", property: "hackMoney", format: format.money}, 
-    {heading: "hack s", property: "hackTime", format: format.seconds}, 
+    {heading: "time", property: "hackTime", format: format.seconds}, 
     {heading: "hack $/s", property: "hackMoneyPerSecond", format: format.money}, 
     {heading: "$ max", property: "moneyMax", format: format.money},
     {heading: "$/hack", property: "hackMaxMoney", format: format.money}, 
     {heading: "max $/s", property: "hackMaxMoneyPerSecond", format: format.money}, 
-    {heading: "$1m thd", property: "hackMillionDollarThreads", format: format.decimal},
-    {heading: "sec/hack", property: "hackThreadSecurity", format: {padding: 8, fractionalDigits: 4}},
+    {heading: icon.target, property: "targetHackMoneyPerSecond", format: format.boolean},
+    {heading: icon.moneybag, property: "targetHackMaxMoneyPerSecond", format: format.boolean},
 ];
 
 const growColumns: Column[] = [
@@ -103,18 +104,18 @@ const growColumns: Column[] = [
     {heading: "RAM", property: "maxRam", format: format.ram},
     {heading: "grow", property: "serverGrowth", format: format.int},
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
-    /* 
-     *  grow threads money should be 10% of available money
-     *  grow threads is number of threads to grow money by 10% (1.1x multiplier)
-     */
-    {heading: "$ grow", property: "growThreadsMoney", format: format.money}, 
+    {heading: "$ max", property: "moneyMax", format: format.money},
+    {heading: "diff", property: "growThreadsMoney", format: format.money}, 
+    {heading: "factor", property: "growthAnalyzeFactor", format: format.decimal}, 
     {heading: "threads", property: "growThreads", format: format.decimal}, 
     {heading: "$/grow", property: "growMoney", format: format.money}, 
-    {heading: "grow s", property: "growTime", format: format.seconds}, 
+    {heading: "time", property: "growTime", format: format.seconds}, 
     {heading: "g $/s", property: "growMoneyPerSecond", format: format.money},
-    {heading: "sec/grow", property: "growThreadSecurity", format: {padding: 8, fractionalDigits: 4}},
+    {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
+    {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
     {heading: "weak s", property: "weakenTime", format: format.seconds},
-    {heading: "sec/weak", property: "weakenSecurity", format: {padding: 8, fractionalDigits: 4}},
+    {heading: "threads", property: "weakenThreads", format: format.decimal},
+    {heading: icon.chart, property: "targetGrowMoneyPerSecond", format: format.boolean},
 ];
 
 /**

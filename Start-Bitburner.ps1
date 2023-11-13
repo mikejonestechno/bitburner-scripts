@@ -10,6 +10,8 @@ if ($null -eq (Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue)
     Write-Output "Docker process already running."
 }
 
+
+
 Write-Output "Starting bitburner-filesync container..."
 # bind mount the src directory and NetscriptDefinitions.d.ts to sync the intellisense definitions from the connected game back to the host text editor
 $definitionFileName = "NetscriptDefinitions.d.ts"
@@ -35,6 +37,7 @@ if ($null -eq (Get-Process -Name "Visual Studio Code" -ErrorAction SilentlyConti
 # If bitburner not running start bitburner
 if ($null -eq (Get-Process -Name "bitburner" -ErrorAction SilentlyContinue)) {
     Write-Output "Starting bitburner process..."
+    start-sleep -Seconds 3 # allow time for for bitburner-filesync to be in healthy state
     Start-Process -Wait -FilePath "C:\Program Files (x86)\Steam\steamapps\common\Bitburner\bitburner.exe"
 } else {
     Write-Output "Bitburner process already running. Sleeping till bitburner terminates..."

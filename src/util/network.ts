@@ -1,11 +1,10 @@
-import { NS } from "@ns";
+import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { Server } from "@ns";
 import { readDataFile, readPlayerData } from "util/data";
 
 /**
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
 export function main(ns: NS) {
@@ -35,7 +34,7 @@ export interface NetworkServer extends Server {
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
  * DEPRECATED: The scan function is superceeded by the scanAnalyze.ts function
  * but is retained here in case I want to revisit or maintain for historical reference.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
 export function scan(ns: NS, depth: number) {
@@ -50,27 +49,34 @@ export function scan(ns: NS, depth: number) {
 /**
  * Retrieves information about network servers by adding server properties to Network using ns.getServer().
  * Simulates an nmap request for information about a network server.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param networkNodes - Optional array of network nodes to scan.
  * @returns An array of NetworkServer objects containing information about each server.
  */
-export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[]): NetworkServer[] {
-
+export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[], saveNetworkFile: boolean = false): NetworkServer[] {
+  const CITY = readPlayerData(ns).city;
+  const NETWORK_FILE = `data/${CITY}/network.txt`;
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
-  if (!networkNodes) {
-    networkNodes = scanNetwork(ns);
+  if (!networkNodes) { // refresh properties of all servers in network.txt
+    networkNodes = readDataFile(ns, NETWORK_FILE) as NetworkNode[];
+    saveNetworkFile = true; // save network file after updating properties
   }
   networkNodes.forEach((networkNode) => {
-    log(ns, `getServer ${networkNode.hostname}`, "INFO"); 
+    log(ns, `getServer ${networkNode.hostname}`); 
     // create a new networkServer object and 'spread' (shallow copy) node and server properties
     const networkServer: NetworkServer = { ...networkNode, ...ns.getServer(networkNode.hostname)};
     // log message verifies a server and node property were copied
-    log(ns, `ip=${networkServer.ip}, depth=${networkServer.depth}`)
+    if (networkServer.moneyMax !== undefined && networkServer.moneyMax > 0) {
+      networkServer.moneyAvailablePercent = (networkServer.moneyAvailable ?? 0) / (networkServer.moneyMax ?? 1);
+    }
     networkServers.push(networkServer);
   });
-  log(ns, `getNetworkServers() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
-
+  log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+  if (saveNetworkFile) {
+    log(ns, `writing networkServers to ${NETWORK_FILE}`,"INFO");
+    ns.write(NETWORK_FILE, JSON.stringify(networkServers), "w");
+  }
   return networkServers;
 }
 
@@ -79,7 +85,7 @@ export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[]): Network
  * Simulates a trace route tool using ICMP messages to discover information about the network topology and the location of servers.
  * Although ns.scan() doco says it returns 'servers' it does not return ns.Server objects, just the hostnames.
  * This function uses the term NetworkNode to avoid type conflicts with ns.Server and native DOM Node objects.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param maxDepth - The maximum depth to scan. Defaults to 50 if not provided or NaN.
  * @returns An array of NetworkNode objects representing the network topology.
  * @remarks RAM cost: 0.20 GB
@@ -181,15 +187,16 @@ export function isKeyOfObject<T extends Object>(
 export type FilterCriteria = Partial<NetworkServer>;
 /**
  * Filters an array of NetworkServer objects based on the provided filters.
- * @param ns - The NetScriptAPI object.
+ * @param ns - The netscript interface to bitburner functions.
  * @param network - An array of NetworkServer objects to filter.
  * @param filters - An object containing key-value pairs to filter the network array by.
  * @returns An array of NetworkServer objects that match the provided filters.
  * @throws An error if the home server is not found in the network or if invalid property names are provided in the filters object.
  */
 export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
-  // home server has all properties. 
-  const home = network.find((server) => server.hostname === "home");
+  // get first server where optional backdoor property is false
+  const home = network.find((server) => server.backdoorInstalled === false);
+  //const home = network.find((server) => server.hostname === "home");
   if (!home) {
     throw new Error('Home server not found in the network');
   }
@@ -207,6 +214,8 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
 
     for (const property of Object.keys(filters)) {
       if (server[property] !== filters[property]) {
+        // for requiredHackingSkill, filter servers with a <= filter value rather than exact match
+        if(filters[property] === "requiredHackingSkill" && server[property] <= filters[property]) continue; 
         log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
         allFiltersMatch = false;
         break; // dont bother checking other filter properties for this server
@@ -220,4 +229,64 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
   log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, "INFO");
   log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
   return filteredNetwork;
+}
+
+/**
+ * Filters an array of NetworkServers to only include those that are vulnerable.
+ * A server is considered vulnerable if it has no required ports to open.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param servers - An array of NetworkServers to filter.
+ * @returns An array of NetworkServers that are vulnerable.
+ */
+export function filterVulnerableServers(ns: NS, servers: NetworkServer[]): NetworkServer[] {
+  const filterCriteria: FilterCriteria = {
+    numOpenPortsRequired: 0,
+    hasAdminRights: false,
+  };
+  return filterServerProperties(ns, servers, filterCriteria);
+}
+
+/**
+ * Filters an array of 'hack' servers - any server that I can hack.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param servers - An array of NetworkServers to filter.
+ * @returns An array of NetworkServers that have admin rights.
+ */
+export function filterHackServers(ns: NS, servers: NetworkServer[]): NetworkServer[] {
+  const PLAYER = readPlayerData(ns)
+  const filterCriteria: FilterCriteria = {
+    hasAdminRights: true,
+    purchasedByPlayer: false,
+    requiredHackingSkill: Math.floor(PLAYER.skills.hacking)
+  };
+  return filterServerProperties(ns, servers, filterCriteria);
+}
+
+/**
+ * Filters an array of 'hackable' servers - any server that I have have admin rights not purchased by me.
+ * Defined in https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.grow.md
+ * @param ns - The netscript interface to bitburner functions.
+ * @param servers - An array of NetworkServers to filter.
+ * @returns An array of NetworkServers that have admin rights and that I have not purchased.
+ */
+export function filterHackableServers(ns: NS, servers: NetworkServer[]): NetworkServer[] {
+  const filterCriteria: FilterCriteria = {
+    hasAdminRights: true,
+    purchasedByPlayer: false,
+  };
+  return filterServerProperties(ns, servers, filterCriteria);
+}
+
+/**
+ * Filters an array of servers with root access - all servers that I can run scripts on.
+ * Defined in https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.grow.md
+ * @param ns - The netscript interface to bitburner functions.
+ * @param servers - An array of NetworkServers to filter.
+ * @returns An array of NetworkServers that have admin rights.
+ */
+export function filterRootAccessServers(ns: NS, servers: NetworkServer[]): NetworkServer[] {
+  const filterCriteria: FilterCriteria = {
+    hasAdminRights: true,
+  };
+  return filterServerProperties(ns, servers, filterCriteria);
 }

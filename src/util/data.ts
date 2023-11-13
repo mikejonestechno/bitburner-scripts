@@ -5,10 +5,10 @@ const PLAYER_DATA_FILE = "/data/player.txt";
 
 /**
  * Write player data to a file.
- * @param {import('ns')} ns - The namespace object.
+ * @param {import('ns')} ns - The netscript interface to bitburner functions.
  */
 export function main(ns: NS) {
-    writePlayerData(ns);
+    writePlayerData(ns); 
 }
 
 /**
@@ -19,8 +19,8 @@ export function main(ns: NS) {
 export function readDataFile(ns: NS, filename: string) {
     const DATA = ns.read(filename);
     if (DATA.length === 0) {
-        const MESSAGE = `data file ${filename} is empty.`;
-        log(ns, MESSAGE, "WARN");
+        const message = `data file ${filename} is empty.`;
+        log(ns, message, "WARN");
     } else {
         return (JSON.parse(DATA));
     }
@@ -32,16 +32,20 @@ export function readDataFile(ns: NS, filename: string) {
  * @returns The parsed player data.
  */
 export function readPlayerData(ns: NS): Player {
-    return readDataFile(ns, PLAYER_DATA_FILE) as Player;
+    const player = readDataFile(ns, PLAYER_DATA_FILE) as Player;
+    if (undefined === player) {
+        throw new Error(`Failed to load ${PLAYER_DATA_FILE}. Run util/data.js or call writePlayerData() to re-generate.`);
+    }
+    return player;
 }
 
 /**
- * Writes the player data to a file.
+ * Writes the latest player data to a file.
  * @param ns - The netscript interface to bitburner functions.
+ * @returns The latest player data.
  */
 export function writePlayerData(ns: NS) {
-    const PLAYER_DATA = ns.getPlayer();
-    ns.write(PLAYER_DATA_FILE, JSON.stringify(PLAYER_DATA), "w");
-    return PLAYER_DATA;
+    const player = ns.getPlayer();
+    ns.write(PLAYER_DATA_FILE, JSON.stringify(player), "w");
+    return player;
 }
-
