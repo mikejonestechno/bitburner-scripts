@@ -189,22 +189,22 @@ The `scanAnalye()` function was refactored to reuse the `showDashboard()` functi
 The scananalyze.js outputs the network similar to before, but now has consistent formatting with the dashboard output.
 
 ```
-[home /]> run /util/scananalyze.js 3
- network                🔑   RAM hack👨‍💻 ports      
- home                   ✔️   8GB    1👨‍💻 🔒🔒🔒🔒🔒
- ├ n00dles              ❌   4GB    1👨‍💻 
- ├ foodnstuff           ❌  16GB    1👨‍💻 
- │ ├ max-hardware       ❌  32GB   80👨‍💻 🔒
- │ │ ├ omega-net        ❌  32GB  204👨‍💻 🔒🔒
- ├ sigma-cosmetics      ❌  16GB    5👨‍💻 
- │ ├ nectar-net         ❌  16GB   20👨‍💻 
- │ │ ├ phantasy         ❌  32GB  100👨‍💻 🔒🔒
- │ ├ CSEC               ❌   8GB   58👨‍💻 🔒
- │ │ ├ neo-net          ❌  32GB   50👨‍💻 🔒
- │ │ ├ silver-helix     ❌  64GB  150👨‍💻 🔒🔒
- ├ joesguns             ❌  16GB   10👨‍💻 
- ├ hong-fang-tea        ❌  16GB   30👨‍💻 
- ├ harakiri-sushi       ❌  16GB   40👨‍💻 
- ├ iron-gym             ❌  32GB  100👨‍💻 🔒
- │ ├ zer0               ❌  32GB   75👨‍💻 🔒
+[home /]> run /util/scanAnalyze.js 3
+network                  🔑   RAM    hack👨‍💻 ports      
+home                     ✔️   8GB       1👨‍💻 🔒🔒🔒🔒🔒 
+ ├ n00dles               ✔️   4GB       1👨‍💻            
+ │ ├ zer0                ❌  32GB      75👨‍💻 🔒      
+ │ │ ├ silver-helix      ❌  64GB     150👨‍💻 🔒🔒 
+ │ ├ nectar-net          ✔️  16GB      20👨‍💻            
+ │ │ ├ phantasy          ❌  32GB     100👨‍💻 🔒🔒 
+ ├ foodnstuff            ✔️  16GB       1👨‍💻            
+ ├ sigma-cosmetics       ✔️  16GB       5👨‍💻            
+ │ ├ CSEC                ❌   8GB      51👨‍💻 🔒      
+ │ │ ├ neo-net           ❌  32GB      50👨‍💻 🔒      
+ │ │ ├ omega-net         ❌  32GB     181👨‍💻 🔒🔒 
+ ├ joesguns              ✔️  16GB      10👨‍💻            
+ ├ hong-fang-tea         ✔️  16GB      30👨‍💻            
+ │ ├ max-hardware        ❌  32GB      80👨‍💻 🔒      
+ ├ harakiri-sushi        ✔️  16GB      40👨‍💻            
+ ├ iron-gym              ❌  32GB     100👨‍💻 🔒 
 ```
