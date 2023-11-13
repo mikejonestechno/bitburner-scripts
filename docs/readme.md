@@ -6,14 +6,15 @@ Documented guides and help pages that I created while playing the _bitburner_ ga
 
 Click each entry below for link to expanded entry.
 
-| Entry                        | Subject                    |
-|:----------------------------:|----------------------------|
-| [01 Gameplay](01gameplay.md) | Opening Gameplay & Logging |
-| [02 Gameplay](02gameplay.md) | Scan Network               |
-| [03 Gameplay](03gameplay.md) | Scan Analyze Network       |
-| [04 Gameplay](04gameplay.md) | Filter Network             |
-| [05 Gameplay](05gameplay.md) | Nuke Servers               |
-| [06 Gameplay](06gameplay.md) | Basic Dashboard            |
+| Entry                        | Subject                      |
+|:----------------------------:|------------------------------|
+| [01 Gameplay](01gameplay.md) | Opening Gameplay & Logging   |
+| [02 Gameplay](02gameplay.md) | Scan Network                 |
+| [03 Gameplay](03gameplay.md) | Scan Analyze Network         |
+| [04 Gameplay](04gameplay.md) | Filter Network               |
+| [05 Gameplay](05gameplay.md) | Nuke Servers                 |
+| [06 Gameplay](06gameplay.md) | Basic Dashboard              |
+| [07 Gameplay](07gameplay.md) | Get Hack, Grow, Weaken Stats |
 
 ## Developer Diary
 
