@@ -14,55 +14,57 @@ The next step is to NUKE those servers using the `ns.nuke()` method.
 
 I created a `nukeServers()` function to iterate the servers and call the `ns.nuke()` method on each server in turn. This executes in 0.10 milliseconds so no futher optimization is required.
 
-The following output from `scanAnalyze(depth=3)` displays the network servers with a key icon and yellow font representing vulnerable servers with no additional ports required to NUKE. The red cross icon indicates that I do not yet have admin access on the servers.
+The following output from `scanAnalyze(depth=3)` displays the network servers in yellow font representing vulnerable servers with no additional ports required to NUKE. The red cross icon indicates that I do not yet have admin access on the servers.
 
 Before: (markdown render does not support font colors)
 ``` 
-[home /]> run /util/network.js 3
- home                   ✔️   8 GB        🔒🔒🔒🔒🔒
- ├ n00dles              ❌   4 GB        🔑
- ├ foodnstuff           ❌  16 GB        🔑
- │ ├ max-hardware       ❌  32 GB   80👨‍💻 🔒
- │ │ ├ omega-net        ❌  32 GB  204👨‍💻 🔒🔒
- ├ sigma-cosmetics      ❌  16 GB    5👨‍💻 🔑
- │ ├ nectar-net         ❌  16 GB   20👨‍💻 🔑
- │ │ ├ phantasy         ❌  32 GB  100👨‍💻 🔒🔒
- │ ├ CSEC               ❌   8 GB   58👨‍💻 🔒
- │ │ ├ neo-net          ❌  32 GB   50👨‍💻 🔒
- │ │ ├ silver-helix     ❌  64 GB  150👨‍💻 🔒🔒
- ├ joesguns             ❌  16 GB   10👨‍💻 🔑
- ├ hong-fang-tea        ❌  16 GB   30👨‍💻 🔑
- ├ harakiri-sushi       ❌  16 GB   40👨‍💻 🔑
- ├ iron-gym             ❌  32 GB  100👨‍💻 🔒
- │ ├ zer0               ❌  32 GB   75👨‍💻 🔒
+[home /]> run /util/scanAnalyze.js 3
+network                  🔑   RAM    hack👨‍💻 ports      
+home                     ✔️   8GB       1👨‍💻 🔒🔒🔒🔒🔒 
+ ├ n00dles               ❌   4GB       1👨‍💻            
+ │ ├ zer0                ❌  32GB      75👨‍💻 🔒      
+ │ │ ├ silver-helix      ❌  64GB     150👨‍💻 🔒🔒 
+ │ ├ nectar-net          ❌  16GB      20👨‍💻            
+ │ │ ├ phantasy          ❌  32GB     100👨‍💻 🔒🔒 
+ ├ foodnstuff            ❌  16GB       1👨‍💻            
+ ├ sigma-cosmetics       ❌  16GB       5👨‍💻            
+ │ ├ CSEC                ❌   8GB      51👨‍💻 🔒      
+ │ │ ├ neo-net           ❌  32GB      50👨‍💻 🔒      
+ │ │ ├ omega-net         ❌  32GB     181👨‍💻 🔒🔒 
+ ├ joesguns              ❌  16GB      10👨‍💻            
+ ├ hong-fang-tea         ❌  16GB      30👨‍💻            
+ │ ├ max-hardware        ❌  32GB      80👨‍💻 🔒      
+ ├ harakiri-sushi        ❌  16GB      40👨‍💻            
+ ├ iron-gym              ❌  32GB     100👨‍💻 🔒  
 ```
 
-Run start.js calling `nukeServers()`:
+Run crack.js script to call `nukeServers()` function:
 
 ```
-[home /]> run start.js 
-start.js: VulnerableServers: n00dles, foodnstuff, sigma-cosmetics, nectar-net, joesguns, hong-fang-tea, harakiri-sushi
+[home /]> run /util/crack.js
+VulnerableServers: n00dles, foodnstuff, sigma-cosmetics, nectar-net, joesguns, hong-fang-tea, harakiri-sushi
 ```
 
 After:
 ```
-[home /]> run /util/network.js 3
- home                   ✔️   8 GB        🔒🔒🔒🔒🔒
- ├ n00dles              ✔️   4 GB        🔑
- ├ foodnstuff           ✔️  16 GB        🔑
- │ ├ max-hardware       ❌  32 GB   80👨‍💻 🔒
- │ │ ├ omega-net        ❌  32 GB  204👨‍💻 🔒🔒
- ├ sigma-cosmetics      ✔️  16 GB    5👨‍💻 🔑
- │ ├ nectar-net         ✔️  16 GB   20👨‍💻 🔑
- │ │ ├ phantasy         ❌  32 GB  100👨‍💻 🔒🔒
- │ ├ CSEC               ❌   8 GB   58👨‍💻 🔒
- │ │ ├ neo-net          ❌  32 GB   50👨‍💻 🔒
- │ │ ├ silver-helix     ❌  64 GB  150👨‍💻 🔒🔒
- ├ joesguns             ✔️  16 GB   10👨‍💻 🔑
- ├ hong-fang-tea        ✔️  16 GB   30👨‍💻 🔑
- ├ harakiri-sushi       ✔️  16 GB   40👨‍💻 🔑
- ├ iron-gym             ❌  32 GB  100👨‍💻 🔒
- │ ├ zer0               ❌  32 GB   75👨‍💻 🔒
+[home /]> run /util/scanAnalyze.js 3
+network                  🔑   RAM    hack👨‍💻 ports      
+home                     ✔️   8GB       1👨‍💻 🔒🔒🔒🔒🔒 
+ ├ n00dles               ✔️   4GB       1👨‍💻            
+ │ ├ zer0                ❌  32GB      75👨‍💻 🔒      
+ │ │ ├ silver-helix      ❌  64GB     150👨‍💻 🔒🔒 
+ │ ├ nectar-net          ✔️  16GB      20👨‍💻            
+ │ │ ├ phantasy          ❌  32GB     100👨‍💻 🔒🔒 
+ ├ foodnstuff            ✔️  16GB       1👨‍💻            
+ ├ sigma-cosmetics       ✔️  16GB       5👨‍💻            
+ │ ├ CSEC                ❌   8GB      51👨‍💻 🔒      
+ │ │ ├ neo-net           ❌  32GB      50👨‍💻 🔒      
+ │ │ ├ omega-net         ❌  32GB     181👨‍💻 🔒🔒 
+ ├ joesguns              ✔️  16GB      10👨‍💻            
+ ├ hong-fang-tea         ✔️  16GB      30👨‍💻            
+ │ ├ max-hardware        ❌  32GB      80👨‍💻 🔒      
+ ├ harakiri-sushi        ✔️  16GB      40👨‍💻            
+ ├ iron-gym              ❌  32GB     100👨‍💻 🔒
  ```
 
 All vulnerable servers were successfully NUKED. The servers previously highlighted in yellow font are now displayed in green font with the green tick icon.

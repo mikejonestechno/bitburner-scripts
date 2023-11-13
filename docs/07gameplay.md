@@ -24,7 +24,7 @@ On average each hack has a 38.57% chance of stealing $7.5k and will take 51 seco
 
 If _foodnstuff_ was at maximum available money of $50.00m that would be $187.50k for each successful hack. with a maximum average hack rate = $1.41k per second.
 
-The _foodnstuff_ server is the current target with highest hack rate $56.20 / second, and the highest max money hack rate of $1.41k / second. 
+The _foodnstuff_ server is the best hack target with current hack rate $56.20 / second, and the highest max money hack rate of $1.41k / second. 
 
 ```
 [home /]> run util/dashboard.js --show hack
@@ -39,25 +39,26 @@ It's not all about the hacking! To get that maximum hack rate I will need to gro
 
 I can grow and weaken ALL servers I have root access on, regardless of required hacking skill.
 
-The _foodnstuff_ server has a growth factor of 5. It has $2.00m available and to grow to max $50.00m will require growing by $48.00m, a growth factor of $50.00m / $2.00m = 25.
+The _foodnstuff_ server has an internal grow factor of 5. It has $2.00m available and to grow to max $50.00m will require growing by $48.00m, which is a growth factor of $50.00m / $2.00m = 25.
 
-A growth factor of 25 will require 21.49k threads with each thread will grow $48.00m / 21.49 = $2.23k per grow thread. Grow threads will take 165 seconds giving a grow rate of $13.56 per second.
+A growth factor of 25 will require 21.49k threads and each thread will grow $48.00m / 21.49 = $2.23k per thread. Grow threads will take 165 seconds giving a grow rate of $13.56 per second.
 
 The _foodnstuff_ server current security level is 10.00 with minimum security of 3.00. Weaken will take 206 seconds and require 140.00 threads to weaken from 10.00 to minimum security 3.00.
 
-I cannot hack _harakiri-sushi_ until I have the required hacking skill, but I can weaken and grow _harakiri-sushi_ which has the highest internal grow factor 40 and the highest grow rate of $37.99 per second. 
 
 ```
 [home /]> run util/dashboard.js --show grow
 hostname               RAM grow  $ avail    $ max     diff  factor threads   $/grow   time    g $/s       👮   min 👮 weak s threads 📈 
 n00dles                4GB   3k  $70.00k   $1.75m   $1.68m   25.00   30.71  $54.71k   158s  $347.02   1.00👮   1.00👮   197s    0.00 ❌ 
-nectar-net            16GB   25   $2.75m  $68.75m  $66.00m   25.00   8.59k   $7.68k   471s   $16.33  20.00👮   7.00👮   588s  260.00 ❌ 
 foodnstuff            16GB    5   $2.00m  $50.00m  $48.00m   25.00  21.49k   $2.23k   165s   $13.56  10.00👮   3.00👮   206s  140.00 ❌ 
 sigma-cosmetics       16GB   10   $2.30m  $57.50m  $55.20m   25.00  10.75k   $5.14k   196s   $26.20  10.00👮   3.00👮   245s  140.00 ❌ 
 joesguns              16GB   20   $2.50m  $62.50m  $60.00m   25.00   8.06k   $7.45k   275s   $27.13  15.00👮   5.00👮   343s  200.00 ❌ 
 hong-fang-tea         16GB   20   $3.00m  $75.00m  $72.00m   25.00   8.06k   $8.94k   510s   $17.53  15.00👮   5.00👮   637s  200.00 ❌ 
+nectar-net            16GB   25   $2.75m  $68.75m  $66.00m   25.00   8.59k   $7.68k   471s   $16.33  20.00👮   7.00👮   588s  260.00 ❌ 
 harakiri-sushi        16GB   40   $4.00m $100.00m  $96.00m   25.00   4.03k  $23.84k   627s   $37.99  15.00👮   5.00👮   784s  200.00 ✔️ 
 ```
+
+I cannot hack _harakiri-sushi_ until I have the required hacking skill, but I can weaken and grow _harakiri-sushi_ which has the highest internal grow factor 40 and the highest grow rate of $37.99 per second. 
 
 The next step is to analyze these statistics and design experiments to identify which server(s) to hack, grow or weaken first. Is it really worth weakening servers at the start of the game or should I just hack them to pieces to increase hacking skill?
 

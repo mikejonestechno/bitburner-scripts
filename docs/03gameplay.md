@@ -18,33 +18,32 @@ The next step is to visualize or further analyze the information to discover whi
 
 I previously created a `scan()` function that output the network servers with a simple branch representation. 
 
-This was renamed to `scanAnalyze()` and server properties added. It will now output similar information to the terminal `scan-analyze` command. 
-
-Here is example output of `scanAnalyze(depth = 3)` at the start of the game:
+This was renamed to `scanAnalyze()` and server properties added. It will now output similar information to the terminal `scan-analyze` command:
 
 ```
-function scanAnalyze(depth = 3) terminal output
- home                   ✔️   8 GB        🔒🔒🔒🔒🔒
- ├ n00dles              ❌   4 GB        🔑
- ├ foodnstuff           ❌  16 GB        🔑
- │ ├ max-hardware       ❌  32 GB   80👨‍💻 🔒
- │ │ ├ omega-net        ❌  32 GB  204👨‍💻 🔒🔒
- ├ sigma-cosmetics      ❌  16 GB    5👨‍💻 🔑
- │ ├ nectar-net         ❌  16 GB   20👨‍💻 🔑
- │ │ ├ phantasy         ❌  32 GB  100👨‍💻 🔒🔒
- │ ├ CSEC               ❌   8 GB   58👨‍💻 🔒
- │ │ ├ neo-net          ❌  32 GB   50👨‍💻 🔒
- │ │ ├ silver-helix     ❌  64 GB  150👨‍💻 🔒🔒
- ├ joesguns             ❌  16 GB   10👨‍💻 🔑
- ├ hong-fang-tea        ❌  16 GB   30👨‍💻 🔑
- ├ harakiri-sushi       ❌  16 GB   40👨‍💻 🔑
- ├ iron-gym             ❌  32 GB  100👨‍💻 🔒
- │ ├ zer0               ❌  32 GB   75👨‍💻 🔒
+[home /]> run /util/scanAnalyze.js 3
+network                  🔑   RAM    hack👨‍💻 ports      
+home                     ✔️   8GB       1👨‍💻 🔒🔒🔒🔒🔒 
+ ├ n00dles               ❌   4GB       1👨‍💻            
+ │ ├ zer0                ❌  32GB      75👨‍💻 🔒      
+ │ │ ├ silver-helix      ❌  64GB     150👨‍💻 🔒🔒 
+ │ ├ nectar-net          ❌  16GB      20👨‍💻            
+ │ │ ├ phantasy          ❌  32GB     100👨‍💻 🔒🔒 
+ ├ foodnstuff            ❌  16GB       1👨‍💻            
+ ├ sigma-cosmetics       ❌  16GB       5👨‍💻            
+ │ ├ CSEC                ❌   8GB      51👨‍💻 🔒      
+ │ │ ├ neo-net           ❌  32GB      50👨‍💻 🔒      
+ │ │ ├ omega-net         ❌  32GB     181👨‍💻 🔒🔒 
+ ├ joesguns              ❌  16GB      10👨‍💻            
+ ├ hong-fang-tea         ❌  16GB      30👨‍💻            
+ │ ├ max-hardware        ❌  32GB      80👨‍💻 🔒      
+ ├ harakiri-sushi        ❌  16GB      40👨‍💻            
+ ├ iron-gym              ❌  32GB     100👨‍💻 🔒      
  ```
 
-Root access is indicated with green tick or red cross, server max RAM is displayed in GB with the required hacking skill, and the padlock icons show the number of open ports required, or a key icon if the ports are open and the server can be NUKED.
+Root access is indicated with green tick or red cross, server max RAM is displayed in GB with the required hacking skill, and the padlock icons show the number of open ports required.
 
-The hostnames are also colored in the bitburner terminal; hostnames are rendered green for servers with root access, yellow if the server is open and can be NUKED, orange if one port needs to be opened, or red if more than port needs to be opened.
+The hostnames are also color coded in the bitburner terminal; hostnames are rendered green for servers with root access, yellow if the server is open and can be NUKED, orange if one port needs to be opened, or red if more than port needs to be opened.
 
 The icons and yellow color coding make it easy to spot which servers can be NUKED and the orange color coding show which servers only need one port to be opened.
 
