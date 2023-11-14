@@ -4,7 +4,7 @@ import { NetworkServer, filterVulnerableServers, getNetworkServers } from "util/
 import { readDataFile, readPlayerData } from "util/data";
 
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
     const player = readPlayerData(ns);
     const NETWORK_FILE = `data/${player.city}/network.txt`;
     let network = readDataFile(ns, NETWORK_FILE);

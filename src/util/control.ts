@@ -2,7 +2,7 @@ import { NS, SpawnOptions } from "@ns";
 import { main as analyzeNetwork } from "util/analyze";
 import { log } from "util/log";
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
 
     /*
      * Analyze all servers on network to refresh properties

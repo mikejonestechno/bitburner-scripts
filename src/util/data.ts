@@ -7,7 +7,7 @@ const PLAYER_DATA_FILE = "/data/player.txt";
  * Write player data to a file.
  * @param {import('ns')} ns - The netscript interface to bitburner functions.
  */
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
     writePlayerData(ns); 
 }
 

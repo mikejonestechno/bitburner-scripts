@@ -3,7 +3,7 @@ import { main as initializeData } from "util/data";
 import { main as scanAnalyze } from "util/scanAnalyze";
 import { main as nukeServers } from "util/crack";
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
 
     /* 
      * Delete all data files in data directory

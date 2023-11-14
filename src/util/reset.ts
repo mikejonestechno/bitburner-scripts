@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
     const filePaths = ns.ls("home", "data/");
     filePaths.forEach((filePath) => {
         ns.tprint(`removing ${filePath}`);

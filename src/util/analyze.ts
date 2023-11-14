@@ -4,7 +4,7 @@ import { readPlayerData } from "util/data";
 import { NetworkServer } from "util/network";
 
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
     const player = readPlayerData(ns);
     const NETWORK_FILE = `data/${player.city}/network.txt`;
     let network = JSON.parse(ns.read(NETWORK_FILE)) as NetworkServer[];

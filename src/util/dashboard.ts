@@ -3,7 +3,7 @@ import { log, icon, color } from "util/log";
 import { NetworkServer, filterHackServers, filterHackableServers } from "util/network";
 import { readDataFile, readPlayerData } from "util/data";
 
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
     const flags = ns.flags([
         ['show', "dashboard"], // Columns to show. Valid values are "hack", "grow", "scanAnalyze", "dashboard"
     ]);

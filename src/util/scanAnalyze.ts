@@ -8,7 +8,7 @@ import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
  * @param hideDashboard - do not print server properties to terminal, useful when spawning this script from another script.
  * @returns void
  */
-export function main(ns: NS, maxDepth: number = 1, saveNetworkFile: boolean = false, hideDashboard: boolean = false) {
+export async function main(ns: NS, maxDepth: number = 1, saveNetworkFile: boolean = false, hideDashboard: boolean = false): Promise<void> {
     let depth = Number(ns.args[0]);
     if(undefined === depth || Number.isNaN(depth)) depth = maxDepth;
     const networkNodes = scanNetwork(ns, depth);

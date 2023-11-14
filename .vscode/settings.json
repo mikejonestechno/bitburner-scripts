@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "http-ds920-local-disrupting-technology-9000-",
+        "projectKey": "bitburner-scripts"
+    }
+}

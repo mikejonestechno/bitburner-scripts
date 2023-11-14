@@ -7,7 +7,7 @@ import { readDataFile, readPlayerData } from "util/data";
  * @param ns - The netscript interface to bitburner functions.
  * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
-export function main(ns: NS) {
+export async function main(ns: NS): Promise<void> {
   let depth = Number(ns.args[0]);
   if(undefined === depth || Number.isNaN(depth)) depth = 1;
   ns.tprintf("scan(depth=%d)", depth);
