@@ -57,6 +57,7 @@ export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePat
     const startPerformance = performance.now();
     network.forEach((server) => {
         log(ns, `replicating files to ${server.hostname}`); 
+        ns.disableLog("scp");
         ns.scp(filePaths, server.hostname, sourceServer);
     });
     log(ns, `networkCopyFiles() ${filePaths.length} files to ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");   

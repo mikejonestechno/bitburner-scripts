@@ -76,7 +76,8 @@ const dashboardColumns: Column[] = [
     {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
     {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
     {heading: "grow s", property: "growTime", format: format.seconds}, 
-    {heading: "g $/s", property: "growMoneyPerSecond", format: format.money}, 
+    {heading: "g $/s", property: "growMoneyPerSecond", format: format.money},
+    {heading: "weak s", property: "weakenTime", format: format.seconds}, 
     {heading: icon.target, property: "targetHackMoneyPerSecond", format: format.boolean},
     {heading: icon.moneybag, property: "targetHackMaxMoneyPerSecond", format: format.boolean},
     {heading: icon.chart, property: "targetGrowMoneyPerSecond", format: format.boolean},

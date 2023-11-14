@@ -44,8 +44,9 @@ export function readPlayerData(ns: NS): Player {
  * @param ns - The netscript interface to bitburner functions.
  * @returns The latest player data.
  */
-export function writePlayerData(ns: NS) {
+export async function writePlayerData(ns: NS): Promise<Player> {
     const player = ns.getPlayer();
+    log(ns, `write ${PLAYER_DATA_FILE}`, "INFO");
     ns.write(PLAYER_DATA_FILE, JSON.stringify(player), "w");
     return player;
 }

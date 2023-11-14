@@ -2,37 +2,18 @@
 
 I want to to select a target server to attack.
 
-> GETTING STARTED: analyze.js does getServer() so I dont need that in start.js. 
-I could make start.js execute analyze.js AND respawn another script
-- scan & generate network.txt
-- nuke (so that we have root on servers and analyze stats available)
-- analyze stats
-- spawn next script (release RAM and run script)
-
-Fuction RAM cost
-1.60 base (start)
-1.00 run (start)
-0.50 getPlayer (data)
-0.20 scan (scanAnalyze)
-2.00 getServer (scanAnalyze)
-5.30
-
-Script RAM cost
-2.60 start
-2.10 data
-3.80 scan analyze
-8.50 TOTAL
-
-start 2.6
-0) data.js 2.10GB to create player.txt
-1) scanAnalyze 3.8GB scan (write data/networknodes.txt) + getServer
-2) nuke 
-3) analyze 6.75 GB (getServer + hack, grow analyze )
-- dashboard 1.6 GB (base only)
 
 At the start of the game _foodnstuff_ has the highest hack $ per second and also the highest max money per second, so appears the best target to hack.
 
 > TEST: If I weaken _foodnstuff_ from security level 10 to minimum security 3 then it will increase my hack chance, and the more sucessful hacks, the faster I can gain hacking experience. Will weakening security pay off by increasing (a) hacking experience earnt per second? (b) money earnt per second?
+
+
+
+
+
+
+
+
 
 The _harakiri-sushi_ server has the fastest growth per second, so appears the best target to grow so I can gain more money much faster.
 

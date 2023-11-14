@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
      *  This is used to generate other data files for the current city.
      */
     initializeData(ns);
-    
+
     /*
      *  Scan network servers (get basic stats for each server and save network.txt data file).
      */

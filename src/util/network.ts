@@ -3,15 +3,11 @@ import { log } from "util/log";
 import { readDataFile, readPlayerData } from "util/data";
 
 /**
- * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
+ * Refresh the network server data.
  * @param ns - The netscript interface to bitburner functions.
- * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
 export async function main(ns: NS): Promise<void> {
-  let depth = Number(ns.args[0]);
-  if(undefined === depth || Number.isNaN(depth)) depth = 1;
-  ns.tprintf("scan(depth=%d)", depth);
-  scan(ns, depth);
+  getNetworkServers(ns);
 }
 
 // A NetworkNode only contains hostname and basic scan search traversal properties
@@ -74,7 +70,7 @@ export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[], saveNetw
   });
   log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
   if (saveNetworkFile) {
-    log(ns, `writing networkServers to ${NETWORK_FILE}`,"INFO");
+    log(ns, `write ${NETWORK_FILE}`, "INFO");
     ns.write(NETWORK_FILE, JSON.stringify(networkServers), "w");
   }
   return networkServers;
@@ -194,12 +190,8 @@ export type FilterCriteria = Partial<NetworkServer>;
  * @throws An error if the home server is not found in the network or if invalid property names are provided in the filters object.
  */
 export function filterServerProperties(ns: NS, network: NetworkServer[], filters: Partial<NetworkServer>): NetworkServer[] {
-  // get first server where optional backdoor property is false
-  const home = network.find((server) => server.backdoorInstalled === false);
-  //const home = network.find((server) => server.hostname === "home");
-  if (!home) {
-    throw new Error('Home server not found in the network');
-  }
+  // get first server to check filter properties
+  const home = network[0];
 
   const validKeys = Object.keys(filters).every((key) => isKeyOfObject(key, home));
   if (!validKeys) {
@@ -213,9 +205,10 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
     let allFiltersMatch = true;
 
     for (const property of Object.keys(filters)) {
+      if(property === "requiredHackingSkill") {
+        if (Number(server[property]) <= Number(filters[property])) continue; 
+      } 
       if (server[property] !== filters[property]) {
-        // for requiredHackingSkill, filter servers with a <= filter value rather than exact match
-        if(filters[property] === "requiredHackingSkill" && server[property] <= filters[property]) continue; 
         log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
         allFiltersMatch = false;
         break; // dont bother checking other filter properties for this server
