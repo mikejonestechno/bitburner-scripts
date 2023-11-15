@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { readDataFile, readPlayerData } from "util/data";
+import { readDataFile, writePlayerData, readPlayerData } from "util/data";
 
 /**
  * Refresh the network server data.
@@ -50,8 +50,8 @@ export function scan(ns: NS, depth: number) {
  * @returns An array of NetworkServer objects containing information about each server.
  */
 export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[], saveNetworkFile: boolean = false): NetworkServer[] {
-  const CITY = readPlayerData(ns).city;
-  const NETWORK_FILE = `data/${CITY}/network.txt`;
+  const player = writePlayerData(ns);
+  const NETWORK_FILE = `data/${player.city}/network.txt`;
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
   if (!networkNodes) { // refresh properties of all servers in network.txt
@@ -198,7 +198,7 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
     throw new Error('Invalid property names in filter: ' + Object.keys(filters) );
   }
 
-  // create new array to store servers that match filter criteria
+  // create new array to store servers that match filter criteria 
   const filteredNetwork : NetworkServer[] = [];
   const startPerformance = performance.now();
   for (const server of network) {
@@ -206,7 +206,14 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
 
     for (const property of Object.keys(filters)) {
       if(property === "requiredHackingSkill") {
-        if (Number(server[property]) <= Number(filters[property])) continue; 
+        if (Number(server[property]) <= Number(filters[property])) {
+          log(ns, `${server.hostname}: ${property} <= ${filters[property]} = continue checking other properties`);
+          continue; 
+        } else {
+          log(ns, `${server.hostname}: ${property} > ${filters[property]} = reject`);
+          allFiltersMatch = false;
+          break; // dont bother checking other filter properties for this server
+        }
       } 
       if (server[property] !== filters[property]) {
         log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);

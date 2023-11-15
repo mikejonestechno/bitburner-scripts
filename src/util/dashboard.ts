@@ -28,6 +28,14 @@ export async function main(ns: NS): Promise<void> {
     if (dashboardServers.length === 0) {
         throw new Error(`No hackable servers found. Do you need to scan and crack some servers?`);
     }
+    
+    // sort by requiredHackingSkill ascending order
+    dashboardServers.sort((a, b) => {
+        if (a.requiredHackingSkill !== undefined && b.requiredHackingSkill !== undefined) {
+            return a.requiredHackingSkill - b.requiredHackingSkill;
+        }
+        return 0;
+    }); 
     showDashboard(ns, dashboardServers, columns, false);
 }
 
