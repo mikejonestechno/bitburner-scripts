@@ -38,16 +38,15 @@ The experiment took 784 + 499 + 353 seconds = 1,636 seconds (27.27 minutes).
 
 ## Learn
 
-The experiment validated the hypothesis that at the start of the game, for low level servers, the hacking skill level has the greatest impact to h/g/w stats.
+The experiment validated the hypothesis that at the start of the game, the hacking skill level has the greatest impact to h/g/w stats, particulary for low level servers. Increasing hacking skill level can quadrupal the hack rate and double the grow rate. 
 
-To weaken _harakiri-sushi_ took 784 seconds for one iteration and reached hacking skill level 19. Weakening _foodnstuff_ for three iterations I reached hacking skill level 35 and took around half the time (496 seconds). 
+Weakening the server did have a 10%+ buff affect to _foodnstuff_ but not worth the thread time at the start of the game. 
 
 When _harakiri-sushi_ is weakened to minimum security at hacking skill level 40, each hack thread can only steal 0.01% of available money, and it has a hack chance of 40.11% resulting in an extremely low hack rate of $2.47/s.
 
 A higher hacking skill with increased hack chance could lead to higher max money rate and make _harakiri-sushi_ worth growing (it has the fastest growth rate) but at the start of the game at hacking skill level 40 even at minimum security, the max hack rate of $386.03/s is far below the $5.96k/s max hack rate available on _foodnstuff_. 
 
 To rapidly improve stats at the start of the game, focus on rapid increase of hacking skill level, and the fastest time to run a h/g/w thread.
-
 
 ## Result Summary
 
