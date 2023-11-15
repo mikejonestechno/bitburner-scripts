@@ -20,7 +20,7 @@ I expect that the h/g/w stats for _foodnstuff_ to be reasonably similar to previ
 
 ### Increasing Hacking Skill
 
-Comparing the results after increasing hacking skill level from level 1 to 35 or 40:
+Comparing the results of increasing hacking skill from level 1 to 35 or 40 (without weakening the server):
 
 The _foodnstuff_ hack chance increased from 38.57% at level 1 to 88.71% at level 40. The hack rate quadrupled from $56.20/s to $228.12/s and the grow rate doubled from $13.56/s to $23.93/s.
 
