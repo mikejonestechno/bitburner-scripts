@@ -284,9 +284,14 @@ export function filterHackableServers(ns: NS, servers: NetworkServer[]): Network
  * @param servers - An array of NetworkServers to filter.
  * @returns An array of NetworkServers that have admin rights.
  */
-export function filterRootAccessServers(ns: NS, servers: NetworkServer[]): NetworkServer[] {
+export function filterRootAccessServers(ns: NS, servers?: NetworkServer[]): NetworkServer[] {
   const filterCriteria: FilterCriteria = {
     hasAdminRights: true,
   };
+  if (undefined === servers) {
+    const player = readPlayerData(ns);
+    const NETWORK_FILE = `data/${player.city}/network.txt`;
+    servers = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
+  }
   return filterServerProperties(ns, servers, filterCriteria);
 }

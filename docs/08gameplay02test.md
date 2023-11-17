@@ -38,7 +38,7 @@ The experiment took 784 + 499 + 353 seconds = 1,636 seconds (27.27 minutes).
 
 ## Learn
 
-The experiment validated the hypothesis that at the start of the game, the hacking skill level has the greatest impact to h/g/w stats, particulary for low level servers. Increasing hacking skill level can quadrupal the hack rate and double the grow rate. 
+The experiment validated the hypothesis that at the start of the game, the hacking skill level has the greatest impact to h/g/w stats, particulary for low level servers. Increasing hacking skill level can quadruple the hack rate and double the grow rate. 
 
 Weakening the server did have a 10%+ buff affect to _foodnstuff_ but not worth the thread time at the start of the game. 
 
