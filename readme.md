@@ -4,6 +4,10 @@
 >
 > 🚧 Work in progress. 🏗️
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/mikejonestechno/bitburner-scripts)
+
+If you already have VS Code and Docker installed, you can click the badge above to get started. Clicking this link will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+
 ## About
 
 > _Bitburner_ is a free programming-based incremental game that revolves around hacking and cyberpunk themes. The game requires you to write working JavaScript / Typescript code to automate gameplay and solve puzzles. The game can be played at https://bitburner-official.github.io or installed locally through [Steam](https://store.steampowered.com/app/1812820/Bitburner/).
