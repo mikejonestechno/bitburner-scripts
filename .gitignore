@@ -1,4 +1,5 @@
 .scannerwork
+*.out
 node_modules/
 dist/
 NetscriptDefinitions.d.ts

@@ -1,0 +1,44 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+	"name": "bitburner-scripts",
+	"runArgs": ["--name", "bitburner-scripts"],
+	
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+
+	"remoteUser": "node",
+
+	// Improve performance by mounting node_modules in Docker volume
+	// https://code.visualstudio.com/remote/advancedcontainers/improve-performance
+	"mounts": [
+		"source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+	],
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	"forwardPorts": [12525],
+
+	"postCreateCommand": "sudo npm install",
+
+	// Attempt to run watch in background without using nohup.out
+	//"postStartCommand": "npm run watch",
+	//"postStartCommand": "npm run watch > watch-filesync.log &",
+	//"postStartCommand": "nohup bash -c 'npm run watch > watch-filesync.log &'",
+	//"postStartCommand": "nohup bash -c 'npm run watch > watch-filesync.log 2>&1 &' > /dev/null 2>&1 &",
+	"postStartCommand": "nohup bash -c 'npm run watch &'",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot",
+				"SonarSource.sonarlint-vscode"
+			]
+		}
+	}
+
+	// InitializeCommand runs on the host (under WSL not Windows OS)
+	// "initializeCommand": "./Start-Bitburner.ps1"
+
+}

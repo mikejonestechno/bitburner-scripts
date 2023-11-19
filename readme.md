@@ -1,8 +1,12 @@
 # bitburner-scripts
 
-> ⚠️ This is my working repository of Typescript scripts and documentation created while playing the _bitburner_ game.
->
-> 🚧 Work in progress. 🏗️
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/mikejonestechno/bitburner-scripts)
+
+> If you already have VS Code and Docker installed, you can click the badge above to get started. Clicking this link will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+
+⚠️ This is my working repository of Typescript scripts and documentation created while playing the _bitburner_ game.
+
+🚧 Work in progress. 🏗️
 
 ## About
 
