@@ -108,12 +108,16 @@ The _harakiri-sushi_ server has the fastest growth per second, so appears the be
 
 // sumarize the dashboards and generate hypothesis for experiments...
 
-Need to determine formula strategy.
-
 6 x 32GB server, noodles & home
 initial hack 100% of all available threads.
 
+Need to determine formula strategy when I have exhausted the intial hacking rates and need to start weakening and growing.
+foodnstuff has highest hack rate and max hack rate but very slow grow rate.
+joesguns has higher grow rate but low hack rates initially (until hacking skill improves and sever weakened?)
+
+
 compare the grow rate with hack rate?
+compare the grow threads and weaken threads? 
 
 keep tracking my hacking experience and money growth every time I run attack.
 
