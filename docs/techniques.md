@@ -43,7 +43,7 @@ Depending on your computer’s performance as well as a few other factors, the n
 
 ## Dark Web Price List
 
-The Tor Server costs $200k and allows connection to a server named _darkweb_. The following programs can be bought on the _darkweb_ server.
+The Tor router costs $200k and allows connection to a server named _darkweb_. The following programs can be bought on the _darkweb_ server.
 
 - BruteSSH.exe - $500.000k - Opens up SSH Ports.
 - FTPCrack.exe - $1.500m - Opens up FTP Ports.
@@ -55,3 +55,19 @@ The Tor Server costs $200k and allows connection to a server named _darkweb_. Th
 - DeepscanV2.exe - $25.000m - Enables 'scan-analyze' with a depth up to 10.
 - AutoLink.exe - $1.000m - Enables direct connect via 'scan-analyze'.
 - Formulas.exe - $5.000b - Unlock access to the formulas API.
+
+## Gaining Early RAM
+
+At the start of the game I have access to 108 GB RAM (including the _home_ server).
+
+Puchase 'home' RAM. The first upgrade from 8 GB to 16 GB cost $1.01m
+
+Purchase additional servers @ $110k per 2 GB ($55.00k per GB)
+So $880k would purchase 8 x 2 GB = one 16 GB server
+
+Purchase Tor router and BruteSSH.exe costs $700k. This allows port cracking and gaining root access to additional
+136 GB of server RAM (double the RAM available at the start of the game).
+136 GB / $700k = $0.19k per GB
+
+Then purchasing FTPCrack.exe costs $1.5m. This allows port cracking to gain root access to additional
+264 GB of server RAM (double the additional RAM from BruteSSH.exe).

@@ -14,11 +14,11 @@ Observe the effect on hack/grow/weaken statistics on _foodnstuff_ and compare wi
 
 ## Expect
 
-I expect that that hacking servers without weakening or growing quickly gains hacking skill experience, unlocking higher level servers for hacking and earning enough money to purchase Tor server and port cracks.
+I expect that that hacking servers without weakening or growing quickly gains hacking skill experience, unlocking higher level servers for hacking and earning enough money to purchase Tor router and port cracks.
 
 ## Actual
 
-After 3 hack Iterations taking 2+ mintues (135 seconds) I reached hacking level 31 and had over $800 k, enough to purchase Tor server and BruteSSH.exe.
+After 3 hack Iterations taking 2+ mintues (135 seconds) I reached hacking level 31 and had over $800 k, enough to purchase Tor router and BruteSSH.exe.
 
 After 5 hack iterations taking 3+ minutes (203 seconds) I reached hacking level 42 and had $1.3 m.
 
@@ -73,7 +73,7 @@ nectar-net          16GB      20👨‍💻  41.90%   0.07%   $2.75m   $1.91k   
 
 AFTER 3 Iteration hack level 31 $843.221k 51+42+42 seconds
 Note UNEXPECTED the increased hacking skill has improved hack times and _foodnstuff_ hack rate has INCREASED a little.
-At this point I can afford Tor server and BruteSSH.exe crack.
+At this point I can afford Tor router and BruteSSH.exe crack.
 
 ```
 [home /]> run util/dashboard --show hack
