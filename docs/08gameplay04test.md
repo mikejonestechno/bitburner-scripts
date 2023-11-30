@@ -6,6 +6,8 @@ Test the effect of growing servers before hacking.
 
 ## Try
 
+The _harakiri-sushi_ server has the fastest growth per second, so appears the best target to grow so I can gain more money much faster. However the security and hacking rate are so significant that I cant take advantage of any additional growth in at the start of the game. Explore the effects of growing the _foodnstuff_ server.
+
 Perform a soft reset so that all servers are back to initial values.
 
 Grow the _foodnstuff_ server for maximum 500 seconds (approx 8.25 minutes).
@@ -18,10 +20,15 @@ I expect that that growing servers will initially be very minimal impact because
 
 ## Actual
 
-?? the grow threads are increasing? expected as there is less money to grow, that there would be fewer grow threads required to reach max money.
+The server grew from $2.00m to $2.08m which had marginal affect on hack rate $/s, the hack skill level has much greater effect at the start of the game.
+
+Unexpectedly, the number of grow threads required to reach max money are increasing. I expected fewer grow threads as there is less money to grow. 
 
 ## Learn
 
+I learnt that the 10% increase in security from 10.00 to 11.00 resulted in the increase in number of grow threads required from 21.49k to 23.45k. 
+
+Growing threads have diminishing return at the start of the game as the increased security outweighs the increased hacking experience and increased the number of required grow threads above the original value.
 
 ## Result Summary
 
@@ -52,7 +59,21 @@ foodnstuff            16GB    5   $2.06m  $50.00m  $47.94m   24.26  23.06k   $2.
 foodnstuff            16GB    5   $2.08m  $50.00m  $47.92m   24.09  23.45k   $2.04k    90s   $22.76  11.04👮   3.00👮   112s  160.80 ❌ hack level 44
 ```
 
-AFTER 5 grow iterations
+AFTER 3 grow iterations (hack level 33)
+
+```
+[home /]> run util/dashboard
+hostname             RAM    hack👨‍💻  $ avail    $ max % avail hack s  chance    h $/s  max $/s       👮   min 👮 grow s    g $/s weak s 🎯 💰 📈 
+n00dles              4GB       1👨‍💻  $70.00k   $1.75m   4.00%    30s  97.29%    $9.28  $232.00   1.00👮   1.00👮    97s  $564.75   121s ❌ ❌ ❌ 
+foodnstuff          16GB       1👨‍💻   $2.05m  $50.00m   4.09%    32s  87.83%  $210.97   $5.16k  10.62👮   3.00👮   102s   $20.84   127s ✔️ ✔️ ❌ 
+sigma-cosmetics     16GB       5👨‍💻   $2.30m  $57.50m   4.00%    38s  82.21%  $165.49   $4.14k  10.00👮   3.00👮   120s   $42.64   151s ❌ ❌ ❌ 
+joesguns            16GB      10👨‍💻   $2.50m  $62.50m   4.00%    53s  70.28%   $85.86   $2.15k  15.00👮   5.00👮   169s   $44.16   211s ❌ ❌ ❌ 
+nectar-net          16GB      20👨‍💻   $2.75m  $68.75m   4.00%    90s  52.29%   $22.51  $562.65  20.00👮   7.00👮   289s   $26.57   361s ❌ ❌ ❌ 
+hong-fang-tea       16GB      30👨‍💻   $3.00m  $75.00m   4.00%    98s  40.84%    $5.37  $134.34  15.00👮   5.00👮   313s   $28.53   392s ❌ ❌ ❌ 
+harakiri-sushi      16GB      40👨‍💻   $4.00m $100.00m   4.00%   120s  26.13%    $0.00    $0.00  15.00👮   5.00👮   386s   $61.82   482s ❌ ❌ ✔️ 
+```
+
+AFTER 5 grow iterations (hack level 44)
 
 ```
 [home /]> run util/dashboard

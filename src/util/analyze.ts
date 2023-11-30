@@ -27,12 +27,12 @@ export async function main(ns: NS): Promise<void> {
  */
 export function hackAnalyze(ns: NS, network: NetworkServer[]) {
     // find the server with the highest money per second
-    let targetHackMoneyPerSecond = {
+    const targetHackMoneyPerSecond = {
         money: 0,
         hostname: "",
     };
     // find the server with the highest maxMoney per second
-    let targetHackMaxMoneyPerSecond = {
+    const targetHackMaxMoneyPerSecond = {
         money: 0,
         hostname: "",
     };
@@ -68,8 +68,8 @@ export function hackAnalyze(ns: NS, network: NetworkServer[]) {
     });
 
     network.forEach((server) => {
-        server.targetHackMoneyPerSecond = (server.hostname === targetHackMoneyPerSecond.hostname) ? true : false;
-        server.targetHackMaxMoneyPerSecond = (server.hostname === targetHackMaxMoneyPerSecond.hostname) ? true : false;
+        server.targetHackMoneyPerSecond = (server.hostname === targetHackMoneyPerSecond.hostname);
+        server.targetHackMaxMoneyPerSecond = (server.hostname === targetHackMaxMoneyPerSecond.hostname);
     });
 
     log(ns, `hackAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
@@ -78,7 +78,7 @@ export function hackAnalyze(ns: NS, network: NetworkServer[]) {
 
 export function growAnalyze(ns: NS, network: NetworkServer[]) {
     const startPerformance = performance.now();
-    let targetGrowMoneyPerSecond = {
+    const targetGrowMoneyPerSecond = {
         money: 0,
         hostname: "",
     };
@@ -117,7 +117,7 @@ export function growAnalyze(ns: NS, network: NetworkServer[]) {
         Object.assign(server, properties);
     });
     network.forEach((server) => {
-        server.targetGrowMoneyPerSecond = (server.hostname === targetGrowMoneyPerSecond.hostname) ? true : false;
+        server.targetGrowMoneyPerSecond = (server.hostname === targetGrowMoneyPerSecond.hostname);
     });
     log(ns, `growAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
     return network;

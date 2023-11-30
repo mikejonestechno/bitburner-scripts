@@ -58,13 +58,16 @@ The Tor router costs $200k and allows connection to a server named _darkweb_. Th
 
 ## Gaining Early RAM
 
-Puchase 'home' RAM. The first upgrade from 8GB to 16 GB cost $1.01m
+At the start of the game I have access to 108 GB RAM (including the _home_ server).
 
-Purchase additional servers @ $110k per 2 GB
+Puchase 'home' RAM. The first upgrade from 8 GB to 16 GB cost $1.01m
+
+Purchase additional servers @ $110k per 2 GB ($55.00k per GB)
 So $880k would purchase 8 x 2 GB = one 16 GB server
 
 Purchase Tor router and BruteSSH.exe costs $700k. This allows port cracking and gaining root access to additional
-136 GB of server RAM.
+136 GB of server RAM (double the RAM available at the start of the game).
+136 GB / $700k = $0.19k per GB
 
 Then purchasing FTPCrack.exe costs $1.5m. This allows port cracking to gain root access to additional
-264 GB of server RAM.
+264 GB of server RAM (double the additional RAM from BruteSSH.exe).

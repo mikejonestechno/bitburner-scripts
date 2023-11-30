@@ -16,6 +16,12 @@ To weaken _foodnstuff_:
 run malware/attack.js w foodnstuff
 ```
 
+To grow _foodnstuff_:
+
+```
+run malware/attack.js g foodnstuff
+```
+
 To hack the server that has the highest hack rate money per second
 
 ```
@@ -75,9 +81,9 @@ Weakening the server did have a 10%+ buff affect to _foodnstuff_. Given the weak
 
 ## Hack Experiments
 
-> [TEST 03](08gameplay03test.md): Test how quickly I gain hacking experience without weakening a server
+> [TEST 03](08gameplay03test.md): Test the effect of hacking servers without weaken or growing first.
 
-Effect of three iterations of hack attacks:
+Effect of three iterations of hack attacks (targeting whichever server has the highest hack rate):
 
 ```
 [home /]> run util/dashboard
@@ -91,22 +97,82 @@ hong-fang-tea       16GB      30👨‍💻   $3.00m  $75.00m   4.00%    99s  39
 harakiri-sushi      16GB      40👨‍💻   $4.00m $100.00m   4.00%   122s  24.29%    $0.00    $0.00  15.00👮   5.00👮   390s   $61.08   488s ❌ ❌ ✔️ 
 ```
 
-[Test results](08gameplay03test.md) show that hacking servers at the start of the game quickly reaches hacking level 30+ and $800+k in around two minutes, enough to puchase the BruteSSH.exe and crack additional servers.
+[Test results](08gameplay03test.md) show that hacking servers at the start of the game quickly reaches hacking level 30+ and $800+k in around two minutes, enough to puchase the BruteSSH.exe and crack additional servers for additional RAM. However the hack rates significantly drop due to the low money available and increased security.
 
 ## Grow Experiments
 
-The _harakiri-sushi_ server has the fastest growth per second, so appears the best target to grow so I can gain more money much faster.
-
 > [TEST 04](08gameplay04test.md): Test the effect of growing a server before hacking it.
 
+Effect of three iterations of grow attacks (hack skill level 33):
+
+```
+[home /]> run util/dashboard
+hostname             RAM    hack👨‍💻  $ avail    $ max % avail hack s  chance    h $/s  max $/s       👮   min 👮 grow s    g $/s weak s 🎯 💰 📈 
+n00dles              4GB       1👨‍💻  $70.00k   $1.75m   4.00%    30s  97.29%    $9.28  $232.00   1.00👮   1.00👮    97s  $564.75   121s ❌ ❌ ❌ 
+foodnstuff          16GB       1👨‍💻   $2.05m  $50.00m   4.09%    32s  87.83%  $210.97   $5.16k  10.62👮   3.00👮   102s   $20.84   127s ✔️ ✔️ ❌ 
+sigma-cosmetics     16GB       5👨‍💻   $2.30m  $57.50m   4.00%    38s  82.21%  $165.49   $4.14k  10.00👮   3.00👮   120s   $42.64   151s ❌ ❌ ❌ 
+joesguns            16GB      10👨‍💻   $2.50m  $62.50m   4.00%    53s  70.28%   $85.86   $2.15k  15.00👮   5.00👮   169s   $44.16   211s ❌ ❌ ❌ 
+nectar-net          16GB      20👨‍💻   $2.75m  $68.75m   4.00%    90s  52.29%   $22.51  $562.65  20.00👮   7.00👮   289s   $26.57   361s ❌ ❌ ❌ 
+hong-fang-tea       16GB      30👨‍💻   $3.00m  $75.00m   4.00%    98s  40.84%    $5.37  $134.34  15.00👮   5.00👮   313s   $28.53   392s ❌ ❌ ❌ 
+harakiri-sushi      16GB      40👨‍💻   $4.00m $100.00m   4.00%   120s  26.13%    $0.00    $0.00  15.00👮   5.00👮   386s   $61.82   482s ❌ ❌ ✔️ 
+```
+
+[Test results](08gameplay04test.md) show that growing servers at the start of the game have minimal effect as the percentage increase in available money is small. However grow will soon be required to counteract the significant drop in hack rates if servers are constantly hacked at the start of the game.
+
+## Available RAM 
+
+Available RAM is a critical resource particularly for growing servers to max money for significantly better hack rates.
+
+At the start of the game I only have access to 6 servers with 16 GB RAM, a total 108 GB RAM (including the _home_ server).
+
+### Home Server RAM
+
+I could puchase additional RAM for my 'home'server. The first upgrade from 8 GB to 16 GB cost $1.01m.
+
+Home server RAM is $1.01m / 8 GB = $126.25k per GB.
+
+### Additional Servers
+
+I could purchase additional servers @ $110k per 2 GB.
+
+Additional server RAM is $110k / 2 GB = $55.00k per GB.
+
+### Cracked Network Servers
+
+I could purchase Tor router and BruteSSH.exe that costs $700k. This allows port cracking and gaining root access to some 32 GB and 64 GB servers, a total 
+136 GB of additional server RAM (doubling the 108 GB RAM available at the start of the game).
+
+First crack network server RAM $700k / 136 GB = $5.147k per GB.
+
+Later purchasing of FTPCrack.exe will cost $1.5m. This allows port cracking to gain root access to another 264 GB of server RAM.
+
+Second crack network server RAM $1.5m / 264 GB = $5.681k per GB.
+
+The cheapest way to get additional RAM to improve hack, grow weaken threads is to crack network servers.
+
+[Test results](08gameplay03test.md) show that hacking servers at the start of the game quickly reaches hacking level 30+ and $800+k in around two minutes, enough to puchase the BruteSSH.exe and crack additional servers.
+
+## Starting Strategy
+
+My hypothesis is that I should gain additional RAM as fast as possible, the additional threads will allow me to quickly regrow and weaken servers to maintain more effective hack rates. 
+
+> [TEST 05](08gameplay05test.md): Validate the additional RAM will enable me to quickly recover the stolen money.
 
 
+// to do
 
 
-
----
 
 // sumarize the dashboards and generate hypothesis for experiments...
+
+
+Q: Three hack iterations will unlock Tor router and additional RAM, will that enable me to rapidly recover the money stolen...
+    ...or will servers have such low money that additional RAM is still little effect and it IS better to grow at start of game?
+
+    How many grow threads are required to restore the stolen money on foodnstuff?
+    Will fast path to Tor router gain enough additional RAM to make it worth it?
+
+
 
 6 x 32GB server, noodles & home
 initial hack 100% of all available threads.
@@ -132,6 +198,9 @@ and then I need to focus more on grow and weaken...
 // foodnstuff has higher $/s than noodles, but noodles has max $/s higher than current foodnstuff and can grow noodles really fast
 // so should I grow noodles or should I grow foodnstuff?
 
+... keep track of how many hack threads have been done, spawn some grow threads to at least retain money?
+... keep track of how many hack and grow threads have been done, spawn a weaken thread to min security?
+
 ## 👮 Hack, Grow, Weaken Security
 
 Weaken attacks take four times longer than hacks.
@@ -146,11 +215,11 @@ The fastest way to earn hacking experience is by hacking.
 >
 > each successful weaken lowers security by 0.05.
 
-It takes 500 successful hacks to increase security by 1.
+It takes 500 hacks to increase security by 1.
 
-It takes 250 successful grows to increase security by 1.
+It takes 250 grows to increase security by 1.
 
-It takes 20 successful weakens to reduce security by 1.
+It takes 20 weakens to reduce security by 1.
 
 
 ## About The Code

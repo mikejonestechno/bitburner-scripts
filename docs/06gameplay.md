@@ -22,8 +22,6 @@ harakiri-sushi        16GB   40👨‍💻   $4.00m $100.00m   15.00    5.00   4
 nectar-net            16GB   20👨‍💻   $2.75m  $68.75m   20.00    7.00   25
 ```
 
-
-
 I can see _foodnstuff_ has $2.00m available. The next step is to estimate the success of hack, grow and weaken commands so I can choose the best action and target server. 
 
 ## About The Code
