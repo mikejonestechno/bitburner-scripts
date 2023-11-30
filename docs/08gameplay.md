@@ -2,7 +2,18 @@
 
 I want to to select a target server to attack.
 
-// Add TL/DR; links to section headers here
+###  Contents
+
+- [Attack](#attack)
+- [Weaken Experiments](#weaken-experiments)
+- [Hack Experiments](#hack-experiments)
+- [Grow Experiments](#grow-experiments)
+- [Available Ram](#available-ram)
+- [Starting Strategy](#starting-strategy)
+- [Conclusion](#conclusion)
+- [Hack, Grow, Weaken Security](#hack-grow-weaken-security)
+- [About The Code](#about-the-code)
+
 
 # Attack 
 
@@ -158,48 +169,26 @@ My hypothesis is that I should gain additional RAM as fast as possible, the addi
 
 > [TEST 05](08gameplay05test.md): Validate the additional RAM will enable me to quickly recover the stolen money.
 
+After three hack iterations (hack skill level 31, $800k) _foodnstuff_ was reduced by $800k to $1.20m. At this hack skill and security level each grow thread can grow at $18.38/s. 
 
-// to do
+```
+hostname             RAM    hack👨‍💻  $ avail    $ max % avail hack s  chance    h $/s  max $/s       👮   min 👮 grow s    g $/s weak s 🎯 💰 📈 
+foodnstuff          16GB       1👨‍💻   $1.20m  $50.00m   2.40%    32s  88.08%  $121.88   $5.07k  10.27👮   3.00👮   104s   $18.38   130s ❌ ✔️ ❌ 
+```
 
+With a total 244 GB available RAM (108 GB + 136 GB cracked servers) I can run 244 GB / 1.75 GB per grow.js thread = maximum 139.43 threads.
 
+Grow 139 threads x $18.38/s = $2.555k/s 
 
-// sumarize the dashboards and generate hypothesis for experiments...
+To grow $800k = $800k / $2.555 = 313 seconds = approx 5.2 minutes.
 
+## Conclusion
 
-Q: Three hack iterations will unlock Tor router and additional RAM, will that enable me to rapidly recover the money stolen...
-    ...or will servers have such low money that additional RAM is still little effect and it IS better to grow at start of game?
+The greatest challenge to designing a hack, grow weaken strategy is that the basic analyze functions available at start of the game assume static player and server stats. For example, they dont take increased hacking experience into account, and that makes a significant difference at the start.
 
-    How many grow threads are required to restore the stolen money on foodnstuff?
-    Will fast path to Tor router gain enough additional RAM to make it worth it?
+Although _foodnstuff_ has highest hack rates at the start it also has the lowest grow factor and lowest max money (excluding n00dles) that I expect other servers will quickly become more profitable taking grow and weaken into consideration.
 
-
-
-6 x 32GB server, noodles & home
-initial hack 100% of all available threads.
-
-Need to determine formula strategy when I have exhausted the intial hacking rates and need to start weakening and growing.
-foodnstuff has highest hack rate and max hack rate but very slow grow rate.
-joesguns has higher grow rate but low hack rates initially (until hacking skill improves and sever weakened?)
-
-
-compare the grow rate with hack rate?
-compare the grow threads and weaken threads? 
-
-keep tracking my hacking experience and money growth every time I run attack.
-
-currently am all-in on hack or grow, when I reach threshold, I want to consider split resources?
-
-... expect a balance threshold when pure hacking experience is no longer gaining at the same rate
-and then I need to focus more on grow and weaken...
-
-// which to grow first?
-// hack time is increased by security level, and decreased by hacking skill.
-// so improve hack $/s by increase hack skill or decrease security
-// foodnstuff has higher $/s than noodles, but noodles has max $/s higher than current foodnstuff and can grow noodles really fast
-// so should I grow noodles or should I grow foodnstuff?
-
-... keep track of how many hack threads have been done, spawn some grow threads to at least retain money?
-... keep track of how many hack and grow threads have been done, spawn a weaken thread to min security?
+My start strategy will be to optimze RAM and maximize hack speed towards $700k, but change strategy and devise a function to evaluate grow and weaken targets from $701k.
 
 ## 👮 Hack, Grow, Weaken Security
 
