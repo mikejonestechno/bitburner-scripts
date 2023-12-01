@@ -209,10 +209,3 @@ It takes 500 hacks to increase security by 1.
 It takes 250 grows to increase security by 1.
 
 It takes 20 weakens to reduce security by 1.
-
-
-## About The Code
-
-// summarize the attack.ts scripts and the progress to date 
-// what does run start.js do?
-// explain the file structure so far.
