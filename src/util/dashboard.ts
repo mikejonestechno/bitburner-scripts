@@ -64,7 +64,7 @@ export const scanAnalyzeColumns: Column[] = [
     {heading: "network", property: "hostname", format: format.hostname},
     {heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
     {heading: "ports", property: "numOpenPortsRequired", format: {padding: -10}},   
 ];
 
@@ -73,7 +73,7 @@ const dashboardColumns: Column[] = [
     // all vulnerable servers will have admin rights, so hide this column
     //{heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
     {heading: "$ max", property: "moneyMax", format: format.money},
     {heading: "% avail", property: "moneyAvailablePercent", format: format.percent},
@@ -94,7 +94,7 @@ const dashboardColumns: Column[] = [
 const hackColumns: Column[] = [
     {heading: "hostname", property: "hostname", format: format.hostname},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 6, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
     {heading: "chance", property: "hackChance", format: format.percent},
     {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
