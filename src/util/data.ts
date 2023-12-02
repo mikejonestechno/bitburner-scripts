@@ -59,6 +59,7 @@ export function readPlayerData(ns: NS): Player {
  * Writes the latest player data to a file.
  * @param ns - The netscript interface to bitburner functions.
  * @returns The latest player data.
+ * @remarks DEPRECATED: use refreshPlayerData() instead.
  */
 export function writePlayerData(ns: NS): Player {
     const player = ns.getPlayer();
@@ -67,6 +68,16 @@ export function writePlayerData(ns: NS): Player {
     return player;
 }
 
+
+/**
+ * Reads and parses data of a specific type from the given namespace.
+ * @param ns The netscript interface to bitburner functions.
+ * @param type The type of data to read.
+ * @returns The parsed data.
+ */
+export function readData(ns: NS, type: string): any {
+    return JSON.parse(ns.peek(DATA[type].port) as string);
+}
 
 /**
  * Get the latest player data.
@@ -86,8 +97,11 @@ export function refreshPlayerData(ns: NS, force = false): Player {
  * @returns true if successful, false otherwise.
  * @remarks RAM cost: 0 GB
  */
-export function tryWriteData(ns: NS, type: string, data: any): boolean {
+export function tryWriteData(ns: NS, type: string, data: any, writeFile = false): boolean {
     data = JSON.stringify(data);
+    if (writeFile) {
+        ns.write(DATA[type].file, data, "w");
+    }
     return ns.tryWritePort(DATA[type].port, data);
 }
 // Queues that i use to store variables should only contiain one entry
@@ -95,7 +109,7 @@ export function refreshData(ns: NS, type: string, data: any, force = false): boo
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
     }
-    const result = tryWriteData(ns, type, data);
+    const result = tryWriteData(ns, type, data, force);
     if (!force) {
         ns.readPort(DATA[type].port); // pop old value
     }
@@ -117,7 +131,6 @@ export function clearData(ns: NS) {
 export function clearAllData(ns: NS) {
     const filePaths = ns.ls("home", "data/");
     filePaths.forEach((filePath) => {
-        ns.tprint(`removing ${filePath}`);
         ns.rm(filePath);
     });
 }    
