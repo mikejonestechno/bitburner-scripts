@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { readDataFile, writePlayerData, readPlayerData } from "util/data";
+import { readDataFile, writePlayerData, readPlayerData, refreshData, readData, DATA } from "util/data";
 
 /**
  * Refresh the network server data.
@@ -24,7 +24,7 @@ export interface NetworkServer extends Server {
   // Add an 'index signature' to enable access and filter properties based on key string
   // required for the filterServerProperties() function
   [key: string]: any; 
-};
+}
 
 /**
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
@@ -49,30 +49,20 @@ export function scan(ns: NS, depth: number) {
  * @param networkNodes - Optional array of network nodes to scan.
  * @returns An array of NetworkServer objects containing information about each server.
  */
-export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[], saveNetworkFile: boolean = false): NetworkServer[] {
-  const player = writePlayerData(ns);
-  const NETWORK_FILE = `data/${player.city}/network.txt`;
+export function getNetworkServers(ns: NS): NetworkServer[] {
+  const networkNodes = readData(ns, "network") as NetworkNode[];
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
-  if (!networkNodes) { // refresh properties of all servers in network.txt
-    networkNodes = readDataFile(ns, NETWORK_FILE) as NetworkNode[];
-    saveNetworkFile = true; // save network file after updating properties
-  }
   networkNodes.forEach((networkNode) => {
     log(ns, `getServer ${networkNode.hostname}`); 
     // create a new networkServer object and 'spread' (shallow copy) node and server properties
     const networkServer: NetworkServer = { ...networkNode, ...ns.getServer(networkNode.hostname)};
-    // log message verifies a server and node property were copied
     if (networkServer.moneyMax !== undefined && networkServer.moneyMax > 0) {
       networkServer.moneyAvailablePercent = (networkServer.moneyAvailable ?? 0) / (networkServer.moneyMax ?? 1);
     }
     networkServers.push(networkServer);
   });
   log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
-  if (saveNetworkFile) {
-    log(ns, `write ${NETWORK_FILE}`, "INFO");
-    ns.write(NETWORK_FILE, JSON.stringify(networkServers), "w");
-  }
   return networkServers;
 }
 
@@ -89,24 +79,13 @@ export function getNetworkServers(ns: NS, networkNodes?: NetworkNode[], saveNetw
 const defaultMaxDepth = 50;
 export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): NetworkNode[] {
 
-  const CITY = readPlayerData(ns).city;
-  const NETWORK_NODES_FILE = `data/${CITY}/networkNodes.txt`;
-
   if(maxDepth > defaultMaxDepth) maxDepth = defaultMaxDepth; 
   log(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
 
-  // If the networkNodes file exists, read it and return the contents
-  log(ns, `reading networkNodes from ${NETWORK_NODES_FILE}`);
-
-  const DATA = readDataFile(ns, NETWORK_NODES_FILE) as NetworkNode[];
-  if (DATA) {
-    return DATA.filter((networkNode) => networkNode.depth <= maxDepth);
-  }
-  
   // Create array for storing the network tree
   const networkNodes: NetworkNode[] = [];
 
-  // Create a stack for storing the nodes to be scanned, starting with the home server at depth zero
+    // Create a stack for storing the nodes to be scanned, starting with the home server at depth zero
   const stack: NetworkNode[] = [
     {
       depth: 0,
@@ -130,6 +109,7 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
     }
 
     /* If current node is NOT at max depth, scan the node to find deeper connections */
+    
     if (stackNode.depth < maxDepth) {
       log(ns, `scanning ${stackNode.hostname}`, "INFO");
 
@@ -157,15 +137,34 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
   log(ns, "scan stack is empty", "INFO");
   log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
   
-  // The networkNode hierarchy should not change until the game is reset.
-  // If we performed a full maxDepth scan of the network, write data to cache file.
-  // The cache will need to be cleared and refreshed if new servers are purchased. 
-  if (maxDepth === defaultMaxDepth) {
-    log(ns, `writing networkNodes to ${NETWORK_NODES_FILE}`);
-    ns.write(NETWORK_NODES_FILE, JSON.stringify(networkNodes), "w");
-  }
+  return networkNodes; 
+  
+}
+
+/**
+ * Get the latest network node data.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns The latest player info.
+ * @remarks RAM cost: 0.2 GB
+ */
+export function refreshNetworkScan(ns: NS, depth = 50, force = false): NetworkNode[] {
+  const networkNodes = scanNetwork(ns, depth);
+  refreshData(ns, "network", networkNodes, force);
   return networkNodes;
 }
+
+/**
+ * Get the latest network node data.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns The latest player info.
+ * @remarks RAM cost: 0.2 GB
+ */
+export function refreshNetworkServers(ns: NS, force = false): NetworkServer[] {
+  const networkServers = getNetworkServers(ns);
+  refreshData(ns, "network", networkServers, force);
+  return networkServers;
+}
+
 
 /**
  * Checks if a given key is a property of a given object.
