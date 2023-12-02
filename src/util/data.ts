@@ -7,17 +7,19 @@ type Data = {
 };
 
 export const DATA: { [key: string]: Data } = {
+    control: {
+        file: "/data/control.txt",
+        port: 1,
+    },
     player: {
         file: "/data/player.txt",
-        port: 1,
+        port: 2,
     },
     network: {
         file: "/data/network.txt",
-        port: 2,
+        port: 3,
     }
 }
-
-const PLAYER_DATA_FILE = DATA.player.file;
 
 /**
  * Write player data to a file.
@@ -48,9 +50,9 @@ export function readDataFile(ns: NS, filename: string) {
  * @returns The parsed player data.
  */
 export function readPlayerData(ns: NS): Player {
-    const player = readDataFile(ns, PLAYER_DATA_FILE) as Player;
+    const player = readDataFile(ns, DATA.player.file) as Player;
     if (undefined === player) {
-        throw new Error(`Failed to load ${PLAYER_DATA_FILE}. Run util/data.js or call writePlayerData() to re-generate.`);
+        throw new Error(`Failed to load ${DATA.player.file}. Run util/data.js or call writePlayerData() to re-generate.`);
     }
     return player;
 }
@@ -63,8 +65,8 @@ export function readPlayerData(ns: NS): Player {
  */
 export function writePlayerData(ns: NS): Player {
     const player = ns.getPlayer();
-    log(ns, `write ${PLAYER_DATA_FILE}`, "INFO");
-    ns.write(PLAYER_DATA_FILE, JSON.stringify(player), "w");
+    log(ns, `write ${DATA.player.file}`, "INFO");
+    ns.write(DATA.player.file, JSON.stringify(player), "w");
     return player;
 }
 
@@ -75,7 +77,7 @@ export function writePlayerData(ns: NS): Player {
  * @param type The type of data to read.
  * @returns The parsed data.
  */
-export function readData(ns: NS, type: string): any {
+export function readData(ns: NS, type: string): string {
     return JSON.parse(ns.peek(DATA[type].port) as string);
 }
 
@@ -97,15 +99,15 @@ export function refreshPlayerData(ns: NS, force = false): Player {
  * @returns true if successful, false otherwise.
  * @remarks RAM cost: 0 GB
  */
-export function tryWriteData(ns: NS, type: string, data: any, writeFile = false): boolean {
-    data = JSON.stringify(data);
+export function tryWriteData(ns: NS, type: string, rawdata: unknown, writeFile = false): boolean {
+    const data = JSON.stringify(rawdata);
     if (writeFile) {
         ns.write(DATA[type].file, data, "w");
     }
     return ns.tryWritePort(DATA[type].port, data);
 }
 // Queues that i use to store variables should only contiain one entry
-export function refreshData(ns: NS, type: string, data: any, force = false): boolean {
+export function refreshData(ns: NS, type: string, data: unknown, force = false): boolean {
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
     }
