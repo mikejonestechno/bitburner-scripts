@@ -1,17 +1,21 @@
 import { NS } from "@ns";
 import { log } from "util/log";
-import { NetworkServer, filterVulnerableServers, getNetworkServers } from "util/network";
-import { readDataFile, readPlayerData } from "util/data";
+import { NetworkServer, filterVulnerableServers } from "util/network";
+import { readNetworkData, readTextFile } from "util/data";
 
-
-export async function main(ns: NS): Promise<void> {
-    const player = readPlayerData(ns);
-    const NETWORK_FILE = `data/${player.city}/network.txt`;
-    let network = readDataFile(ns, NETWORK_FILE);
-    const vulnerableServers = filterVulnerableServers(ns, network);
-    nukeServers(ns, vulnerableServers);
-    network = getNetworkServers(ns, network, true); // refresh network.txt after nuking
+/**
+ * Nukes the specified vulnerable servers and injects malware.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns An array of the same vulnerable servers that were nuked.
+ * @remarks RAM cost: 2.25 GB (base, scp, nuke)
+ */
+export function main(ns: NS): NetworkServer[] {
+    const network = readNetworkData(ns);
+    let vulnerableServers = filterVulnerableServers(ns, network);
+    vulnerableServers = nukeServers(ns, vulnerableServers);
+    // copy malware to ALL network servers at the start, saves RAM cost of running scp until I purchase new servers
     injectMalware(ns, network);
+    return vulnerableServers;
 }    
 
 /**
@@ -34,16 +38,14 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
     return vulnerableServers;
 }
 
-export const injectMalware = networkServerCopyFilePattern; // Alias for networkServerCopyFilePattern
 /**
- * Copies files matching a specified pattern from the home directory to a list of network servers.
+ * Copy files listed in data/malware.txt to all network servers (root access is NOT required).
  * @param ns - The netscript interface to bitburner functions.
- * @param network - An array of network server objects to copy the files to.
- * @param filePattern - The pattern to match against file names in the home directory. Defaults to "/malware/".
+ * @param network - An array of network servers to copy the files to.
  */
-export function networkServerCopyFilePattern(ns: NS, network: NetworkServer[], filePattern: string = "/malware/", sourceServer: string = "home") {
-    const filePaths = ns.ls(sourceServer, filePattern);
-    networkServerCopyFiles(ns, network, filePaths, sourceServer);
+export function injectMalware(ns: NS, network: NetworkServer[]) {
+    const malwareFiles = readTextFile(ns, "/data/malware.txt");
+    networkServerCopyFiles(ns, network, malwareFiles, "home"); 
 }
 
 /**
@@ -53,7 +55,7 @@ export function networkServerCopyFilePattern(ns: NS, network: NetworkServer[], f
  * @param network - An array of NetworkServer objects to copy the files to.
  * @param filePaths - An array of file paths to copy to each server.
  */
-export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePaths: string[], sourceServer: string = "home") {
+export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePaths: string[], sourceServer = "home") {
     const startPerformance = performance.now();
     network.forEach((server) => {
         log(ns, `replicating files to ${server.hostname}`); 
