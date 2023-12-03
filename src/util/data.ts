@@ -130,9 +130,37 @@ export function clearData(ns: NS) {
         ns.rm(DATA[type].file);
     }
 }
-export function clearAllData(ns: NS) {
-    const filePaths = ns.ls("home", "data/");
+/**
+ * Deletes files matching the specified pattern from the given server.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param filePattern - The pattern to match the file names against. Defaults to "/data/".
+ * @param sourceServer - The server from which to delete the files. Defaults to "home".
+ */
+export function deleteFiles(ns: NS, filePattern = "/data/", sourceServer = "home") {
+    const filePaths = ns.ls(sourceServer, filePattern);
     filePaths.forEach((filePath) => {
         ns.rm(filePath);
     });
-}    
+}
+/**
+ * Writes a list of file paths to a specified file.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param file - The path of the file to write the list of file paths to. Defaults to "data/malware.txt".
+ * @param filePattern - The pattern to match file paths against. Defaults to "/malware/".
+ * @param sourceServer - The name of the server to search for file paths. Defaults to "home".
+ * @returns An array of file paths that were written to the file.
+ */
+export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "/malware/", sourceServer = "home"): string[] {
+    const filePaths = ns.ls(sourceServer, filePattern);
+    ns.write(file, filePaths.join('\n'), "w");
+    return filePaths
+}
+/**
+ * Reads a txt file and returns its contents as an array of strings.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param file - The path of the file to read. Defaults to "data/malware.txt".
+ * @returns An array of strings representing the lines in the file.
+ */
+export function readTextFile(ns: NS, file = "data/malware.txt"): string[] {
+    return ns.read(file).split('\n');
+}
