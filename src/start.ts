@@ -1,28 +1,18 @@
 import { NS, SpawnOptions } from "@ns";
-import { main as initializeData } from "util/data";
-import { main as scanAnalyze } from "util/scanAnalyze";
 import { main as nukeServers } from "util/crack";
 
+/**
+ * Starts basic cycle of cracking and hacking
+ * @param ns - The netscript interface to bitburner functions.
+ * @remarks RAM cost: 6.45 GB (base, spawn, getServer, scp, ls, nuke)
+ */
 export async function main(ns: NS): Promise<void> {
 
-    /* 
-     * Delete all data files in data directory
+    /* PHASE I: Initialize data
+     * Run reset.js (separate script to reduce RAM cost)
      */
-    // The ns.rm() adds 1GB RAM cost so manually run util/reset.js for now // reset(ns); 
 
-    /*
-     *  Initialize player.txt data file (money, hacking level, location, etc.) 
-     *  This is used to generate other data files for the current city.
-     */
-    initializeData(ns);
-
-    /*
-     *  Scan network servers (get basic stats for each server and save network.txt data file).
-     */
-    scanAnalyze(ns, 50, true, true);
-  
-    /*
-     *  Exploit vulnerable servers (run NUKE.exe).
+    /* PHASE II: Exploit vulnerable servers and copy malware
      */  
     nukeServers(ns);
     

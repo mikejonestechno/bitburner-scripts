@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { readDataFile, writePlayerData, readPlayerData, refreshData, readData, DATA } from "util/data";
+import { readDataFile, readPlayerData, refreshData, readData } from "util/data";
 
 /**
  * Refresh the network server data.

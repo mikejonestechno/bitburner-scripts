@@ -14,5 +14,6 @@ export async function main(ns: NS): Promise<void> {
     refreshPlayerData(ns, true);
     refreshNetworkScan(ns, 1, true);
     refreshNetworkServers(ns, true);
+    // TODO: given this script already includes ls, create a txt list of malware files to save RAM cost later
     ns.spawn("util/start.js", {threads: 1, spawnDelay: 50});
 }
