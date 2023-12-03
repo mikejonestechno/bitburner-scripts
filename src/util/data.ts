@@ -1,5 +1,6 @@
 import { NS, Player } from "@ns";
 import { log } from "util/log";
+import { NetworkServer } from "util/network";
 
 type Data = {
     file: string,
@@ -7,24 +8,26 @@ type Data = {
 };
 
 export const DATA: { [key: string]: Data } = {
+    control: {
+        file: "/data/control.txt",
+        port: 1,
+    },
     player: {
         file: "/data/player.txt",
-        port: 1,
+        port: 2,
     },
     network: {
         file: "/data/network.txt",
-        port: 2,
+        port: 3,
     }
 }
 
-const PLAYER_DATA_FILE = DATA.player.file;
-
 /**
- * Write player data to a file.
+ * Write player data.
  * @param {import('ns')} ns - The netscript interface to bitburner functions.
  */
 export async function main(ns: NS): Promise<void> {
-    writePlayerData(ns); 
+    refreshPlayerData(ns, true);
 }
 
 /**
@@ -43,31 +46,30 @@ export function readDataFile(ns: NS, filename: string) {
 }
 
 /**
- * Reads player data file.
+ * Reads network data.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns The parsed player data.
+ */
+export function readNetworkData(ns: NS): NetworkServer[] {
+    const network = readData(ns, "network") as NetworkServer[];
+    if (undefined === network) {
+        throw new Error(`Failed to load network data.`);
+    }
+    return network;
+}
+
+/**
+ * Reads player data.
  * @param ns - The netscript interface to bitburner functions.
  * @returns The parsed player data.
  */
 export function readPlayerData(ns: NS): Player {
-    const player = readDataFile(ns, PLAYER_DATA_FILE) as Player;
+    const player = readData(ns, "player") as Player;
     if (undefined === player) {
-        throw new Error(`Failed to load ${PLAYER_DATA_FILE}. Run util/data.js or call writePlayerData() to re-generate.`);
+        throw new Error(`Failed to load player data. Run util/data.js or call refreshPlayerData() to re-generate.`);
     }
     return player;
 }
-
-/**
- * Writes the latest player data to a file.
- * @param ns - The netscript interface to bitburner functions.
- * @returns The latest player data.
- * @remarks DEPRECATED: use refreshPlayerData() instead.
- */
-export function writePlayerData(ns: NS): Player {
-    const player = ns.getPlayer();
-    log(ns, `write ${PLAYER_DATA_FILE}`, "INFO");
-    ns.write(PLAYER_DATA_FILE, JSON.stringify(player), "w");
-    return player;
-}
-
 
 /**
  * Reads and parses data of a specific type from the given namespace.
@@ -75,7 +77,7 @@ export function writePlayerData(ns: NS): Player {
  * @param type The type of data to read.
  * @returns The parsed data.
  */
-export function readData(ns: NS, type: string): any {
+export function readData(ns: NS, type: string): object {
     return JSON.parse(ns.peek(DATA[type].port) as string);
 }
 
@@ -97,15 +99,15 @@ export function refreshPlayerData(ns: NS, force = false): Player {
  * @returns true if successful, false otherwise.
  * @remarks RAM cost: 0 GB
  */
-export function tryWriteData(ns: NS, type: string, data: any, writeFile = false): boolean {
-    data = JSON.stringify(data);
+export function tryWriteData(ns: NS, type: string, rawdata: unknown, writeFile = false): boolean {
+    const data = JSON.stringify(rawdata);
     if (writeFile) {
         ns.write(DATA[type].file, data, "w");
     }
     return ns.tryWritePort(DATA[type].port, data);
 }
 // Queues that i use to store variables should only contiain one entry
-export function refreshData(ns: NS, type: string, data: any, force = false): boolean {
+export function refreshData(ns: NS, type: string, data: unknown, force = false): boolean {
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
     }
