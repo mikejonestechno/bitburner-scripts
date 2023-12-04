@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import { log } from "util/log";
-import { refreshData } from "util/data";
+import { refreshData, refreshPlayerData } from "util/data";
 import { NetworkServer, refreshNetworkServers } from "util/network";
 
 
@@ -10,6 +10,7 @@ import { NetworkServer, refreshNetworkServers } from "util/network";
  * @returns A Promise that resolves once the analysis is complete.
  */
 export async function main(ns: NS): Promise<void> {
+    refreshPlayerData(ns);
     let network = refreshNetworkServers(ns, true);
     network = hackAnalyze(ns, network);
     refreshData(ns, "network", network, true);

@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { readDataFile, readPlayerData, refreshData, readNetworkData } from "util/data";
+import { readPlayerData, refreshData, readNetworkData } from "util/data";
 
 /**
  * Refresh the network server data.
@@ -59,6 +59,7 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
     if (networkServer.moneyMax !== undefined && networkServer.moneyMax > 0) {
       networkServer.moneyAvailablePercent = (networkServer.moneyAvailable ?? 0) / (networkServer.moneyMax ?? 1);
     }
+    networkServer.ramAvailable = networkServer.maxRam - networkServer.ramUsed;
     networkServers.push(networkServer);
   });
   log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
@@ -287,9 +288,7 @@ export function filterRootAccessServers(ns: NS, servers?: NetworkServer[]): Netw
     hasAdminRights: true,
   };
   if (undefined === servers) {
-    const player = readPlayerData(ns);
-    const NETWORK_FILE = `data/${player.city}/network.txt`;
-    servers = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
+    servers = readNetworkData(ns);
   }
   return filterServerProperties(ns, servers, filterCriteria);
 }
