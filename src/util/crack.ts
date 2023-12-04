@@ -28,8 +28,12 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
     const startPerformance = performance.now();
     vulnerableServers.forEach((server) => {
         log(ns, `nuke ${server.hostname}`, 'INFO'); 
-        ns.nuke(server.hostname);
-        // ns.nuke() does not return any response indicating success or fail
+        // ns.nuke() does not return any response indicating success or fail, but does throw runtime error if attempting to nuke a server with locked ports
+        try {
+            ns.nuke(server.hostname);            
+        } catch (error) {
+            log(ns, `nuke ${server.hostname} failed, needs more ports open?`, 'WARN')
+        }
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
         // Assume the command was successful and update server property
         server.hasAdminRights = true;
@@ -43,7 +47,7 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
  * @param ns - The netscript interface to bitburner functions.
  * @param network - An array of network servers to copy the files to.
  */
-export function injectMalware(ns: NS, network: NetworkServer[]) {
+export async function injectMalware(ns: NS, network: NetworkServer[]): Promise<void> {
     const malwareFiles = readTextFile(ns, "/data/malware.txt");
     networkServerCopyFiles(ns, network, malwareFiles, "home"); 
 }

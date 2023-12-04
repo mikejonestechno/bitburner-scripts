@@ -1,25 +1,29 @@
 import { NS } from "@ns";
-import { clearData, deleteFiles, writeFileList, refreshPlayerData } from "util/data";
-import { refreshNetworkScan, refreshNetworkServers } from "util/network";
+import { clearPortData, writeFileList, refreshPlayerData } from "util/data";
+import { NetworkServer, refreshNetworkScan } from "util/network";
+import { nukeServers, injectMalware } from "util/crack";
 
 /**
  * Resets the game data by clearing all data and refreshing the player data.
  * @param ns - The netscript interface to bitburner functions.
  * @returns A promise that resolves once the reset is complete.
- * @remarks RAM cost: 7.5 GB (base, spawn, getServer, rm, getPlayer, ls, scan)
+ * @remarks RAM cost: 4.45 GB (base, exec, scp, getPlayer, ls, scan, nuke)
  */
 export async function main(ns: NS): Promise<void> {
-    clearData(ns);
-    // todo: consider replacing deleteFiles with injectMalware (replace ns.rm with ns.scp)
-    // this would reduce 0.6 GB from start.js
-    deleteFiles(ns, "/data/", "home");
-    writeFileList(ns, "/data/malware.txt", "/malware/", "home");
+    clearPortData(ns);
+    // skip deleteFiles, just overwrite them // deleteFiles(ns, "/data/", "home");
     refreshPlayerData(ns, true);
-    refreshNetworkScan(ns, 50, true);
-    // TODO: consider removing refreshNetworkServers() and just nuke all depth 2 servers in reset.
-    // this would move 2 GB getServer to start.js
-    // separate control for tracking hacking progress, start for cracking servers and doing initial analyze
-    refreshNetworkServers(ns, true);
-    // TODO: if the reset includes nuke then I can exec (1.3 GB) next script on different server instead of spawning (2 GB)
-    ns.spawn("util/start.js", {threads: 1, spawnDelay: 50});
+
+    const networkNodes = refreshNetworkScan(ns, 50, true) as NetworkServer[];
+    
+    // Nuke all servers at depth 1 or 2 (will silently fail if ports are closed)
+    const vulnerableServers = networkNodes.filter(node => node.depth >= 1 && node.depth <= 2);
+    nukeServers(ns, vulnerableServers);
+
+    writeFileList(ns, "/data/malware.txt", "/malware/", "home");
+    writeFileList(ns, "/data/malware.txt", "/util/", "home", "a");
+    await injectMalware(ns, networkNodes);
+
+    // quick temp solution, will need to queue control script to start the attack
+    ns.exec("/util/analyze.js", "foodnstuff");
 }

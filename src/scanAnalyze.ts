@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { getNetworkServers, scanNetwork} from "util/network";
+import { getNetworkServers} from "util/network";
 import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
 
 /**
@@ -8,13 +8,13 @@ import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
  * @param hideDashboard - do not print server properties to terminal, useful when spawning this script from another script.
  * @returns void
  */
-export async function main(ns: NS, maxDepth: number = 1, saveNetworkFile: boolean = false, hideDashboard: boolean = false): Promise<void> {
+export async function main(ns: NS, maxDepth = 1, hideDashboard = false): Promise<void> {
     let depth = Number(ns.args[0]);
     if(undefined === depth || Number.isNaN(depth)) depth = maxDepth;
-    //const networkNodes = scanNetwork(ns, depth);
     const network = getNetworkServers(ns);
+    const filteredNetwork = network.filter(node => node.depth <= depth);
     if (!hideDashboard) {
         ns.tprintf("scanAnalyze(depth=%d)", depth);
-        showDashboard(ns, network, scanAnalyzeColumns, true)
+        showDashboard(ns, filteredNetwork, scanAnalyzeColumns, true)
     }; 
 }
