@@ -1,22 +1,18 @@
 import { NS } from "@ns";
 import { log } from "util/log";
-import { readPlayerData } from "util/data";
-import { NetworkServer } from "util/network";
+import { refreshData } from "util/data";
+import { NetworkServer, refreshNetworkServers } from "util/network";
 
 
+/**
+ * Analyzes the network servers and refreshes the data.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns A Promise that resolves once the analysis is complete.
+ */
 export async function main(ns: NS): Promise<void> {
-    const player = readPlayerData(ns);
-    const NETWORK_FILE = `data/${player.city}/network.txt`;
-    let network = JSON.parse(ns.read(NETWORK_FILE)) as NetworkServer[];
-
-    // Skip getNetworkServers(ns, network) because it increases RAM cost by 2.00GB
+    let network = refreshNetworkServers(ns, true);
     network = hackAnalyze(ns, network);
-    network = growAnalyze(ns, network);
-    
-    log(ns, `analyze() ${network.length} servers complete`, "SUCCESS")
-    ns.write(NETWORK_FILE, JSON.stringify(network), "w");
-    ns.tryWritePort(3, JSON.stringify(network));
-
+    refreshData(ns, "network", network, true);
 }
 
 /**

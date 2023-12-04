@@ -113,11 +113,24 @@ export function refreshData(ns: NS, type: string, data: unknown, force = false):
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
     }
+    log(ns, `refreshData() ${type} to port ${DATA[type].port}}`, "DEBUG");
     const result = tryWriteData(ns, type, data, force);
     if (!force) {
         ns.readPort(DATA[type].port); // pop old value
     }
     return result;
+}
+
+/**
+ * Clear the data from ports.
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns true if successful, false otherwise.
+ * @remarks RAM cost: 0 GB
+ */
+export function clearPortData(ns: NS) {
+    for (const type in DATA) {
+        ns.clearPort(DATA[type].port);
+    }
 }
 
 /**
@@ -152,9 +165,12 @@ export function deleteFiles(ns: NS, filePattern = "/data/", sourceServer = "home
  * @param sourceServer - The name of the server to search for file paths. Defaults to "home".
  * @returns An array of file paths that were written to the file.
  */
-export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "/malware/", sourceServer = "home"): string[] {
+export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "/malware/", sourceServer = "home", mode: ("w"|"a") = "w"): string[] {
     const filePaths = ns.ls(sourceServer, filePattern);
-    ns.write(file, filePaths.join('\n'), "w");
+    if (mode === "a") { // insert blank space and new line before appending to end of file
+        filePaths.unshift('');
+    }
+    ns.write(file, filePaths.join('\n'), mode);
     return filePaths
 }
 /**
