@@ -1,7 +1,7 @@
 import { NS } from "@ns";
 import { log, icon, color } from "util/log";
 import { NetworkServer, filterHackServers, filterHackableServers } from "util/network";
-import { readDataFile, readPlayerData } from "util/data";
+import { readNetworkData } from "util/data";
 
 export async function main(ns: NS): Promise<void> {
     const flags = ns.flags([
@@ -16,9 +16,7 @@ export async function main(ns: NS): Promise<void> {
         default: columns = dashboardColumns; break;
     }
 
-    const PLAYER = readPlayerData(ns);
-    const NETWORK_FILE = `data/${PLAYER.city}/network.txt`;
-    let dashboardServers = readDataFile(ns, NETWORK_FILE) as NetworkServer[];
+    let dashboardServers = readNetworkData(ns);
 
     if (flags.show === "hack") {
         dashboardServers = filterHackServers(ns, dashboardServers);        
@@ -195,7 +193,8 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
             switch (column.heading) { // special formatting
                 case "network": // additional formating to indent network tree branches
                     formattedValue = server.depth == 0 ? formattedValue : " │".repeat(server.depth-1) + " ├ " + formattedValue;
-                    padding -= (maxDepth*2);                    
+                    padding -= (maxDepth*2);
+                    continue;                 
                 case "hostname":
                     let hostnameColor = color.yellow; 
                     if (server.numOpenPortsRequired !== undefined && server.numOpenPortsRequired > 0) {
