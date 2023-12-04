@@ -11,8 +11,8 @@ import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
 export async function main(ns: NS, maxDepth: number = 1, saveNetworkFile: boolean = false, hideDashboard: boolean = false): Promise<void> {
     let depth = Number(ns.args[0]);
     if(undefined === depth || Number.isNaN(depth)) depth = maxDepth;
-    const networkNodes = scanNetwork(ns, depth);
-    const network = getNetworkServers(ns, networkNodes, saveNetworkFile);
+    //const networkNodes = scanNetwork(ns, depth);
+    const network = getNetworkServers(ns);
     if (!hideDashboard) {
         ns.tprintf("scanAnalyze(depth=%d)", depth);
         showDashboard(ns, network, scanAnalyzeColumns, true)

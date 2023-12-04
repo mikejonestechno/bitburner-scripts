@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log } from "util/log";
-import { readDataFile, readPlayerData, refreshData, readData } from "util/data";
+import { readDataFile, readPlayerData, refreshData, readNetworkData } from "util/data";
 
 /**
  * Refresh the network server data.
@@ -46,11 +46,10 @@ export function scan(ns: NS, depth: number) {
  * Retrieves information about network servers by adding server properties to Network using ns.getServer().
  * Simulates an nmap request for information about a network server.
  * @param ns - The netscript interface to bitburner functions.
- * @param networkNodes - Optional array of network nodes to scan.
  * @returns An array of NetworkServer objects containing information about each server.
  */
 export function getNetworkServers(ns: NS): NetworkServer[] {
-  const networkNodes = readData(ns, "network") as NetworkNode[];
+  const networkNodes = readNetworkData(ns) as NetworkNode[];
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
   networkNodes.forEach((networkNode) => {

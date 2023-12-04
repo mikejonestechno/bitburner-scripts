@@ -78,7 +78,9 @@ export function readPlayerData(ns: NS): Player {
  * @returns The parsed data.
  */
 export function readData(ns: NS, type: string): object {
-    return JSON.parse(ns.peek(DATA[type].port) as string);
+    const portData = ns.peek(DATA[type].port) as string;
+    if (portData == "NULL PORT DATA") { throw Error(`Failed to read data of type ${type}. NULL PORT ERROR. Try run reset.js.`); }
+    return JSON.parse(portData);
 }
 
 /**
