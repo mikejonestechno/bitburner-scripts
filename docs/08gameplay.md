@@ -12,8 +12,6 @@ I want to to select a target server to attack.
 - [Starting Strategy](#starting-strategy)
 - [Conclusion](#conclusion)
 - [Hack, Grow, Weaken Security](#hack-grow-weaken-security)
-- [About The Code](#about-the-code)
-
 
 # Attack 
 
@@ -188,7 +186,7 @@ The greatest challenge to designing a hack, grow weaken strategy is that the bas
 
 Although _foodnstuff_ has highest hack rates at the start it also has the lowest grow factor and lowest max money (excluding n00dles) that I expect other servers will quickly become more profitable taking grow and weaken into consideration.
 
-My start strategy will be to optimze RAM and maximize hack speed towards $700k, but change strategy and devise a function to evaluate grow and weaken targets from $701k.
+My start strategy will be to optimize RAM and maximize hack speed towards $700k, but change strategy and devise a function to evaluate grow and weaken targets from $701k.
 
 ## 👮 Hack, Grow, Weaken Security
 

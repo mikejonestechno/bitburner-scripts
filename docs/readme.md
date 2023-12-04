@@ -15,6 +15,9 @@ Click each entry below for link to expanded entry.
 | [05 Gameplay](05gameplay.md) | Nuke Servers                 |
 | [06 Gameplay](06gameplay.md) | Basic Dashboard              |
 | [07 Gameplay](07gameplay.md) | Get Hack, Grow, Weaken Stats |
+| [08 Gameplay](08gameplay.md) | Analyze, really analyze      |
+| [09 Gameplay](09gameplay.md) | Starting Strategy            |
+
 
 ## Developer Diary
 
