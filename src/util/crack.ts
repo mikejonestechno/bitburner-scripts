@@ -62,7 +62,7 @@ export async function injectMalware(ns: NS, network: NetworkServer[]): Promise<v
 export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePaths: string[], sourceServer = "home") {
     const startPerformance = performance.now();
     network.forEach((server) => {
-        log(ns, `replicating files to ${server.hostname}`); 
+        log(ns, `copying files to ${server.hostname}`, 'INFO'); 
         ns.disableLog("scp");
         ns.scp(filePaths, server.hostname, sourceServer);
     });

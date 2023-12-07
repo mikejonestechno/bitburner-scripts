@@ -125,6 +125,18 @@ const growColumns: Column[] = [
     {heading: icon.chart, property: "targetGrowMoneyPerSecond", format: format.boolean},
 ];
 
+
+function formatHostnameColor(server: NetworkServer): string {
+    let hostnameColor = color.yellow; 
+    if (server.numOpenPortsRequired !== undefined && server.numOpenPortsRequired > 0) {
+        hostnameColor = server.numOpenPortsRequired == 1 ? color.orange : color.red;
+    }
+    if (server.hasAdminRights) {
+        hostnameColor = color.green;
+    }
+    return hostnameColor;
+}    
+
 /**
  * Displays a dashboard of network servers with customizable columns.
  * @param ns - The netscript interface to bitburner functions.
@@ -132,12 +144,12 @@ const growColumns: Column[] = [
  * @param columns - An optional array of columns to display. Defaults to dashboardColumns.
  * @param terminal - An optional boolean indicating whether to display the dashboard in the terminal. Defaults to false.
  */
-export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[] = dashboardColumns, terminal: boolean = false) {
+export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[] = dashboardColumns, terminal = false) {
 
     let columnSeparator = " "; // can be useful setting to "|" for debugging alignment issues
     const fontHeight = 24; // font height in pixels (note tail window title bar is 32px high)
     const fontWidth = 9; // font width in pixels
-    let tailHeight = 32 + (fontHeight * 2) + (fontHeight * network.length); // 32px for tail window title bar
+    const tailHeight = 32 + (fontHeight * 2) + (fontHeight * network.length); // 32px for tail window title bar
     let tailWidth = 1700;
     if (!terminal) { 
         ns.disableLog('ALL');
@@ -178,11 +190,11 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
     if (terminal) { ns.tprintf(heading); }
 
     // Step 2: Output the formatted data with padding alignment
-    for (let server of network) {
+    for (const server of network) {
         // Create an array to store the formatted data for the current server
         const rowData = [];
 
-        for (let column of columns) {
+        for (const column of columns) {
 
             // Get the value of the server property
             const value = (server[column.property] !== undefined) ? server[column.property] : "--";
@@ -190,21 +202,19 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
             // Format the value
             let padding = column.format.padding;
             let formattedValue = value;
+            let hostnameColor = color.yellow;
             switch (column.heading) { // special formatting
-                case "network": // additional formating to indent network tree branches
-                    formattedValue = server.depth == 0 ? formattedValue : " │".repeat(server.depth-1) + " ├ " + formattedValue;
-                    padding -= (maxDepth*2);
-                    continue;                 
                 case "hostname":
-                    let hostnameColor = color.yellow; 
-                    if (server.numOpenPortsRequired !== undefined && server.numOpenPortsRequired > 0) {
-                        hostnameColor = server.numOpenPortsRequired == 1 ? color.orange : color.red;
-                    }
-                    if (server.hasAdminRights) {
-                        hostnameColor = color.green;
-                    }
+                    hostnameColor = formatHostnameColor(server);
                     formattedValue = hostnameColor + formattedValue;
                     padding -= hostnameColor.length;
+                    break;
+                case "network": // additional formating to indent network tree branches
+                    hostnameColor = formatHostnameColor(server);
+                    formattedValue = hostnameColor + formattedValue;
+                    padding -= hostnameColor.length;
+                    formattedValue = server.depth == 0 ? formattedValue : " │".repeat(server.depth-1) + " ├ " + formattedValue;
+                    padding -= (maxDepth*2);
                     break;
                 case "ports":
                     formattedValue = icon.lock.repeat(value); break;
@@ -267,7 +277,7 @@ function emojiPadding(ns: NS, inputString: string): number {
     const emojiRegex = /(?!\d)\p{Emoji}/ug; // negative lookahead to exclude numeric digits
     //const emojiChars = emojiRegex.exec(inputString)?.length ?? 0;
     const emojiChars = inputString.match(emojiRegex)?.length ?? 0;
-    //if (emojiChars !== 0) { log(ns, `${inputString} has ${emojiChars} char`) }
+    // debug log // if (emojiChars !== 0) { log(ns, `${inputString} has ${emojiChars} char`) }
     return emojiChars;
 }
 

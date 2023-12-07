@@ -7,6 +7,7 @@ import { scanAnalyzeColumns, showDashboard } from "util/dashboard";
  * @param ns - The netscript interface to bitburner functions.
  * @param hideDashboard - do not print server properties to terminal, useful when spawning this script from another script.
  * @returns void
+ * @remarks RAM cost: 3.6 GB (base, getServer)
  */
 export async function main(ns: NS, maxDepth = 1, hideDashboard = false): Promise<void> {
     let depth = Number(ns.args[0]);
@@ -16,5 +17,5 @@ export async function main(ns: NS, maxDepth = 1, hideDashboard = false): Promise
     if (!hideDashboard) {
         ns.tprintf("scanAnalyze(depth=%d)", depth);
         showDashboard(ns, filteredNetwork, scanAnalyzeColumns, true)
-    }; 
+    } 
 }

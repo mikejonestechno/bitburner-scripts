@@ -1,5 +1,5 @@
 import { NS, Server } from "@ns";
-import { log } from "util/log";
+import { log, icon } from "util/log";
 import { readPlayerData, refreshData, readNetworkData } from "util/data";
 
 /**
@@ -53,13 +53,13 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
   const startPerformance = performance.now();
   const networkServers: NetworkServer[] = [];
   networkNodes.forEach((networkNode) => {
-    log(ns, `getServer ${networkNode.hostname}`); 
     // create a new networkServer object and 'spread' (shallow copy) node and server properties
     const networkServer: NetworkServer = { ...networkNode, ...ns.getServer(networkNode.hostname)};
     if (networkServer.moneyMax !== undefined && networkServer.moneyMax > 0) {
       networkServer.moneyAvailablePercent = (networkServer.moneyAvailable ?? 0) / (networkServer.moneyMax ?? 1);
     }
     networkServer.ramAvailable = networkServer.maxRam - networkServer.ramUsed;
+    log(ns, `getServer ${networkServer.hostname} depth ${networkServer.depth} ${icon.police} ${networkServer.hackDifficulty}`); 
     networkServers.push(networkServer);
   });
   log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
@@ -111,7 +111,7 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
     /* If current node is NOT at max depth, scan the node to find deeper connections */
     
     if (stackNode.depth < maxDepth) {
-      log(ns, `scanning ${stackNode.hostname}`, "INFO");
+      log(ns, `scanning server ${stackNode.hostname}`, "INFO");
 
       // neighbors will be an array of hostnames connected to the node including home, parent node, and purchased servers.
       const neighbors = ns.scan(stackNode.hostname);
