@@ -12,19 +12,24 @@ export const DATA: { [key: string]: Data } = {
         file: "/data/control.txt",
         port: 1,
     },
+    state: { // feedback loop for the controller
+        file: "/data/state.txt",
+        port: 2,
+    },
     player: {
         file: "/data/player.txt",
-        port: 2,
+        port: 3,
     },
     network: {
         file: "/data/network.txt",
-        port: 3,
+        port: 4,
     }
 }
 
 /**
- * Write player data.
- * @param {import('ns')} ns - The netscript interface to bitburner functions.
+ * Writes player data.
+ * @param ns - The netscript interface to bitburner functions.
+ * @remarks RAM cost: 0.5 GB
  */
 export async function main(ns: NS): Promise<void> {
     refreshPlayerData(ns, true);
@@ -33,9 +38,10 @@ export async function main(ns: NS): Promise<void> {
 /**
  * Reads and parses the data from the file system.
  * @param ns - The netscript interface to bitburner functions.
+ * @param filename - The name of the file to read.
  * @returns The parsed data.
  */
-export function readDataFile(ns: NS, filename: string) {
+function readDataFile(ns: NS, filename: string) {
     const DATA = ns.read(filename);
     if (DATA.length === 0) {
         const message = `data file ${filename} is empty.`;
@@ -48,7 +54,7 @@ export function readDataFile(ns: NS, filename: string) {
 /**
  * Reads network data.
  * @param ns - The netscript interface to bitburner functions.
- * @returns The parsed player data.
+ * @returns The parsed network data.
  */
 export function readNetworkData(ns: NS): NetworkServer[] {
     const network = readData(ns, "network") as NetworkServer[];
@@ -73,8 +79,8 @@ export function readPlayerData(ns: NS): Player {
 
 /**
  * Reads and parses data of a specific type from the given namespace.
- * @param ns The netscript interface to bitburner functions.
- * @param type The type of data to read.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param type - The type of data to read.
  * @returns The parsed data.
  */
 export function readData(ns: NS, type: string): object {
@@ -86,6 +92,7 @@ export function readData(ns: NS, type: string): object {
 /**
  * Get the latest player data.
  * @param ns - The netscript interface to bitburner functions.
+ * @param force - Whether to force the data refresh by clearing the existing data.
  * @returns The latest player info.
  * @remarks RAM cost: 0.5 GB
  */
@@ -96,8 +103,11 @@ export function refreshPlayerData(ns: NS, force = false): Player {
 }
 
 /**
- * Write data to port
+ * Write data to port.
  * @param ns - The netscript interface to bitburner functions.
+ * @param type - The type of data to write.
+ * @param rawdata - The data to write.
+ * @param writeFile - Whether to write the data to a file.
  * @returns true if successful, false otherwise.
  * @remarks RAM cost: 0 GB
  */
@@ -108,7 +118,16 @@ export function tryWriteData(ns: NS, type: string, rawdata: unknown, writeFile =
     }
     return ns.tryWritePort(DATA[type].port, data);
 }
-// Queues that i use to store variables should only contiain one entry
+
+/**
+ * Refreshes the data of a specified type in the game.
+ * @param ns - The netscript interface to bitburner functions.
+ * @param type - The type of data to refresh.
+ * @param data - The new data to write.
+ * @param force - Whether to force the data refresh by clearing the existing data.
+ * @returns A boolean indicating whether the data refresh was successful.
+ * @remarks RAM cost: 0 GB
+ */
 export function refreshData(ns: NS, type: string, data: unknown, force = false): boolean {
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
@@ -127,7 +146,7 @@ export function refreshData(ns: NS, type: string, data: unknown, force = false):
  * @returns true if successful, false otherwise.
  * @remarks RAM cost: 0 GB
  */
-export function clearPortData(ns: NS) {
+export async function clearPortData(ns: NS): Promise<void> {
     for (const type in DATA) {
         ns.clearPort(DATA[type].port);
     }
@@ -145,6 +164,7 @@ export function clearData(ns: NS) {
         ns.rm(DATA[type].file);
     }
 }
+
 /**
  * Deletes files matching the specified pattern from the given server.
  * @param ns - The netscript interface to bitburner functions.
@@ -157,15 +177,17 @@ export function deleteFiles(ns: NS, filePattern = "/data/", sourceServer = "home
         ns.rm(filePath);
     });
 }
+
 /**
  * Writes a list of file paths to a specified file.
  * @param ns - The netscript interface to bitburner functions.
  * @param file - The path of the file to write the list of file paths to. Defaults to "data/malware.txt".
  * @param filePattern - The pattern to match file paths against. Defaults to "/malware/".
  * @param sourceServer - The name of the server to search for file paths. Defaults to "home".
+ * @param mode - The write mode. Defaults to "w".
  * @returns An array of file paths that were written to the file.
  */
-export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "/malware/", sourceServer = "home", mode: ("w"|"a") = "w"): string[] {
+export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "/malware/", sourceServer = "home", mode: ("w" | "a") = "w"): string[] {
     const filePaths = ns.ls(sourceServer, filePattern);
     if (mode === "a") { // insert blank space and new line before appending to end of file
         filePaths.unshift('');
@@ -173,6 +195,7 @@ export function writeFileList(ns: NS, file = "data/malware.txt", filePattern = "
     ns.write(file, filePaths.join('\n'), mode);
     return filePaths
 }
+
 /**
  * Reads a txt file and returns its contents as an array of strings.
  * @param ns - The netscript interface to bitburner functions.
