@@ -28,6 +28,7 @@ jobs:
           --ext .js,.jsx,.ts,.tsx
           --format json 
           --output-file eslint-report.json
+          --debug
         continue-on-error: true   
 
       - name: Run ESLint
