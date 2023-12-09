@@ -2,7 +2,6 @@ import { NS } from "@ns";
 
 // https://talyian.github.io/ansicolors/
 export const color: {[index: string]: string} = {
-
     // pale
     paleBlack: "\x1b[30m",
     paleRed: "\x1b[38;5;9m", 
@@ -36,17 +35,16 @@ export const color: {[index: string]: string} = {
     reset: "\u001b[0m"
 };
 
+/**
+ * Outputs a list of colors for debugging purposes.
+ * 
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns A promise that resolves when the function completes.
+ */
 export async function main(ns: NS): Promise<void> {
-    /* `run util/log.js` to output list of colors (for debugging).
-    /*
-    for (let i = 0; i<255; i++) {
-        ns.print(`\x1b[38;5;${i}m This is color ${i}`);
-    } 
-    */
-	for(const key of Object.keys(color)) {
-		ns.print(`${color[key]}${key}`);
-	}
-    /**/
+    for(const key of Object.keys(color)) {
+        ns.print(`${color[key]}${key}`);
+    }
 }
 
 export const icon: {[index: string]: string} = {
@@ -100,40 +98,25 @@ export const icon: {[index: string]: string} = {
     racehorse: "🐎",
 }; 
 
-export const logLevel: {[index: string]: number} = {
-    DEBUG: 4,
-    INFO: 3,
-    WARN: 2,
-    SUCCESS: 1.1,
-    ERROR: 1,
-    NONE: 0,
-};
-
-/* maxLogLevel
-Set this value to 4 in order to show all output messages.
-Set this value to 1 in order supress all output except errors.
- */
-export const maxLogLevel = 4; 
-
-export function log(ns: NS, message: string, level = "DEBUG") {
-    const logLevelNumber = logLevel[level];
-
-    if (logLevelNumber <= maxLogLevel) {        
-        switch(logLevelNumber) {
-            case 3:
-                ns.print(`${color.blue}INFO  ${message}`); 
-                break;
-            case 1.1:
-                ns.print(`${color.green}${message}`);
-                break;
-            case 2:
-                ns.print(`${color.yellow}WARN  ${message}`);
-                break;
-            case 1:
-                ns.print(`${color.red}ERROR ${message}`);
-                break;
-            default:
-                ns.print(`${color.cyan}DEBUG ${message}`);
-        }   
+type LogLevel = {
+    [key: string]: {  
+        name: string, 
+        level: number,
+        color: string
     }
 };
+const logLevels: LogLevel = {
+    "TRACE": {name: "TRACE", level: 4, color: color.cyan},
+    "INFO": {name: "INFO", level: 3, color: color.blue},
+    "SUCCESS": {name: "SUCCESS", level: 1.1, color: color.green},
+    "ERROR": {name: "ERROR", level: 1, color: color.red},
+    "NONE": {name: "NONE", level: 0, color: color.paleBlack},
+};
+
+const maxLogLevel = logLevels["TRACE"]; 
+
+export async function log(ns: NS, message: string, logLevel = logLevels["TRACE"]): Promise<void> {   
+    if (logLevel.level <= maxLogLevel.level) {        
+        ns.print(`${logLevel.color}${logLevel.name} ${message}`);
+    }
+}
