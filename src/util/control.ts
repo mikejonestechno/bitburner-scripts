@@ -1,6 +1,5 @@
 import { NS, SpawnOptions } from "@ns";
 import { main as analyzeNetwork } from "util/analyze";
-import { log } from "util/log";
 
 export async function main(ns: NS): Promise<void> {
 
