@@ -6,8 +6,8 @@ on:
     types: [opened, synchronize, reopened]
     branches: [ "main" ]
 jobs:
-  eslint:
-    name: Run eslint scanning
+  scan:
+    name: Run eslint and sonar scan
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Install ESLint
         run: |
@@ -28,9 +30,15 @@ jobs:
           --ext .js,.jsx,.ts,.tsx
           --format json 
           --output-file eslint-report.json
-          --debug
         continue-on-error: true   
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # OPTIONAL get eslint annotations direct in github PR
       - name: Run ESLint
         run: npx eslint .
           --config .eslintrc.json
@@ -44,21 +52,3 @@ jobs:
         with:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
-
-       
-
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    needs: eslint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
