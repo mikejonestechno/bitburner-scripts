@@ -36,22 +36,6 @@ export async function main(ns: NS): Promise<void> {
 }
 
 /**
- * Reads and parses the data from the file system.
- * @param ns - The netscript interface to bitburner functions.
- * @param filename - The name of the file to read.
- * @returns The parsed data.
- */
-function readDataFile(ns: NS, filename: string) {
-    const DATA = ns.read(filename);
-    if (DATA.length === 0) {
-        const message = `data file ${filename} is empty.`;
-        log(ns, message, "WARN");
-    } else {
-        return (JSON.parse(DATA));
-    }
-}
-
-/**
  * Reads network data.
  * @param ns - The netscript interface to bitburner functions.
  * @returns The parsed network data.
