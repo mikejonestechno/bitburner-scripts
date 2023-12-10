@@ -1,7 +1,7 @@
 import { NS } from "@ns";
 
 // https://talyian.github.io/ansicolors/
-export const color: {[index: string]: string} = {
+export const color: {[key: string]: string} = {
     // pale
     paleBlack: "\x1b[30m",
     paleRed: "\x1b[38;5;9m", 
@@ -45,6 +45,11 @@ export async function main(ns: NS): Promise<void> {
     for(const key of Object.keys(color)) {
         ns.print(`${color[key]}${key}`);
     }
+    log(ns, "LogLevel test to check output formatting.")
+    log(ns, "Positive successful hack against server.", logLevel.SUCCESS )
+    log(ns, "Server is getting low on available money.", logLevel.WARN )
+    log(ns, "Operation complete.", logLevel.INFO )
+    log(ns, "Root access is required.", logLevel.ERROR )
 }
 
 export const icon: {[index: string]: string} = {
@@ -102,21 +107,22 @@ type LogLevel = {
     [key: string]: {  
         name: string, 
         level: number,
-        color: string
+        color: string,
     }
 };
-const logLevels: LogLevel = {
+export const logLevel: LogLevel = {
     "TRACE": {name: "TRACE", level: 4, color: color.cyan},
     "INFO": {name: "INFO", level: 3, color: color.blue},
+    "WARN": {name: "WARN", level: 2, color: color.yellow},
     "SUCCESS": {name: "SUCCESS", level: 1.1, color: color.green},
     "ERROR": {name: "ERROR", level: 1, color: color.red},
     "NONE": {name: "NONE", level: 0, color: color.paleBlack},
 };
 
-const maxLogLevel = logLevels["TRACE"]; 
+const maxLogLevel = logLevel.TRACE; 
 
-export async function log(ns: NS, message: string, logLevel = logLevels["TRACE"]): Promise<void> {   
-    if (logLevel.level <= maxLogLevel.level) {        
-        ns.print(`${logLevel.color}${logLevel.name} ${message}`);
+export async function log(ns: NS, message: string, messageLogLevel = logLevel.TRACE): Promise<void> {   
+    if (messageLogLevel.level <= maxLogLevel.level) {        
+        ns.print(`${messageLogLevel.color}${messageLogLevel.name} ${message}`);
     }
 }

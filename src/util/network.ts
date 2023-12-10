@@ -1,5 +1,5 @@
 import { NS, Server } from "@ns";
-import { log, icon } from "util/log";
+import { log, icon, logLevel } from "util/log";
 import { readPlayerData, refreshData, readNetworkData } from "util/data";
 
 /**
@@ -62,7 +62,7 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
     log(ns, `getServer ${networkServer.hostname} depth ${networkServer.depth} ${icon.police} ${networkServer.hackDifficulty}`); 
     networkServers.push(networkServer);
   });
-  log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");    
+  log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);    
   return networkServers;
 }
 
@@ -111,7 +111,7 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
     /* If current node is NOT at max depth, scan the node to find deeper connections */
     
     if (stackNode.depth < maxDepth) {
-      log(ns, `scanning server ${stackNode.hostname}`, "INFO");
+      log(ns, `scanning server ${stackNode.hostname}`, logLevel.INFO);
 
       // neighbors will be an array of hostnames connected to the node including home, parent node, and purchased servers.
       const neighbors = ns.scan(stackNode.hostname);
@@ -134,8 +134,8 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
     }
   } 
 
-  log(ns, "scan stack is empty", "INFO");
-  log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+  log(ns, "scan stack is empty");
+  log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
   
   return networkNodes; 
   
@@ -225,8 +225,8 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
       filteredNetwork.push(server);
     }
   }
-  log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, "INFO");
-  log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+  log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, logLevel.INFO);
+  log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
   return filteredNetwork;
 }
 

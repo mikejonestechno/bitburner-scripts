@@ -38,7 +38,7 @@ export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): Network
         // Assume the command was successful and update server property
         server.hasAdminRights = true;
     });
-    log(ns, `nukeServers() nuked ${vulnerableServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+    log(ns, `nukeServers() nuked ${vulnerableServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
     return vulnerableServers;
 }
 
@@ -66,5 +66,5 @@ export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePat
         ns.disableLog("scp");
         ns.scp(filePaths, server.hostname, sourceServer);
     });
-    log(ns, `networkCopyFiles() ${filePaths.length} files to ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");   
+    log(ns, `networkCopyFiles() ${filePaths.length} files to ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);   
 }

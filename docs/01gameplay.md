@@ -12,7 +12,7 @@ Go to Options > Remote API and set the port to 12525 to connect and sync files f
 
 ## Getting Started
 
-Basic game mechanic is to hack servers to gain money. 
+Basic game mechanic is to hack servers to gain money, buying cybernetic augmentations to improve performance. 
 
 The more hacking experience I have the higher level servers I can unlock that have significantly higher max money available.
 
@@ -63,54 +63,40 @@ This is great to help my debug messages stand out but I have to add a `$(color}`
 I created a simple `log()` function to help me be more consistent. I can pass in the log level and the function will print the message in the appropriate color. If I want to change the error message color I now only have to edit one line in the log function.
 
 ``` typescript
-log(ns, "Oops something went wrong!", "ERROR");
+log(ns, "Oops something went wrong!", logLevel.ERROR);
 log(ns, "Calling ns.scan()...");
 ```
 
-If no log level is passed in the message will be logged as a debug message in debug message color.
+If no log level is passed in the message will be logged as a debug message in trace message color.
 
 I defined mulitple log levels and added a conditional check so that I can easily enable and disable debug logging. The log function is really just a print formatter to emulate a proper logging routine, for example `logLevel` is just a string index rather than a type or interface.
 
 The primary purpose for the `log()` function is the ability to consistently print or supress debug messages by changing `maxLogLevel` and this meets my needs for now. 
 
 ``` typescript
-export const logLevel: {[index: string]: number} = {
-    DEBUG: 4,
-    INFO: 3,
-    WARN: 2,
-    SUCCESS: 1.1,
-    ERROR: 1,
-    NONE: 0,
-};
-
-/* maxLogLevel
-Set this value to 4 in order to show all output messages.
-Set this value to 1 in order supress all output except errors.
- */
-export const maxLogLevel = 4; 
-
-export function log(ns: NS, message: string, level = "DEBUG") {
-    const logLevelNumber = logLevel[level];
-
-    if (logLevelNumber <= maxLogLevel) {        
-        switch(logLevelNumber) {
-            case 3:
-                ns.print(`${color.blue}INFO  ${message}`); 
-                break;
-            case 1.1:
-                ns.print(`${color.green}${message}`);
-                break;
-            case 2:
-                ns.print(`${color.yellow}WARN  ${message}`);
-                break;
-            case 1:
-                ns.print(`${color.red}ERROR ${message}`);
-                break;
-            default:
-                ns.print(`${color.cyan}DEBUG ${message}`);
-        }   
+type LogLevel = {
+    [key: string]: {  
+        name: string, 
+        level: number,
+        color: string,
     }
 };
+export const logLevel: LogLevel = {
+    "TRACE": {name: "TRACE", level: 4, color: color.cyan},
+    "INFO": {name: "INFO", level: 3, color: color.blue},
+    "WARN": {name: "WARN", level: 2, color: color.yellow},
+    "SUCCESS": {name: "SUCCESS", level: 1.1, color: color.green},
+    "ERROR": {name: "ERROR", level: 1, color: color.red},
+    "NONE": {name: "NONE", level: 0, color: color.paleBlack},
+};
+
+const maxLogLevel = logLevel.TRACE; 
+
+export async function log(ns: NS, message: string, messageLogLevel = logLevel.TRACE): Promise<void> {   
+    if (messageLogLevel.level <= maxLogLevel.level) {        
+        ns.print(`${messageLogLevel.color}${messageLogLevel.name} ${message}`);
+    }
+}
 ```
 
 The logging functions are saved in the `util/log.ts` file.
