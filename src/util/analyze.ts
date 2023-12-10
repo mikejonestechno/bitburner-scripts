@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { log } from "util/log";
+import { log, logLevel } from "util/log";
 import { refreshData, refreshPlayerData } from "util/data";
 import { NetworkServer, refreshNetworkServers } from "util/network";
 
