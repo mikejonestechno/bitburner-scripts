@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { log } from "util/log";
+import { log, logLevel } from "util/log";
 import { NetworkServer, filterVulnerableServers } from "util/network";
 import { readNetworkData, readTextFile } from "util/data";
 
@@ -27,18 +27,18 @@ export function main(ns: NS): NetworkServer[] {
 export function nukeServers(ns: NS, vulnerableServers: NetworkServer[]): NetworkServer[] {
     const startPerformance = performance.now();
     vulnerableServers.forEach((server) => {
-        log(ns, `nuke ${server.hostname}`, 'INFO'); 
+        log(ns, `nuke ${server.hostname}`, logLevel.INFO); 
         // ns.nuke() does not return any response indicating success or fail, but does throw runtime error if attempting to nuke a server with locked ports
         try {
             ns.nuke(server.hostname);            
         } catch (error) {
-            log(ns, `nuke ${server.hostname} failed, needs more ports open?`, 'WARN')
+            log(ns, `nuke ${server.hostname} failed, needs more ports open?`, logLevel.WARN)
         }
         // Adding a ns.hasRootAccess() to validate requires extra 0.05 GB RAM
         // Assume the command was successful and update server property
         server.hasAdminRights = true;
     });
-    log(ns, `nukeServers() nuked ${vulnerableServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+    log(ns, `nukeServers() nuked ${vulnerableServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
     return vulnerableServers;
 }
 
@@ -62,9 +62,9 @@ export async function injectMalware(ns: NS, network: NetworkServer[]): Promise<v
 export function networkServerCopyFiles(ns: NS, network: NetworkServer[], filePaths: string[], sourceServer = "home") {
     const startPerformance = performance.now();
     network.forEach((server) => {
-        log(ns, `copying files to ${server.hostname}`, 'INFO'); 
+        log(ns, `copying files to ${server.hostname}`, logLevel.INFO); 
         ns.disableLog("scp");
         ns.scp(filePaths, server.hostname, sourceServer);
     });
-    log(ns, `networkCopyFiles() ${filePaths.length} files to ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");   
+    log(ns, `networkCopyFiles() ${filePaths.length} files to ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);   
 }

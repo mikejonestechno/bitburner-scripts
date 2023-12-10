@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { log } from "util/log";
+import { log, logLevel } from "util/log";
 import { refreshData, refreshPlayerData } from "util/data";
 import { NetworkServer, refreshNetworkServers } from "util/network";
 
@@ -69,7 +69,7 @@ export function hackAnalyze(ns: NS, network: NetworkServer[]) {
         server.targetHackMaxMoneyPerSecond = (server.hostname === targetHackMaxMoneyPerSecond.hostname);
     });
 
-    log(ns, `hackAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+    log(ns, `hackAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
     return network;
 }
 
@@ -116,6 +116,6 @@ export function growAnalyze(ns: NS, network: NetworkServer[]) {
     network.forEach((server) => {
         server.targetGrowMoneyPerSecond = (server.hostname === targetGrowMoneyPerSecond.hostname);
     });
-    log(ns, `growAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, "SUCCESS");
+    log(ns, `growAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
     return network;
 }

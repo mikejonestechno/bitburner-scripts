@@ -116,7 +116,7 @@ export function refreshData(ns: NS, type: string, data: unknown, force = false):
     if (force) {
         ns.clearPort(DATA[type].port); // clear and initialize new value
     }
-    log(ns, `refreshData() ${type} to port ${DATA[type].port}}`, "DEBUG");
+    log(ns, `refreshData() ${type} to port ${DATA[type].port}}`);
     const result = tryWriteData(ns, type, data, force);
     if (!force) {
         ns.readPort(DATA[type].port); // pop old value
