@@ -1,10 +1,9 @@
 import { NS } from "@ns";
 
 /**
- * Outputs a list of colors for debugging purposes.
+ * Outputs a list of colors (for debugging purposes).
  * 
  * @param ns - The netscript interface to bitburner functions.
- * @returns A promise that resolves when the function completes.
  */
 export async function main(ns: NS): Promise<void> {
     for (const key of Object.keys(color)) {
@@ -125,12 +124,22 @@ class Log {
         public icon: string
     ) { }
 
-    // use icons to reduce message length
+    /**
+     * Formats a message by adding color and an icon.
+     * 
+     * @param message - The message to be formatted.
+     * @returns The formatted message.
+     */
     formatMessage(message: string): string {
         return `${this.color}${this.icon} ${message}`;
     }
 
-    async print(ns: NS, message: string): Promise<void> {
+    /**
+     * Prints a formatted message to the log.
+     * @param message The message to be printed.
+     * @returns A promise that resolves once the message has been printed.
+     */
+    print(ns: NS, message: string): void {
         if (this.level <= maxLogLevel.level) {
             ns.print(this.formatMessage(message));
         }

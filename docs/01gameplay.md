@@ -80,12 +80,11 @@ class Log {
         public icon: string
     ) { }
 
-    // use icons to reduce message length
     formatMessage(message: string): string {
         return `${this.color}${this.icon} ${message}`;
     }
 
-    async print(ns: NS, message: string): Promise<void> {
+    print(ns: NS, message: string): void {
         if (this.level <= maxLogLevel.level) {
             ns.print(this.formatMessage(message));
         }
