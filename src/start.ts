@@ -1,4 +1,5 @@
 import { NS } from "@ns";
+import { log } from "./util/log";
 
 /**
  * Starts basic cycle of cracking and hacking
@@ -10,6 +11,7 @@ export async function main(ns: NS): Promise<void> {
     /* PHASE I: Initialize data
      * Run reset.js (separate script to reduce RAM cost)
      */
+    init(ns);
 
     /* PHASE II: Exploit vulnerable servers and copy malware
      * Also included in reset.js (separate script to reduce RAM cost)
@@ -21,8 +23,8 @@ export async function main(ns: NS): Promise<void> {
 
     /* PHASE IV: Spawn control script (6.75 GB) to run attack (2.9 GB)
      * Initial control script tracks progress without frequent network server analyze
-     */  
-    /* ns.exec("script.js", "home"); */
+     */
+    ns.exec("script.js", "home");
 }
 
 function init(ns: NS)  {
@@ -42,5 +44,5 @@ function init(ns: NS)  {
      * 
      * 
      */
-
+    log.TRACE.print(ns, "Initializing data...");
 }
