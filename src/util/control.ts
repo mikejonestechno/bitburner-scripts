@@ -32,7 +32,7 @@ export async function main(ns: NS): Promise<void> {
     const processId = ns.run(portData);
     if (processId === 0) {
         const message = `Error: failed to run ${portData}`;
-        log(ns, message, "ERROR")
+        log.TRACE.print(ns, message, "ERROR")
         ns.tprint(message);
     }
     

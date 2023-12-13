@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { log, logLevel } from "util/log";
+import { log } from "util/log";
 import { refreshData, refreshPlayerData } from "util/data";
 import { NetworkServer, refreshNetworkServers } from "util/network";
 
@@ -35,7 +35,7 @@ export function hackAnalyze(ns: NS, network: NetworkServer[]) {
     };
     const startPerformance = performance.now();
     network.forEach((server) => {
-        log(ns, `hackAnalyze ${server.hostname}`);
+        log.TRACE.print(ns, `hackAnalyze ${server.hostname}`);
         const hackTime = ns.getHackTime(server.hostname) / 1000; // milliseconds
         const hackChance = ns.hackAnalyzeChance(server.hostname);
         const hackMoneyPercent = ns.hackAnalyze(server.hostname);
@@ -69,7 +69,7 @@ export function hackAnalyze(ns: NS, network: NetworkServer[]) {
         server.targetHackMaxMoneyPerSecond = (server.hostname === targetHackMaxMoneyPerSecond.hostname);
     });
 
-    log(ns, `hackAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
+    log.SUCCESS.print(ns, `hackAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);
     return network;
 }
 
@@ -82,7 +82,7 @@ export function growAnalyze(ns: NS, network: NetworkServer[]) {
     network.forEach((server) => {
         // skip servers I cant grow 
         if (server.moneyMax === 0 || server.hasAdminRights === false) { return; }
-        log(ns, `growAnalyze ${server.hostname}`);
+        log.TRACE.print(ns, `growAnalyze ${server.hostname}`);
         const growTime = ns.getGrowTime(server.hostname) / 1000; // milliseconds
         // growth factor to get to maxMoney
         const growThreadsMoney = (server.moneyMax?? 0) - (server.moneyAvailable?? 0) ;
@@ -116,6 +116,6 @@ export function growAnalyze(ns: NS, network: NetworkServer[]) {
     network.forEach((server) => {
         server.targetGrowMoneyPerSecond = (server.hostname === targetGrowMoneyPerSecond.hostname);
     });
-    log(ns, `growAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
+    log.SUCCESS.print(ns, `growAnalyze() ${network.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);
     return network;
 }

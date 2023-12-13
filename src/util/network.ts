@@ -1,5 +1,5 @@
 import { NS, Server } from "@ns";
-import { log, icon, logLevel } from "util/log";
+import { log, icon } from "util/log";
 import { readPlayerData, refreshData, readNetworkData } from "util/data";
 
 /**
@@ -59,10 +59,10 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
       networkServer.moneyAvailablePercent = (networkServer.moneyAvailable ?? 0) / (networkServer.moneyMax ?? 1);
     }
     networkServer.ramAvailable = networkServer.maxRam - networkServer.ramUsed;
-    log(ns, `getServer ${networkServer.hostname} depth ${networkServer.depth} ${icon.police} ${networkServer.hackDifficulty}`); 
+    log.TRACE.print(ns, `getServer ${networkServer.hostname} depth ${networkServer.depth} ${icon.security} ${networkServer.hackDifficulty}`); 
     networkServers.push(networkServer);
   });
-  log(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);    
+  log.SUCCESS.print(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);    
   return networkServers;
 }
 
@@ -80,7 +80,7 @@ const defaultMaxDepth = 50;
 export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): NetworkNode[] {
 
   if(maxDepth > defaultMaxDepth) maxDepth = defaultMaxDepth; 
-  log(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
+  log.TRACE.print(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
 
   // Create array for storing the network tree
   const networkNodes: NetworkNode[] = [];
@@ -100,18 +100,18 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
   while (stack.length > 0) {
     // Get the last node added to the stack (depth-first behaviour)
     const stackNode = stack.pop() as NetworkNode;
-    log(ns, `pop off stack   ${stackNode.hostname}`);
+    log.TRACE.print(ns, `pop off stack   ${stackNode.hostname}`);
 
     // push the node to the networkNodes array if there are no networkNodes with the hostname
     if (!networkNodes.some((networkNode) => networkNode.hostname === stackNode.hostname)) {      
-      log(ns, `push on network ${stackNode.hostname}`);
+      log.TRACE.print(ns, `push on network ${stackNode.hostname}`);
       networkNodes.push(stackNode);
     }
 
     /* If current node is NOT at max depth, scan the node to find deeper connections */
     
     if (stackNode.depth < maxDepth) {
-      log(ns, `scanning server ${stackNode.hostname}`, logLevel.INFO);
+      log.INFO.print(ns, `scanning server ${stackNode.hostname}`);
 
       // neighbors will be an array of hostnames connected to the node including home, parent node, and purchased servers.
       const neighbors = ns.scan(stackNode.hostname);
@@ -127,15 +127,15 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
             hostname: neighbor,
             parent: stackNode.hostname,
           };
-          log(ns, `push on stack   ${neighbor}`);
+          log.TRACE.print(ns, `push on stack   ${neighbor}`);
           stack.push(childNode);
         }
       }
     }
   } 
 
-  log(ns, "scan stack is empty");
-  log(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
+  log.TRACE.print(ns, "scan stack is empty");
+  log.SUCCESS.print(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);
   
   return networkNodes; 
   
@@ -206,27 +206,27 @@ export function filterServerProperties(ns: NS, network: NetworkServer[], filters
     for (const property of Object.keys(filters)) {
       if(property === "requiredHackingSkill") {
         if (Number(server[property]) <= Number(filters[property])) {
-          log(ns, `${server.hostname}: ${property} <= ${filters[property]} = continue checking other properties`);
+          log.TRACE.print(ns, `${server.hostname}: ${property} <= ${filters[property]} = continue checking other properties`);
           continue; 
         } else {
-          log(ns, `${server.hostname}: ${property} > ${filters[property]} = reject`);
+          log.TRACE.print(ns, `${server.hostname}: ${property} > ${filters[property]} = reject`);
           allFiltersMatch = false;
           break; // dont bother checking other filter properties for this server
         }
       } 
       if (server[property] !== filters[property]) {
-        log(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
+        log.TRACE.print(ns, `${server.hostname} did not match filter: ${property} !== ${filters[property]}`);
         allFiltersMatch = false;
         break; // dont bother checking other filter properties for this server
       }
     }
     if (allFiltersMatch) {
-      log(ns,`${server.hostname} matched filters: ${Object.keys(filters)}`);
+      log.TRACE.print(ns,`${server.hostname} matched filters: ${Object.keys(filters)}`);
       filteredNetwork.push(server);
     }
   }
-  log(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`, logLevel.INFO);
-  log(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`, logLevel.SUCCESS);
+  log.INFO.print(ns,`${filteredNetwork.length} servers matched filters: ${Object.keys(filters)}`);
+  log.SUCCESS.print(ns, `filterServerProperties() completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);
   return filteredNetwork;
 }
 
