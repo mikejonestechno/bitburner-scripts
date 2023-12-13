@@ -60,43 +60,48 @@ ns.print(`${color.cyan}Calling ns.scan()...`);
 
 This is great to help my debug messages stand out but I have to add a `$(color}` prefix to every message, and if I later wanted to change debug messages from cyan to yellow I would have to edit every file and update every value.
 
-I created a simple `log()` function to help me be more consistent. I can pass in the log level and the function will print the message in the appropriate color. If I want to change the error message color I now only have to edit one line in the log function.
+I created a `Log {}` class to help me be more consistent. I can create a separate log for different log levels and the function will print the message in the appropriate color. If I want to change the error log message color I now only have to edit one line in the log variable.
 
 ``` typescript
-log(ns, "Oops something went wrong!", logLevel.ERROR);
-log(ns, "Calling ns.scan()...");
+log.ERROR.print(ns, "Oops something went wrong!");
+log.INFO.print(ns, "Calling ns.scan()...");
 ```
 
-If no log level is passed in the message will be logged as a debug message in trace message color.
+I defined mulitple log levels and added a conditional check so that I can easily enable and disable debug trace logging. The Log class is really just a print formatter to emulate a proper logging routine.
 
-I defined mulitple log levels and added a conditional check so that I can easily enable and disable debug logging. The log function is really just a print formatter to emulate a proper logging routine, for example `logLevel` is just a string index rather than a type or interface.
-
-The primary purpose for the `log()` function is the ability to consistently print or supress debug messages by changing `maxLogLevel` and this meets my needs for now. 
+The primary purpose for the `log.LEVEL.print()` function is the ability to consistently print or supress debug messages by changing `maxLogLevel` and this meets my needs for now. 
 
 ``` typescript
-type LogLevel = {
-    [key: string]: {  
-        name: string, 
-        level: number,
-        color: string,
+class Log {
+    constructor(
+        public name: string,
+        public level: number,
+        public color: string,
+        public icon: string
+    ) { }
+
+    // use icons to reduce message length
+    formatMessage(message: string): string {
+        return `${this.color}${this.icon} ${message}`;
     }
-};
-export const logLevel: LogLevel = {
-    "TRACE": {name: "TRACE", level: 4, color: color.cyan},
-    "INFO": {name: "INFO", level: 3, color: color.blue},
-    "WARN": {name: "WARN", level: 2, color: color.yellow},
-    "SUCCESS": {name: "SUCCESS", level: 1.1, color: color.green},
-    "ERROR": {name: "ERROR", level: 1, color: color.red},
-    "NONE": {name: "NONE", level: 0, color: color.paleBlack},
-};
 
-const maxLogLevel = logLevel.TRACE; 
-
-export async function log(ns: NS, message: string, messageLogLevel = logLevel.TRACE): Promise<void> {   
-    if (messageLogLevel.level <= maxLogLevel.level) {        
-        ns.print(`${messageLogLevel.color}${messageLogLevel.name} ${message}`);
+    async print(ns: NS, message: string): Promise<void> {
+        if (this.level <= maxLogLevel.level) {
+            ns.print(this.formatMessage(message));
+        }
     }
 }
+
+export const log = {
+    TRACE: new Log("TRACE", 4, color.cyan, icon.trace),
+    INFO: new Log("INFO", 3, color.blue, icon.info),
+    WARN: new Log("WARN", 2, color.yellow, icon.warn),
+    SUCCESS: new Log("SUCCESS", 1.1, color.green, icon.success),
+    ERROR: new Log("ERROR", 1, color.red, icon.error),
+    NONE: new Log("NONE", 0, color.paleBlack, ""),
+};
+
+const maxLogLevel = log.TRACE;
 ```
 
 The logging functions are saved in the `util/log.ts` file.

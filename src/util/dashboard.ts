@@ -62,7 +62,7 @@ export const scanAnalyzeColumns: Column[] = [
     {heading: "network", property: "hostname", format: format.hostname},
     {heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.hacker, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.hacker}}, 
     {heading: "ports", property: "numOpenPortsRequired", format: {padding: -10}},   
 ];
 
@@ -71,7 +71,7 @@ const dashboardColumns: Column[] = [
     // all vulnerable servers will have admin rights, so hide this column
     //{heading: icon.key, property: "hasAdminRights", format: format.boolean},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.hacker, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.hacker}}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
     {heading: "$ max", property: "moneyMax", format: format.money},
     {heading: "% avail", property: "moneyAvailablePercent", format: format.percent},
@@ -79,8 +79,8 @@ const dashboardColumns: Column[] = [
     {heading: "chance", property: "hackChance", format: format.percent},
     {heading: "h $/s", property: "hackMoneyPerSecond", format: format.money}, 
     {heading: "max $/s", property: "hackMaxMoneyPerSecond", format: format.money}, 
-    {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
-    {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
+    {heading: icon.security, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.security}}, // securityLevel
+    {heading: "min " + icon.security, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.security}}, // minSecurityLevel
     {heading: "grow s", property: "growTime", format: format.seconds}, 
     {heading: "g $/s", property: "growMoneyPerSecond", format: format.money},
     {heading: "weak s", property: "weakenTime", format: format.seconds}, 
@@ -92,7 +92,7 @@ const dashboardColumns: Column[] = [
 const hackColumns: Column[] = [
     {heading: "hostname", property: "hostname", format: format.hostname},
     {heading: "RAM", property: "maxRam", format: format.ram},
-    {heading: "hack" + icon.techno, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.techno}}, 
+    {heading: "hack" + icon.hacker, property: "requiredHackingSkill", format: {padding: 3, fractionalDigits: 0, isInteger: true, suffix: icon.hacker}}, 
     {heading: "chance", property: "hackChance", format: format.percent},
     {heading: "steal %", property: "hackMoneyPercent", format: format.percent}, 
     {heading: "$ avail", property: "moneyAvailable", format: format.money},
@@ -118,8 +118,8 @@ const growColumns: Column[] = [
     {heading: "$/grow", property: "growMoney", format: format.money}, 
     {heading: "time", property: "growTime", format: format.seconds}, 
     {heading: "g $/s", property: "growMoneyPerSecond", format: format.money},
-    {heading: icon.police, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // securityLevel
-    {heading: "min " + icon.police, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.police}}, // minSecurityLevel
+    {heading: icon.security, property: "hackDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.security}}, // securityLevel
+    {heading: "min " + icon.security, property: "minDifficulty", format: {padding: 5, fractionalDigits: 2, suffix: icon.security}}, // minSecurityLevel
     {heading: "weak s", property: "weakenTime", format: format.seconds},
     {heading: "threads", property: "weakenThreads", format: format.decimal},
     {heading: icon.chart, property: "targetGrowMoneyPerSecond", format: format.boolean},
@@ -169,7 +169,7 @@ export function showDashboard(ns: NS, network: NetworkServer[], columns: Column[
             maxDepth = network.reduce((max, server) => {
                 return (server.depth > max) ? server.depth : max;
             }, 0);
-            log(ns, `Maximum depth: ${maxDepth}`);
+            log.TRACE.print(ns, `Maximum depth: ${maxDepth}`);
             padding -= (maxDepth*2);
         }
         // Some (not all) emoji characters comprise of multiple unicode-16 glyphs.
@@ -277,7 +277,7 @@ function emojiPadding(ns: NS, inputString: string): number {
     const emojiRegex = /(?!\d)\p{Emoji}/ug; // negative lookahead to exclude numeric digits
     //const emojiChars = emojiRegex.exec(inputString)?.length ?? 0;
     const emojiChars = inputString.match(emojiRegex)?.length ?? 0;
-    // debug log // if (emojiChars !== 0) { log(ns, `${inputString} has ${emojiChars} char`) }
+    // debug log // if (emojiChars !== 0) { log.TRACE.print(ns, `${inputString} has ${emojiChars} char`) }
     return emojiChars;
 }
 

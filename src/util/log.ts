@@ -1,10 +1,32 @@
 import { NS } from "@ns";
 
+/**
+ * Outputs a list of colors for debugging purposes.
+ * 
+ * @param ns - The netscript interface to bitburner functions.
+ * @returns A promise that resolves when the function completes.
+ */
+export async function main(ns: NS): Promise<void> {
+    for (const key of Object.keys(color)) {
+        ns.print(`${color[key]}${key}`);
+    }
+    log.TRACE.print(ns, "LogLevel test to check output formatting.");
+    log.SUCCESS.print(ns, "Positive successful hack against server.");
+    log.WARN.print(ns, "Server is getting low on available money.")
+    log.INFO.print(ns, "Operation complete.")
+    log.ERROR.print(ns, "Root access is required.")
+    ns.print("|||||| Check icon alignment with monospace font.")
+    for (const key of Object.keys(icon)) {
+        ns.print(`|${icon[key]}| ${key}`);
+    }
+    ns.print("|||||| Check icon alignment with monospace font.")
+}
+
 // https://talyian.github.io/ansicolors/
-export const color: {[key: string]: string} = {
+export const color: { [key: string]: string } = {
     // pale
     paleBlack: "\x1b[30m",
-    paleRed: "\x1b[38;5;9m", 
+    paleRed: "\x1b[38;5;9m",
     paleOrange: "\x1b[38;5;94m",
     paleYellow: "\x1b[38;5;11m",
     paleGreen: "\x1b[38;5;10m",
@@ -12,17 +34,17 @@ export const color: {[key: string]: string} = {
     paleBlue: "\x1b[38;5;19m",
     paleIndigo: "\x1b[38;5;55m",
     paleMagenta: "\x1b[38;5;13m",
-    paleWhite: "\x1b[38;5;243m", 
+    paleWhite: "\x1b[38;5;243m",
     // mid
-    red: "\x1b[38;5;160m", 
-    orange: "\x1b[38;5;172m", 
+    red: "\x1b[38;5;160m",
+    orange: "\x1b[38;5;172m",
     yellow: "\x1b[38;5;184m",
     green: "\x1b[38;5;34m",
     cyan: "\x1b[38;5;80m",
     blue: "\x1b[38;5;21m",
     indigo: "\x1b[38;5;105m",
     magenta: "\x1b[38;5;164m",
-    white: "\x1b[38;5;15m", 
+    white: "\x1b[38;5;15m",
     // bright
     brightRed: "\x1b[38;5;1m",
     brightOrange: "\x1b[38;5;208m",
@@ -35,24 +57,17 @@ export const color: {[key: string]: string} = {
     reset: "\u001b[0m"
 };
 
-/**
- * Outputs a list of colors for debugging purposes.
- * 
- * @param ns - The netscript interface to bitburner functions.
- * @returns A promise that resolves when the function completes.
- */
-export async function main(ns: NS): Promise<void> {
-    for(const key of Object.keys(color)) {
-        ns.print(`${color[key]}${key}`);
-    }
-    log(ns, "LogLevel test to check output formatting.")
-    log(ns, "Positive successful hack against server.", logLevel.SUCCESS )
-    log(ns, "Server is getting low on available money.", logLevel.WARN )
-    log(ns, "Operation complete.", logLevel.INFO )
-    log(ns, "Root access is required.", logLevel.ERROR )
-}
-
-export const icon: {[index: string]: string} = {
+export const icon: { [key: string]: string } = {
+    none: "  ", // two spaces (no emoji)
+    blank: "⬜",
+    black: "⬛",
+    trace: "🕵",
+    info: "📝",
+    warn: "⚠️",
+    error: "🚨",
+    success: "✅",
+    check: "✅",
+    cross: "❎",
     true: "✔️",
     false: "❌",
     dollar: "💲",
@@ -64,9 +79,8 @@ export const icon: {[index: string]: string} = {
     lock: "🔒",
     unlock: "🔓",
     key: "🔑",
-    detective: "🕵",
-    police: "👮",
-    techno: "👨‍💻",
+    security: "👮",
+    hacker: "👨‍💻",
     pirateFlag: "🏴‍☠️",
     biohazard: "☣️",
     syringe: "💉",
@@ -101,28 +115,35 @@ export const icon: {[index: string]: string} = {
     first: "🥇",
     crystalBall: "🔮",
     racehorse: "🐎",
-}; 
+};
 
-type LogLevel = {
-    [key: string]: {  
-        name: string, 
-        level: number,
-        color: string,
+class Log {
+    constructor(
+        public name: string,
+        public level: number,
+        public color: string,
+        public icon: string
+    ) { }
+
+    // use icons to reduce message length
+    formatMessage(message: string): string {
+        return `${this.color}${this.icon} ${message}`;
     }
-};
-export const logLevel: LogLevel = {
-    "TRACE": {name: "TRACE", level: 4, color: color.cyan},
-    "INFO": {name: "INFO", level: 3, color: color.blue},
-    "WARN": {name: "WARN", level: 2, color: color.yellow},
-    "SUCCESS": {name: "SUCCESS", level: 1.1, color: color.green},
-    "ERROR": {name: "ERROR", level: 1, color: color.red},
-    "NONE": {name: "NONE", level: 0, color: color.paleBlack},
-};
 
-const maxLogLevel = logLevel.TRACE; 
-
-export async function log(ns: NS, message: string, messageLogLevel = logLevel.TRACE): Promise<void> {   
-    if (messageLogLevel.level <= maxLogLevel.level) {        
-        ns.print(`${messageLogLevel.color}${messageLogLevel.name} ${message}`);
+    async print(ns: NS, message: string): Promise<void> {
+        if (this.level <= maxLogLevel.level) {
+            ns.print(this.formatMessage(message));
+        }
     }
 }
+
+export const log = {
+    TRACE: new Log("TRACE", 4, color.cyan, icon.trace),
+    INFO: new Log("INFO", 3, color.blue, icon.info),
+    WARN: new Log("WARN", 2, color.yellow, icon.warn),
+    SUCCESS: new Log("SUCCESS", 1.1, color.green, icon.success),
+    ERROR: new Log("ERROR", 1, color.red, icon.error),
+    NONE: new Log("NONE", 0, color.paleBlack, ""),
+};
+
+const maxLogLevel = log.TRACE;

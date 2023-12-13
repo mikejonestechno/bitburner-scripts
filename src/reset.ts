@@ -27,7 +27,7 @@ export async function main(ns: NS): Promise<void> {
 
     // Delete files on all servers
     for (const server of networkNodes) {
-        log(ns, `Deleting files on ${server.hostname}`)
+        log.TRACE.print(ns, `Deleting files on ${server.hostname}`)
         deleteFiles(ns, "/data/", server.hostname)
         if (server.hostname != "home") {
             deleteFiles(ns, "/malware/", server.hostname)
