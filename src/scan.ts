@@ -3,16 +3,13 @@ import { scan } from "util/network";
 
 /**
  * Scans the network to a given depth and prints server properties similar to the terminal scan-analyze command.
- * @param ns - The netscript interface to bitburner functions.
- * @returns NetworkNode[]
+ * @argument maxDepth - The maximum depth to scan.
+ * @argument quiet - If defined do NOT print scan to terminal
  * @remarks RAM cost: 1.8 GB (base, scan)
  */
 export function main(ns: NS) {
-
-    let depth = Number(ns.args[0]);
-    if(undefined === depth || Number.isNaN(depth)) depth = 1; // default depth
-    
-    const networkNodes = scan(ns, depth);
-
-    return networkNodes;
+    const maxDepth = ns.args[0] as number;
+    /* if a second argument is provided, do NOT print the scan to the terminal */
+    const print = undefined == ns.args[1];
+    scan(ns, maxDepth, print);
 }

@@ -30,12 +30,23 @@ export interface NetworkServer extends Server {
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
  * DEPRECATED: The scan function is superceeded by the scanAnalyze.ts function
  * but is retained here in case I want to revisit or maintain for historical reference.
- * @param ns - The netscript interface to bitburner functions.
  * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
-export function scan(ns: NS, depth: number) {
+export function scan(ns: NS, depth: number, print = true) {
   if(undefined === depth || Number.isNaN(depth)) depth = 1;
   const networkNodes: NetworkNode[] = scanNetwork(ns, depth);
+  //TODO: save network data
+  if (print) {
+    printNetworkNodes(ns, networkNodes);
+  }
+}
+
+/**
+ * Prints the scanned network node hostnames similar to the terminal scan-analyze command.
+ * @param networkNodes - An array of NetworkNode objects.
+ */
+function printNetworkNodes(ns: NS, networkNodes: NetworkNode[]) {
+  log.TRACE.print(ns, "printNetworkNodes()");
   networkNodes.forEach((networkNode) => {
     const prefix: string = networkNode.depth == 0 ? "" : " ┃".repeat(networkNode.depth-1) + " ┣";
     ns.tprintf('%s %s', prefix, networkNode.hostname);
@@ -62,7 +73,7 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
     log.TRACE.print(ns, `getServer ${networkServer.hostname} depth ${networkServer.depth} ${icon.security} ${networkServer.hackDifficulty}`); 
     networkServers.push(networkServer);
   });
-  log.SUCCESS.print(ns, `getNetworkServers() ${networkServers.length} servers in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);    
+  log.TIME.performance(ns, "getNeworkServers()", startPerformance);
   return networkServers;
 }
 
@@ -77,7 +88,7 @@ export function getNetworkServers(ns: NS): NetworkServer[] {
  * @remarks RAM cost: 0.20 GB
  */
 const defaultMaxDepth = 50;
-export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): NetworkNode[] {
+export function scanNetwork(ns: NS, maxDepth = defaultMaxDepth): NetworkNode[] {
 
   if(maxDepth > defaultMaxDepth) maxDepth = defaultMaxDepth; 
   log.TRACE.print(ns, "ScanNetwork(maxDepth=" + maxDepth + ")") ;
@@ -85,7 +96,7 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
   // Create array for storing the network tree
   const networkNodes: NetworkNode[] = [];
 
-    // Create a stack for storing the nodes to be scanned, starting with the home server at depth zero
+  // Create a stack for storing the nodes to be scanned, starting with the home server at depth zero
   const stack: NetworkNode[] = [
     {
       depth: 0,
@@ -95,7 +106,8 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
   ];
 
   const startPerformance = performance.now();
-  ns.disableLog('ALL');
+  ns.disableLog("disableLog");
+  ns.disableLog("scan");
 
   while (stack.length > 0) {
     // Get the last node added to the stack (depth-first behaviour)
@@ -108,13 +120,13 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
       networkNodes.push(stackNode);
     }
 
-    /* If current node is NOT at max depth, scan the node to find deeper connections */
-    
+    /* If current node is NOT at max depth, scan the node to find deeper connections */    
     if (stackNode.depth < maxDepth) {
-      log.INFO.print(ns, `scanning server ${stackNode.hostname}`);
-
       // neighbors will be an array of hostnames connected to the node including home, parent node, and purchased servers.
       const neighbors = ns.scan(stackNode.hostname);
+      if (neighbors.length > 1) { // every node has at least 1 (parent) neighbor
+        log.INFO.print(ns, `scan result for ${stackNode.hostname}: ${neighbors.length} nodes`);
+      }
 
       // Iterate in reverse order to maintain depth-first behavior
       for (let i = neighbors.length - 1; i >= 0; i--) {
@@ -134,9 +146,7 @@ export function scanNetwork(ns: NS, maxDepth: number = defaultMaxDepth): Network
     }
   } 
 
-  log.TRACE.print(ns, "scan stack is empty");
-  log.SUCCESS.print(ns, `scanNetwork(maxDepth=${maxDepth}) completed in ${(performance.now() - startPerformance).toFixed(2)} milliseconds`);
-  
+  log.TIME.performance(ns, `scanNetwork(maxDepth=${maxDepth})`, startPerformance);
   return networkNodes; 
   
 }

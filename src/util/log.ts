@@ -144,12 +144,27 @@ class Log {
             ns.print(this.formatMessage(message));
         }
     }
+
+    /* Consistent log format for performance tracking
+     * @param operation - The name of the operation being tracked e.g. "scan"
+     * @param performanceStart - The value of performance.now() at the start of the operation
+     * @example const performanceStart = performance.now(); // start of scan operation
+     *          // operation code
+     *          log.performance(ns, "scan", performanceStart);
+     */
+    performance(ns: NS, operation: string, performanceStart: number): void {
+        const milliseconds = ns.formatNumber(performance.now() - performanceStart, 2);
+        const message = `${operation} took ${milliseconds} ms`;
+        log.TIME.print(ns, message);
+    }
+
 }
 
 export const log = {
     TRACE: new Log("TRACE", 4, color.cyan, icon.trace),
     INFO: new Log("INFO", 3, color.blue, icon.info),
-    WARN: new Log("WARN", 2, color.yellow, icon.warn),
+    WARN: new Log("WARNING", 2, color.yellow, icon.warn),
+    TIME: new Log("PERFORMANCE", 1.1, color.green, icon.timer),
     SUCCESS: new Log("SUCCESS", 1.1, color.green, icon.success),
     ERROR: new Log("ERROR", 1, color.red, icon.error),
     NONE: new Log("NONE", 0, color.paleBlack, ""),
