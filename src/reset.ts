@@ -5,7 +5,7 @@ import { nukeServers, injectMalware } from "util/crack";
 import { log } from "./util/log";
 
 /**
- * Lightweight minimal script to clear data and nuke servers.
+ * Script to clear all data from all servers.
  * This enables a control script to be executed on other servers.
  * @param ns - The netscript interface to bitburner functions.
  * @returns A promise that resolves once the reset is complete.
