@@ -1,5 +1,7 @@
 import { NS } from "@ns";
-import { log } from "./util/log";
+import { log } from "util/log";
+import { Script } from "util/control";
+import { DATA } from "util/data";
 
 /**
  * Starts basic cycle of cracking and hacking
@@ -21,22 +23,17 @@ export async function main(ns: NS): Promise<void> {
      * Run analyze.js (separate script to reduce RAM cost)
      */
 
-    /* PHASE IV: Spawn control script (6.75 GB) to run attack (2.9 GB)
+    /* PHASE IV: Run attack (2.9 GB)
      * Initial control script tracks progress without frequent network server analyze
+     * TODO: replace n00dles with a root access server with min RAM to run control 
      */
-    const controlProcess = ns.exec("util/control.js", "n00dles");
-    if (controlProcess == 0) {
-        log.ERROR.print(ns, "Control script failed to start.");
-        // NOTE its plausible server has old version of the script, may need to run reset.js
-    } else {
-        log.INFO.print(ns, `Control script started on PID ${controlProcess}.`);
-    }
-
+    const script = new Script(ns, "control.js", "n00dles");
+    script.execute();
 }
 
 function initialize(ns: NS)  {
-    /* Ports are cleared when you start the game or soft reset
-     * and reset.js can be used to manually reset and wipe data if needed.
+    /* Ports are cleared when you start the game or soft reset.
+     * If ports are not clear, run reset.js to clear them.
      *
      * Load persistent file data to temporary port cache
      * 
@@ -48,8 +45,18 @@ function initialize(ns: NS)  {
      * 
      * Something here to check status of running scripts...?
      * and kill some or all of them
-     * 
-     * 
      */
     log.TRACE.print(ns, "Initializing data...");
+
+    if (ns.peek(DATA.network.port) != "NULL PORT DATA") {
+        log.ERROR.print(ns, "Network data port is not empty.");
+        // load from persistent file
+            // if persistent file missing queue scan and network script?
+    }
+    if (ns.peek(DATA.player.port) != "NULL PORT DATA") {
+        log.ERROR.print(ns, "Player data port is not empty.");
+        // load from persistent file
+        // queue scan and player script?
+    }
+
 }
