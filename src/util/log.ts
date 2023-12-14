@@ -145,12 +145,13 @@ class Log {
         }
     }
 
-    /* Consistent log format for performance tracking
+    /** 
+     * Prints a formatted message for performance timer tracking
      * @param operation - The name of the operation being tracked e.g. "scan"
      * @param performanceStart - The value of performance.now() at the start of the operation
      * @example const performanceStart = performance.now(); // start of scan operation
      *          // operation code
-     *          log.performance(ns, "scan", performanceStart);
+     *          log.performance(ns, "scan", performanceStart); // end of scan operation
      */
     performance(ns: NS, operation: string, performanceStart: number): void {
         const milliseconds = ns.formatNumber(performance.now() - performanceStart, 2);

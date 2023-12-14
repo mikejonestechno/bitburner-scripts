@@ -3,13 +3,15 @@ import { log } from "util/log";
 
 export async function main(ns: NS): Promise<void> {
 
-    /* When the game starts all temporary port data is cleared.
-     * This script will re-start and will need to recover.
-     * run exec start.js to load persistent data into the temporary port cache.
-     */
     log.TRACE.print(ns, "Control started");
-    
-    // TODO: ensure there is only ever one instance of this script running.
+
+    /**
+     * When the game starts all temporary port data is cleared.
+     * Expect control script to self-recover when game starts.
+     * Perhaps it needs to run a start script to load persistent data and re-initialize the cache
+     */
+
+    // TODO: ensure there is only ever one instance of this script running?
 
     while (true) {
         const time = new Date().toLocaleTimeString([], { hour12: false });
@@ -27,5 +29,32 @@ export async function main(ns: NS): Promise<void> {
 
         await ns.sleep(1000 * 10);
 
+    }
+}
+
+export class Script {
+    private ns: NS;
+    private script: string;
+    private server: string;
+
+    constructor(ns: NS, script: string, server: string) {
+        this.ns = ns;
+        this.script = script;
+        this.server = server;
+    }
+
+
+    /**
+     * Executes the script on the server with consistent logging.
+     * @returns The process ID of the executed script.
+     */
+    public execute(): number {
+        const process = this.ns.exec(this.script, this.server);
+        if (process == 0) {
+            log.ERROR.print(this.ns, `${this.script} failed to start on ${this.server}.`);
+        } else {
+            log.INFO.print(this.ns, `${this.script} started on ${this.server} with PID ${process}.`);
+        }
+        return process;
     }
 }
