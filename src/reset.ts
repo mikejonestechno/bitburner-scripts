@@ -48,10 +48,11 @@ export async function main(ns: NS): Promise<void> {
     ns.exec("/util/analyze.js", "foodnstuff");
 
 }
-
-function wipeServer (ns: NS, server: NetworkServer) {
+/* Consider a NetworkServer class that includes properties an methods including
+wipeServer (ns: NS, server: NetworkServer) {
     // delete all malware on server
     // delete all util / scripts on server
     // delete all logs on server
     // delete all purchased programs on server? (except NUKE)
 }
+*/
