@@ -1,7 +1,7 @@
 import { NS } from "@ns";
 import { log } from "util/log";
 import { Script } from "util/control";
-import { DATA } from "util/data";
+import { DataStore } from "util/data";
 
 /**
  * Starts basic cycle of cracking and hacking
@@ -28,6 +28,8 @@ export async function main(ns: NS): Promise<void> {
      * TODO: replace n00dles with a root access server with min RAM to run control 
      */
     const script = new Script(ns, "control.js", "n00dles");
+    const dataStore = new DataStore();
+    dataStore.control.set(ns, script);
     script.execute();
 }
 

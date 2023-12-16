@@ -1,152 +1,143 @@
 import { NS, Player } from "@ns";
 import { log } from "util/log";
-import { NetworkServer } from "util/network";
+
+/**
+ * The data class must only use zero RAM cost functions.
+ * Additional methods that use RAM must be defined in the main script.
+ */
 
 type Data = {
-    file: string,
+    name: string
     port: number,
+    portType: "queue" | "state"
+    file: string,
+    set: (ns: NS, data: unknown) => void;
+    get: (ns: NS) => JSON;
+    peek: (ns: NS) => JSON;
 };
 
-export const DATA: { [key: string]: Data } = {
-    control: {
-        file: "/data/control.txt",
-        port: 1,
-    },
-    state: { // state feedback loop for the controller
-        file: "/data/state.txt",
-        port: 2,
-    },
-    player: {
-        file: "/data/player.txt",
-        port: 3,
-    },
-    network: {
-        file: "/data/network.txt",
-        port: 4,
+export class DataStore {
+    control: Data;
+    player: Data;
+
+    constructor() {
+        this.control = this.createDataObject("control", 1, "queue");
+        this.player = this.createDataObject("player", 3, "state");
+    }
+
+    private createDataObject(name: string, port: number, portType: "queue" | "state"): Data {
+        return {
+            name,
+            port,
+            portType,
+            file: `data/${name}.txt`,
+            set: (ns: NS, data: unknown) => {
+                this.writeData(ns, data, this.createDataObject(name, port, portType));
+            },
+            get: (ns: NS) => {
+                return this.readData(ns, this.createDataObject(name, port, portType));
+            },
+            peek: (ns: NS) => {
+                return this.peekPort(ns, this.createDataObject(name, port, portType));
+            }
+        };
+    }
+
+    private writeData(ns: NS, data: unknown, dataObject: Data): void {
+        const jsonData = JSON.stringify(data, undefined, "\t");
+        this.writePort(ns, jsonData, dataObject);
+        if (dataObject.portType === "state") {
+            // also write state to persistent file
+            this.writeFile(ns, jsonData, dataObject);
+        }
+    }
+
+    private writePort(ns: NS, jsonData: string, dataObject: Data): void {
+        if (dataObject.portType === "state") {
+            ns.clearPort(dataObject.port);
+        } 
+        log.TRACE.print(ns, `ns.writePort(${dataObject.port}) write ${dataObject.name} ${dataObject.portType} to port`);
+        ns.writePort(dataObject.port, jsonData);
+    }
+
+    private writeFile(ns: NS, jsonData: string, dataObject: Data): void {
+        log.TRACE.print(ns, `ns.write() ${dataObject.name} ${dataObject.portType} to file ${dataObject.file}`);
+        // there is no return value so no error handling without introducing RAM cost
+        ns.write(dataObject.file, jsonData, "w");
+    }
+
+    private readData(ns: NS, dataObject: Data): JSON {
+        const stringData = this.readPort(ns, dataObject);
+        if (stringData != "NULL PORT DATA") {
+            return JSON.parse(stringData);
+        } else {
+            return this.readFile(ns, dataObject);
+        }
+    }
+
+    private readPort(ns: NS, dataObject: Data): string {
+        log.TRACE.print(ns, `ns.readPort(${dataObject.port}) read ${dataObject.name} ${dataObject.portType} from port`);
+        const stringData = ns.readPort(dataObject.port) as string;
+        if (stringData === "NULL PORT DATA") {
+            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}.`);
+            return "";
+        } else {
+            return stringData;
+        }
+    }
+
+    private peekPort(ns: NS, dataObject: Data): JSON {
+        log.TRACE.print(ns, `ns.peek(${dataObject.port}) peek ${dataObject.name} ${dataObject.portType} from port`);
+        const stringData = ns.peek(dataObject.port) as string;
+        if (stringData === "NULL PORT DATA") {
+            log.ERROR.print(ns, `Failed to peek ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}.`);
+            return JSON;
+        } else {
+            return JSON.parse(stringData);
+        }
+    }
+
+    private readFile(ns: NS, dataObject: Data): JSON {
+        log.TRACE.print(ns, `ns.read() ${dataObject.name} ${dataObject.portType} from file ${dataObject.file}`);
+        const jsonData = ns.read(dataObject.file);
+        if (jsonData === "") {
+            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from file ${dataObject.file}.`);
+            return JSON ;
+        } else {
+            return JSON.parse(jsonData);
+        }
     }
 }
 
 /**
- * Writes player data.
- * @param ns - The netscript interface to bitburner functions.
+ * MAIN function for debug testing
  * @remarks RAM cost: 0.5 GB
  */
 export async function main(ns: NS): Promise<void> {
-    refreshPlayerData(ns, true);
+    writePlayerData(ns);
+    const player = readPlayerData(ns);
+    ns.print(`PlayerCity: ${player.city}`);
 }
 
 /**
- * Reads network data.
- * @param ns - The netscript interface to bitburner functions.
- * @returns The parsed network data.
- */
-export function readNetworkData(ns: NS): NetworkServer[] {
-    const network = readData(ns, "network") as NetworkServer[];
-    if (undefined === network) {
-        throw new Error(`Failed to load network data.`);
-    }
-    return network;
-}
-
-/**
- * Reads player data.
- * @param ns - The netscript interface to bitburner functions.
- * @returns The parsed player data.
+ * Reads the player data from the data store.
+ * @returns The player data.
  */
 export function readPlayerData(ns: NS): Player {
-    const player = readData(ns, "player") as Player;
-    if (undefined === player) {
-        throw new Error(`Failed to load player data. Run util/data.js or call refreshPlayerData() to re-generate.`);
-    }
-    return player;
+    const dataStore = new DataStore();
+    return dataStore.player.get(ns) as unknown as Player;
 }
 
 /**
- * Reads and parses data of a specific type from the given namespace.
- * @param ns - The netscript interface to bitburner functions.
- * @param type - The type of data to read.
- * @returns The parsed data.
+ * Writes the player data to the data store.
+ * @returns The player data.
  */
-export function readData(ns: NS, type: string): object {
-    const portData = ns.peek(DATA[type].port) as string;
-    if (portData == "NULL PORT DATA") { throw Error(`Failed to read data of type ${type}. NULL PORT ERROR. Try run reset.js.`); }
-    return JSON.parse(portData);
-}
-
-/**
- * Get the latest player data.
- * @param ns - The netscript interface to bitburner functions.
- * @param force - Whether to force the data refresh by clearing the existing data.
- * @returns The latest player info.
- * @remarks RAM cost: 0.5 GB
- */
-export function refreshPlayerData(ns: NS, force = false): Player {
+export function writePlayerData(ns: NS): Player {
+    log.TRACE.print(ns, `ns.getPlayer()`);
     const player = ns.getPlayer();
-    refreshData(ns, "player", player, force);
+    const dataStore = new DataStore();
+    dataStore.player.set(ns, player);
     return player;
-}
-
-/**
- * Write data to port.
- * @param ns - The netscript interface to bitburner functions.
- * @param type - The type of data to write.
- * @param rawdata - The data to write.
- * @param writeFile - Whether to write the data to a file.
- * @returns true if successful, false otherwise.
- * @remarks RAM cost: 0 GB
- */
-export function tryWriteData(ns: NS, type: string, rawdata: unknown, writeFile = false): boolean {
-    const data = JSON.stringify(rawdata);
-    if (writeFile) {
-        ns.write(DATA[type].file, data, "w");
-    }
-    return ns.tryWritePort(DATA[type].port, data);
-}
-
-/**
- * Refreshes the data of a specified type in the game.
- * @param ns - The netscript interface to bitburner functions.
- * @param type - The type of data to refresh.
- * @param data - The new data to write.
- * @param force - Whether to force the data refresh by clearing the existing data.
- * @returns A boolean indicating whether the data refresh was successful.
- * @remarks RAM cost: 0 GB
- */
-export function refreshData(ns: NS, type: string, data: unknown, force = false): boolean {
-    if (force) {
-        ns.clearPort(DATA[type].port); // clear and initialize new value
-    }
-    log.TRACE.print(ns, `refreshData() ${type} to port ${DATA[type].port}}`);
-    const result = tryWriteData(ns, type, data, force);
-    if (!force) {
-        ns.readPort(DATA[type].port); // pop old value
-    }
-    return result;
-}
-
-/**
- * Clear the data from ports.
- * @param ns - The netscript interface to bitburner functions.
- * @returns true if successful, false otherwise.
- * @remarks RAM cost: 0 GB
- */
-export async function clearPortData(ns: NS): Promise<void> {
-    for (const type in DATA) {
-        ns.clearPort(DATA[type].port);
-    }
-}
-
-/**
- * Clear the data files and ports.
- * @param ns - The netscript interface to bitburner functions.
- * @returns true if successful, false otherwise.
- * @remarks RAM cost: 1 GB (rm)
- */
-export function clearData(ns: NS) {
-    for (const type in DATA) {
-        ns.clearPort(DATA[type].port);
-        ns.rm(DATA[type].file);
-    }
 }
 
 /**
