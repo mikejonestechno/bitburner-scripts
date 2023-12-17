@@ -1,5 +1,6 @@
 import { NS } from "@ns";
 import { log } from "util/log";
+//import { DataStore } from "util/data";
 
 export async function main(ns: NS): Promise<void> {
 
@@ -12,6 +13,9 @@ export async function main(ns: NS): Promise<void> {
      */
 
     // TODO: ensure there is only ever one instance of this script running?
+
+    //const dataStore = new DataStore();
+    //const player = dataStore.player.get(ns);
 
     while (true) {
         const time = new Date().toLocaleTimeString([], { hour12: false });
@@ -27,33 +31,35 @@ export async function main(ns: NS): Promise<void> {
 
         /* Read scripts in the control queue and execute them */
 
+        /* if we are in idle state save data to persistent storage? */
         await ns.sleep(1000 * 10);
 
     }
 }
 
 export class Script {
-    private ns: NS;
     private script: string;
     private server: string;
+    private threadRunOptions?: number;
+    private args?: (string | number | boolean)[];
 
-    constructor(ns: NS, script: string, server: string) {
-        this.ns = ns;
+    constructor(script: string, server: string, threadRunOptions?: number, args?: (string | number | boolean)[]) {
         this.script = script;
         this.server = server;
+        this.threadRunOptions = threadRunOptions;
+        this.args = args;
     }
-
 
     /**
      * Executes the script on the server with consistent logging.
      * @returns The process ID of the executed script.
      */
-    public execute(): number {
-        const process = this.ns.exec(this.script, this.server);
+    public execute(ns: NS): number {
+        const process = ns.exec(this.script, this.server, this.threadRunOptions, ...(this.args ?? []));
         if (process == 0) {
-            log.ERROR.print(this.ns, `${this.script} failed to start on ${this.server}.`);
+            log.ERROR.print(ns, `${this.script} failed to start on ${this.server}.`);
         } else {
-            log.INFO.print(this.ns, `${this.script} started on ${this.server} with PID ${process}.`);
+            log.INFO.print(ns, `${this.script} started on ${this.server} with PID ${process}.`);
         }
         return process;
     }
