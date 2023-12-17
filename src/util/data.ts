@@ -12,17 +12,19 @@ type Data = {
     portType: "queue" | "state"
     file: string,
     set: (ns: NS, data: unknown) => void;
-    get: (ns: NS) => JSON;
+    get: (ns: NS) => JSON | undefined;
     peek: (ns: NS) => JSON;
 };
 
 export class DataStore {
     control: Data;
     player: Data;
+    network: Data;
 
     constructor() {
         this.control = this.createDataObject("control", 1, "queue");
         this.player = this.createDataObject("player", 3, "state");
+        this.network = this.createDataObject("network", 4, "state");
     }
 
     private createDataObject(name: string, port: number, portType: "queue" | "state"): Data {
@@ -56,53 +58,55 @@ export class DataStore {
         if (dataObject.portType === "state") {
             ns.clearPort(dataObject.port);
         } 
-        log.TRACE.print(ns, `ns.writePort(${dataObject.port}) write ${dataObject.name} ${dataObject.portType} to port`);
+        log.TRACE.print(ns, `✍ ${dataObject.name} ${dataObject.portType} to port ${dataObject.port}`);
         ns.writePort(dataObject.port, jsonData);
     }
 
     private writeFile(ns: NS, jsonData: string, dataObject: Data): void {
-        log.TRACE.print(ns, `ns.write() ${dataObject.name} ${dataObject.portType} to file ${dataObject.file}`);
+        log.TRACE.print(ns, `✍ ${dataObject.name} ${dataObject.portType} to file ${dataObject.file}`);
         // there is no return value so no error handling without introducing RAM cost
         ns.write(dataObject.file, jsonData, "w");
     }
 
-    private readData(ns: NS, dataObject: Data): JSON {
+    private readData(ns: NS, dataObject: Data): JSON | undefined {
         const stringData = this.readPort(ns, dataObject);
         if (stringData != "NULL PORT DATA") {
             return JSON.parse(stringData);
-        } else {
-            return this.readFile(ns, dataObject);
+        } else { // fallback to read from persistent file
+            const jsonData = this.readFile(ns, dataObject);
+            if (undefined != jsonData) { // write to port cache
+                this.writePort(ns, JSON.stringify(jsonData), dataObject);                
+            }
+            return jsonData;
         }
     }
 
     private readPort(ns: NS, dataObject: Data): string {
-        log.TRACE.print(ns, `ns.readPort(${dataObject.port}) read ${dataObject.name} ${dataObject.portType} from port`);
+        log.TRACE.print(ns, `👓 ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}`);
         const stringData = ns.readPort(dataObject.port) as string;
         if (stringData === "NULL PORT DATA") {
-            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}.`);
-            return "";
-        } else {
-            return stringData;
+            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}`);
         }
+        return stringData;
     }
 
     private peekPort(ns: NS, dataObject: Data): JSON {
-        log.TRACE.print(ns, `ns.peek(${dataObject.port}) peek ${dataObject.name} ${dataObject.portType} from port`);
+        log.TRACE.print(ns, `👀 ${dataObject.name} ${dataObject.portType} from port`);
         const stringData = ns.peek(dataObject.port) as string;
         if (stringData === "NULL PORT DATA") {
-            log.ERROR.print(ns, `Failed to peek ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}.`);
+            log.ERROR.print(ns, `Failed to peek ${dataObject.name} ${dataObject.portType} from port ${dataObject.port}`);
             return JSON;
         } else {
             return JSON.parse(stringData);
         }
     }
 
-    private readFile(ns: NS, dataObject: Data): JSON {
-        log.TRACE.print(ns, `ns.read() ${dataObject.name} ${dataObject.portType} from file ${dataObject.file}`);
+    private readFile(ns: NS, dataObject: Data): JSON | undefined {
+        log.TRACE.print(ns, `👓 ${dataObject.name} ${dataObject.portType} from ${dataObject.file}`);
         const jsonData = ns.read(dataObject.file);
         if (jsonData === "") {
-            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from file ${dataObject.file}.`);
-            return JSON ;
+            log.ERROR.print(ns, `Failed to read ${dataObject.name} ${dataObject.portType} from ${dataObject.file}`);
+            return undefined ;
         } else {
             return JSON.parse(jsonData);
         }

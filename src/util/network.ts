@@ -1,6 +1,6 @@
 import { NS, Server } from "@ns";
 import { log, icon } from "util/log";
-import { readPlayerData, refreshData, readNetworkData } from "util/data";
+import { readPlayerData } from "util/data";
 
 /**
  * Refresh the network server data.
@@ -28,7 +28,7 @@ export interface NetworkServer extends Server {
 
 /**
  * Scans the network to a given depth and prints hostnames similar to the terminal scan-analyze command.
- * DEPRECATED: The scan function is superceeded by the scanAnalyze.ts function
+ * @deprecated The scan function is superceeded by the scanAnalyze.ts function
  * but is retained here in case I want to revisit or maintain for historical reference.
  * @param depth - The depth to which the network should be scanned. Defaults to 1 if not provided or invalid.
  */
@@ -45,7 +45,7 @@ export function scan(ns: NS, depth: number, print = true) {
  * Prints the scanned network node hostnames similar to the terminal scan-analyze command.
  * @param networkNodes - An array of NetworkNode objects.
  */
-function printNetworkNodes(ns: NS, networkNodes: NetworkNode[]) {
+export function printNetworkNodes(ns: NS, networkNodes: NetworkNode[]) {
   log.TRACE.print(ns, "printNetworkNodes()");
   networkNodes.forEach((networkNode) => {
     const prefix: string = networkNode.depth == 0 ? "" : " ┃".repeat(networkNode.depth-1) + " ┣";
@@ -149,18 +149,6 @@ export function scanNetwork(ns: NS, maxDepth = defaultMaxDepth): NetworkNode[] {
   log.TIME.performance(ns, `scanNetwork(maxDepth=${maxDepth})`, startPerformance);
   return networkNodes; 
   
-}
-
-/**
- * Get the latest network node data.
- * @param ns - The netscript interface to bitburner functions.
- * @returns The latest player info.
- * @remarks RAM cost: 0.2 GB
- */
-export function refreshNetworkScan(ns: NS, depth = 50, force = false): NetworkNode[] {
-  const networkNodes = scanNetwork(ns, depth);
-  refreshData(ns, "network", networkNodes, force);
-  return networkNodes;
 }
 
 /**
