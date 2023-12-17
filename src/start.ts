@@ -33,7 +33,7 @@ import { NetworkServer } from "util/network";
  */
 export async function main(ns: NS): Promise<void> {
 
-    const controlServer = "home";
+    //const controlServer = "home";
 
     const dataStore = new DataStore();
 
@@ -104,5 +104,5 @@ function exploitNetwork(ns: NS, dataStore: DataStore) {
     //const vulnerableServers = network.filter(node => node.depth = 1 && node.depth <= 2);
     // If no vulnerable servers, queue crack
     log.TRACE.print(ns, "Vulnerable servers found. Need to queue crack...");
-    const script = new Script("crack.js", "home", 1);
+    //const script = new Script("crack.js", "home", 1);
 }
